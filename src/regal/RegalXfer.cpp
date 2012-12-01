@@ -55,8 +55,41 @@ REGAL_NAMESPACE_BEGIN
 using namespace ::REGAL_NAMESPACE_INTERNAL::Logging;
 using namespace ::REGAL_NAMESPACE_INTERNAL::Token;
 
-// xfer code goes here
+void RegalXfer::PixelStore( RegalContext * ctx, GLenum pname, GLint param )
+{
+
+  switch( pname ) {
+    case GL_UNPACK_ROW_LENGTH: unpackRowLength = param; break;
+    case GL_UNPACK_SKIP_ROWS: unpackSkipRows = param; break;
+    case GL_UNPACK_SKIP_PIXELS: unpackSkipPixels = param; break;
+    default: break;
+  }
+  
+}
+
+void RegalXfer::TexImage2D( RegalContext * ctx, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels )
+{
+  DispatchTable & tbl = ctx->dispatcher.emulation;
+  tbl.glTexImage2D( target, level, internalFormat, width, height, border, format, type, pixels );
+}
+
+void RegalXfer::TexSubImage2D( RegalContext * ctx, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels )
+{
+  DispatchTable & tbl = ctx->dispatcher.emulation;
+  tbl.glTexSubImage2D( target, level , xoffset, yoffset, width, height, format, type, pixels );
+}
+
 
 REGAL_NAMESPACE_END
 
 #endif // REGAL_EMULATION
+
+
+
+
+
+
+
+
+
+

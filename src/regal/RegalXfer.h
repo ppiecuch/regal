@@ -58,20 +58,18 @@ struct RegalXfer : public RegalEmu
     UNUSED_PARAMETER(ctx);
   }
 
-  void TexImage2D( RegalContext * ctx, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels )
-  {
-    DispatchTable & tbl = ctx->dispatcher.emulation;
-    tbl.glTexImage2D( target, level, internalFormat, width, height, border, format, type, pixels );
+  void PixelStore( RegalContext * ctx, GLenum pname, GLint param );
+  void PixelStore( RegalContext * ctx, GLenum pname, GLfloat param ) {
+    PixelStore( ctx, pname, GLint( param ) );
   }
   
-  void TexSubImage2D( RegalContext * ctx, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels )
-  {
-    DispatchTable & tbl = ctx->dispatcher.emulation;
-    tbl.glTexSubImage2D( target, level , xoffset, yoffset, width, height, format, type, pixels );
-  }
+  void TexImage2D( RegalContext * ctx, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
+  void TexSubImage2D( RegalContext * ctx, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels );
   
-  int foo;
-  
+  GLint unpackRowLength;
+  GLint unpackSkipRows;
+  GLint unpackSkipPixels;
+
 };
 
 REGAL_NAMESPACE_END

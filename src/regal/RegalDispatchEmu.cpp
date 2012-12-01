@@ -5260,6 +5260,66 @@ static void REGAL_CALL emu_glOrtho(GLdouble left, GLdouble right, GLdouble botto
 
 }
 
+static void REGAL_CALL emu_glPixelStoref(GLenum pname, GLfloat param)
+{
+  RegalContext *_context = REGAL_GET_CONTEXT();
+  RegalAssert(_context);
+
+  // prefix
+  switch( _context->emuLevel )
+  {
+    case 8 :
+    case 7 :
+    case 6 :
+    case 5 :
+      #if REGAL_EMU_XFER
+      if (_context->xfer)
+      {
+        Push<int> pushLevel(_context->emuLevel);
+        _context->emuLevel = 4;
+        _context->xfer->PixelStore( _context, pname, param );
+      }
+      #endif
+    case 1 :
+    default:
+      break;
+  }
+
+  DispatchTable *_next = _context->dispatcher.emulation._next;
+  RegalAssert(_next);
+  _next->call(& _next->glPixelStoref)(pname, param);
+}
+
+static void REGAL_CALL emu_glPixelStorei(GLenum pname, GLint param)
+{
+  RegalContext *_context = REGAL_GET_CONTEXT();
+  RegalAssert(_context);
+
+  // prefix
+  switch( _context->emuLevel )
+  {
+    case 8 :
+    case 7 :
+    case 6 :
+    case 5 :
+      #if REGAL_EMU_XFER
+      if (_context->xfer)
+      {
+        Push<int> pushLevel(_context->emuLevel);
+        _context->emuLevel = 4;
+        _context->xfer->PixelStore( _context, pname, param );
+      }
+      #endif
+    case 1 :
+    default:
+      break;
+  }
+
+  DispatchTable *_next = _context->dispatcher.emulation._next;
+  RegalAssert(_next);
+  _next->call(& _next->glPixelStorei)(pname, param);
+}
+
 static void REGAL_CALL emu_glPolygonMode(GLenum face, GLenum mode)
 {
   RegalContext *_context = REGAL_GET_CONTEXT();
@@ -36081,6 +36141,8 @@ void InitDispatchTableEmu(DispatchTable &tbl)
    tbl.glNormal3s = emu_glNormal3s;
    tbl.glNormal3sv = emu_glNormal3sv;
    tbl.glOrtho = emu_glOrtho;
+   tbl.glPixelStoref = emu_glPixelStoref;
+   tbl.glPixelStorei = emu_glPixelStorei;
    tbl.glPolygonMode = emu_glPolygonMode;
    tbl.glPopAttrib = emu_glPopAttrib;
    tbl.glPopMatrix = emu_glPopMatrix;
