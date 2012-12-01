@@ -28,57 +28,35 @@
   OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __REGAL_CONFIG_H__
-#define __REGAL_CONFIG_H__
+#include "pch.h" /* For MS precompiled header support */
 
 #include "RegalUtil.h"
 
+#if REGAL_EMULATION
+
 REGAL_GLOBAL_BEGIN
+
+#include <cstring>
+
+#include <string>
+using std::string;
+
+#include <boost/print/string_list.hpp>
+typedef boost::print::string_list<string> string_list;
+
+#include "RegalXfer.h"
+#include "RegalLog.h"
+#include "RegalToken.h"
 
 REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
-namespace Config
-{
-  void Init();
+using namespace ::REGAL_NAMESPACE_INTERNAL::Logging;
+using namespace ::REGAL_NAMESPACE_INTERNAL::Token;
 
-  extern bool forceCoreProfile;
-  extern bool forceES2Profile;
-
-  // Initial dispatch enable/disable state
-
-  extern bool forceEmulation;
-  extern bool enableEmulation;
-  extern bool enableDebug;
-  extern bool enableError;
-  extern bool enableLog;
-  extern bool enableDriver;
-
-  // Initial emulation layer enable/disable
-
-  extern bool enableEmuPpa;
-  extern bool enableEmuObj;
-  extern bool enableEmuBin;
-  extern bool enableEmuXfer;
-  extern bool enableEmuDsa;
-  extern bool enableEmuIff;
-  extern bool enableEmuVao;
-  extern bool enableEmuFilter;
-
-  // Initial context configuration
-
-  extern int  frameLimit;       // Maximum number of frames
-
-  extern bool frameMd5Color;    // Log md5 hash of color buffer
-  extern bool frameMd5Stencil;
-  extern bool frameMd5Depth;
-
-  extern bool frameSaveColor;   // Save color buffer to PNG file
-  extern bool frameSaveStencil;
-  extern bool frameSaveDepth;
-};
+// xfer code goes here
 
 REGAL_NAMESPACE_END
 
-#endif
+#endif // REGAL_EMULATION

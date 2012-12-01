@@ -28,57 +28,49 @@
   OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __REGAL_CONFIG_H__
-#define __REGAL_CONFIG_H__
+/*
+
+ Regal pixel transfer emulation
+ Cass Everitt
+
+ */
+
+#ifndef __REGAL_XFER_H__
+#define __REGAL_XFER_H__
 
 #include "RegalUtil.h"
 
 REGAL_GLOBAL_BEGIN
 
+#include "RegalEmu.h"
+
 REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
-namespace Config
+struct RegalXfer : public RegalEmu
 {
-  void Init();
+  void Init( RegalContext &ctx )
+  {
+    UNUSED_PARAMETER(ctx);
+  }
 
-  extern bool forceCoreProfile;
-  extern bool forceES2Profile;
-
-  // Initial dispatch enable/disable state
-
-  extern bool forceEmulation;
-  extern bool enableEmulation;
-  extern bool enableDebug;
-  extern bool enableError;
-  extern bool enableLog;
-  extern bool enableDriver;
-
-  // Initial emulation layer enable/disable
-
-  extern bool enableEmuPpa;
-  extern bool enableEmuObj;
-  extern bool enableEmuBin;
-  extern bool enableEmuXfer;
-  extern bool enableEmuDsa;
-  extern bool enableEmuIff;
-  extern bool enableEmuVao;
-  extern bool enableEmuFilter;
-
-  // Initial context configuration
-
-  extern int  frameLimit;       // Maximum number of frames
-
-  extern bool frameMd5Color;    // Log md5 hash of color buffer
-  extern bool frameMd5Stencil;
-  extern bool frameMd5Depth;
-
-  extern bool frameSaveColor;   // Save color buffer to PNG file
-  extern bool frameSaveStencil;
-  extern bool frameSaveDepth;
+  void TexImage2D( RegalContext * ctx, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels )
+  {
+    DispatchTable & tbl = ctx->dispatcher.emulation;
+    tbl.glTexImage2D( target, level, internalFormat, width, height, border, format, type, pixels );
+  }
+  
+  void TexSubImage2D( RegalContext * ctx, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels )
+  {
+    DispatchTable & tbl = ctx->dispatcher.emulation;
+    tbl.glTexSubImage2D( target, level , xoffset, yoffset, width, height, format, type, pixels );
+  }
+  
+  int foo;
+  
 };
 
 REGAL_NAMESPACE_END
 
-#endif
+#endif // ! __REGAL_XFER_H__

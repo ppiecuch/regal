@@ -58,6 +58,7 @@ bool enableDriver     = REGAL_DRIVER;
 bool enableEmuPpa     = REGAL_EMU_PPA;
 bool enableEmuObj     = REGAL_EMU_OBJ;
 bool enableEmuBin     = REGAL_EMU_BIN;
+bool enableEmuXfer    = REGAL_EMU_XFER;
 bool enableEmuDsa     = REGAL_EMU_DSA;
 bool enableEmuIff     = REGAL_EMU_IFF;
 bool enableEmuVao     = REGAL_EMU_VAO;

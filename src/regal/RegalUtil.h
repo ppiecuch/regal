@@ -161,6 +161,10 @@
 #define REGAL_EMU_BIN 1
 #endif
 
+#ifndef REGAL_EMU_XFER
+#define REGAL_EMU_XFER 1
+#endif
+
 #ifndef REGAL_EMU_DSA
 #define REGAL_EMU_DSA 1
 #endif

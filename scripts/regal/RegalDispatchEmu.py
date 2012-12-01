@@ -341,6 +341,7 @@ def generateEmuSource(apis, args):
   emuLocalInclude = '''
 
 #include "RegalBin.h"
+#include "RegalXfer.h"
 #include "RegalEmu.h"
 #include "RegalPpa.h"
 #include "RegalIff.h"

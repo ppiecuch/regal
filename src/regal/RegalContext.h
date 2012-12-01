@@ -68,6 +68,7 @@ struct Frame;
 struct RegalObj;
 struct RegalPpa;
 struct RegalBin;
+struct RegalXfer;
 struct RegalDsa;
 struct RegalIff;
 struct RegalVao;
@@ -98,6 +99,7 @@ struct RegalContext
   RegalObj           *obj;
   RegalPpa           *ppa;
   RegalBin           *bin;
+  RegalXfer          *xfer;
   RegalDsa           *dsa;
   RegalIff           *iff;
   RegalVao           *vao;

@@ -29,6 +29,8 @@ from EmuBin    import binFormulae
 from EmuObj    import objFormulae
 from EmuFilter import formulae as filterFormulae
 
+from EmuPixelTransfer import xferFormulae
+
 # Regal.cpp emulation
 
 emuRegal = [
@@ -54,6 +56,7 @@ emu = [
     #{ 'type' : 'RegalPpc',   'member' : 'ppc',    'conditional' : None,                      'ifdef' : '',                 'formulae' : ppcFormulae    },
     { 'type' : 'RegalPpa',    'member' : 'ppa',    'conditional' : 'Config::enableEmuPpa',    'ifdef' : 'REGAL_EMU_PPA',    'formulae' : ppaFormulae    },
     { 'type' : 'RegalBin',    'member' : 'bin',    'conditional' : 'Config::enableEmuBin',    'ifdef' : 'REGAL_EMU_BIN',    'formulae' : binFormulae    },
+    { 'type' : 'RegalXfer',   'member' : 'xfer',   'conditional' : 'Config::enableEmuXfer',   'ifdef' : 'REGAL_EMU_XFER',   'formulae' : xferFormulae   },
     { 'type' : 'RegalDsa',    'member' : 'dsa',    'conditional' : 'Config::enableEmuDsa',    'ifdef' : 'REGAL_EMU_DSA',    'formulae' : dsaFormulae    },
     { 'type' : 'RegalIff',    'member' : 'iff',    'conditional' : 'Config::enableEmuIff',    'ifdef' : 'REGAL_EMU_IFF',    'formulae' : iffFormulae    },
     { 'type' : 'RegalVao',    'member' : 'vao',    'conditional' : 'Config::enableEmuVao',    'ifdef' : 'REGAL_EMU_VAO',    'formulae' : vaoFormulae    },

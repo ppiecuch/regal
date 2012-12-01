@@ -54,6 +54,7 @@ REGAL_GLOBAL_BEGIN
 #include "RegalObj.h"
 #include "RegalPpa.h"
 #include "RegalBin.h"
+#include "RegalXfer.h"
 #include "RegalDsa.h"
 #include "RegalIff.h"
 #include "RegalVao.h"
@@ -77,6 +78,7 @@ RegalContext::RegalContext()
   obj(NULL),
   ppa(NULL),
   bin(NULL),
+  xfer(NULL),
   dsa(NULL),
   iff(NULL),
   vao(NULL),
@@ -135,7 +137,7 @@ RegalContext::Init()
   {
     RegalAssert(info);
     // emu
-    emuLevel = 7;
+    emuLevel = 8;
     #if REGAL_EMU_VAO
     if (Config::enableEmuVao)
     {
@@ -164,11 +166,19 @@ RegalContext::Init()
       dsa->Init(*this);
     }
     #endif /* REGAL_EMU_DSA */
+    #if REGAL_EMU_XFER
+    if (Config::enableEmuXfer)
+    {
+      xfer = new RegalXfer;
+      emuLevel = 4;
+      xfer->Init(*this);
+    }
+    #endif /* REGAL_EMU_XFER */
     #if REGAL_EMU_BIN
     if (Config::enableEmuBin)
     {
       bin = new RegalBin;
-      emuLevel = 4;
+      emuLevel = 5;
       bin->Init(*this);
     }
     #endif /* REGAL_EMU_BIN */
@@ -176,7 +186,7 @@ RegalContext::Init()
     if (Config::enableEmuPpa)
     {
       ppa = new RegalPpa;
-      emuLevel = 5;
+      emuLevel = 6;
       ppa->Init(*this);
     }
     #endif /* REGAL_EMU_PPA */
@@ -184,11 +194,11 @@ RegalContext::Init()
     if (Config::enableEmuObj)
     {
       obj = new RegalObj;
-      emuLevel = 6;
+      emuLevel = 7;
       obj->Init(*this);
     }
     #endif /* REGAL_EMU_OBJ */
-    emuLevel = 7;
+    emuLevel = 8;
 
   }
 #endif
@@ -213,6 +223,7 @@ RegalContext::~RegalContext()
   delete obj;
   delete ppa;
   delete bin;
+  delete xfer;
   delete dsa;
   delete iff;
   delete vao;
