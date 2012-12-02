@@ -41,6 +41,11 @@ REGAL_GLOBAL_BEGIN
 #include <string>
 using std::string;
 
+#include <algorithm>
+
+using std::max;
+using std::min;
+
 #include <boost/print/string_list.hpp>
 typedef boost::print::string_list<string> string_list;
 
@@ -54,6 +59,44 @@ REGAL_NAMESPACE_BEGIN
 
 using namespace ::REGAL_NAMESPACE_INTERNAL::Logging;
 using namespace ::REGAL_NAMESPACE_INTERNAL::Token;
+
+namespace {
+  
+  template <typename T> struct Limits { static const T max = ~0; };
+  template <> struct Limits<GLubyte> { static const GLubyte max = 0xff; };
+  template <> struct Limits<GLushort> { static const GLushort max = 0xffff; };
+  template <> struct Limits<GLuint> { static const GLuint max = 0xffffffff; };
+  template <> struct Limits<GLbyte> { static const GLbyte max = 0x7f; };
+  template <> struct Limits<GLshort> { static const GLshort max = 0x7fff; };
+  template <> struct Limits<GLint> { static const GLint max = 0x7fffffff; };
+  
+  template <typename T> GLfloat ToFloat( T v ) { return max( -1.0f, GLfloat( v ) / GLfloat( Limits<T>::max ) ); }
+  template <typename T> T ToType( GLfloat f ) { return T( max( -1.0f * GLfloat( Limits<T>::max ), min( GLfloat( Limits<T>::max ), f * GLfloat( Limits<T>::max ) ) ) ); }
+  
+  /*
+  GLfloat ToFloat( GLubyte v ) { return GLfloat( v ) / GLfloat( 0xff ); }
+  GLfloat ToFloat( GLushort v ) { return GLfloat( v ) / GLfloat( 0xffff ); }
+  GLfloat ToFloat( GLuint v ) { return GLfloat( v ) / GLfloat( 0xffffffff ); }
+
+  GLfloat ToFloat( GLbyte v ) { return max( -1.0f, GLfloat( v ) / GLfloat( 0x7f ) ); }
+  GLfloat ToFloat( GLshort v ) { return max( -1.0f, GLfloat( v ) / GLfloat( 0x7fff ) ); }
+  GLfloat ToFloat( GLint v ) { return max( -1.0f, GLfloat( v ) / GLfloat( 0x7fffffff ) ); }
+  */
+  
+  GLubyte ToUbyte( GLfloat v ) { return ToType<GLubyte>( v ); }
+  GLushort ToUshort( GLfloat v ) { return ToType<GLushort>( v ); }
+  GLuint ToUint( GLfloat v ) { return ToType<GLuint>( v ); }
+  
+  GLbyte ToByte( GLfloat v ) { return ToType<GLbyte>( v ); }
+  GLshort ToShort( GLfloat v ) { return ToType<GLshort>( v ); }
+  GLint ToInt( GLfloat v ) { return ToType<GLint>( v ); }
+  
+  Float4 ToFloat4( GLenum format, GLenum type, const GLvoid *pixels ) {
+    return Float4();
+  }
+  
+  
+}
 
 void RegalXfer::PixelStore( RegalContext * ctx, GLenum pname, GLint param )
 {
