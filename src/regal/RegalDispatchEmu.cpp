@@ -10707,6 +10707,9 @@ static void REGAL_CALL emu_glActiveTexture(GLenum texture)
     case 7 :
     case 6 :
     case 5 :
+      #if REGAL_EMU_XFER
+      if (_context->xfer) break;
+      #endif
     case 4 :
       #if REGAL_EMU_DSA
       if (_context->dsa) break;
@@ -10727,6 +10730,15 @@ static void REGAL_CALL emu_glActiveTexture(GLenum texture)
     case 7 :
     case 6 :
     case 5 :
+      #if REGAL_EMU_XFER
+      if (_context->xfer)
+      {
+        Push<int> pushLevel(_context->emuLevel);
+        _context->emuLevel = 4;
+        _context->xfer->ShadowActiveTexture( texture );
+        return;
+      }
+      #endif
     case 4 :
       #if REGAL_EMU_DSA
       if (_context->dsa)

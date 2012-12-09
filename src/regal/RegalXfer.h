@@ -47,6 +47,8 @@ REGAL_GLOBAL_BEGIN
 #include "RegalContext.h"
 #include "RegalContextInfo.h"
 
+#include <map>
+
 REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
@@ -56,11 +58,28 @@ struct RegalXfer : public RegalEmu
   void Init( RegalContext &ctx )
   {
     UNUSED_PARAMETER(ctx);
+    activeTextureIndex = 0;
+    for( int i  = 0; i < REGAL_EMU_MAX_TEXTURE_UNITS; i++ ) {
+      textureBinding2D[ i ] = 0;
+    }
   }
 
   void PixelStore( RegalContext * ctx, GLenum pname, GLint param );
   void PixelStore( RegalContext * ctx, GLenum pname, GLfloat param ) {
     PixelStore( ctx, pname, GLint( param ) );
+  }
+  
+  void ShadowActiveTexture( GLenum tex ) {
+    int r = tex - GL_TEXTURE0;
+    if( r < 0 || r > REGAL_EMU_MAX_TEXTURE_UNITS ) {
+      Warning("Regal can't share initialized context groups.");
+      return;
+    }
+    activeTextureIndex = tex - GL_TEXTURE0;
+  }
+  
+  void ShadowBindTexture( GLenum target, GLuint name ) {
+    textureBinding2D[ activeTextureIndex ] = name;
   }
   
   void TexImage2D( RegalContext * ctx, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
@@ -70,6 +89,9 @@ struct RegalXfer : public RegalEmu
   GLint unpackSkipRows;
   GLint unpackSkipPixels;
 
+  int activeTextureIndex;
+  GLuint textureBinding2D[REGAL_EMU_MAX_TEXTURE_UNITS];
+  std::map< GLuint, GLuint > name2ifmt;
 };
 
 REGAL_NAMESPACE_END

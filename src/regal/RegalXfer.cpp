@@ -62,26 +62,21 @@ using namespace ::REGAL_NAMESPACE_INTERNAL::Token;
 
 namespace {
   
-  template <typename T> struct Limits { static const T max = ~0; };
-  template <> struct Limits<GLubyte> { static const GLubyte max = 0xff; };
-  template <> struct Limits<GLushort> { static const GLushort max = 0xffff; };
-  template <> struct Limits<GLuint> { static const GLuint max = 0xffffffff; };
-  template <> struct Limits<GLbyte> { static const GLbyte max = 0x7f; };
-  template <> struct Limits<GLshort> { static const GLshort max = 0x7fff; };
-  template <> struct Limits<GLint> { static const GLint max = 0x7fffffff; };
+  template <typename T> struct Limits { static const T min = 0, max = ~0; };
+  template <> struct Limits<GLubyte>  { static const GLubyte  min = 0,          max = 0xff;       };
+  template <> struct Limits<GLushort> { static const GLushort min = 0,          max = 0xffff;     };
+  template <> struct Limits<GLuint>   { static const GLuint   min = 0,          max = 0xffffffff; };
+  template <> struct Limits<GLbyte>   { static const GLbyte   min = 0x81,       max = 0x7f;       };
+  template <> struct Limits<GLshort>  { static const GLshort  min = 0x8001,     max = 0x7fff;     };
+  template <> struct Limits<GLint>    { static const GLint    min = 0x80000001, max = 0x7fffffff; };
   
-  template <typename T> GLfloat ToFloat( T v ) { return max( -1.0f, GLfloat( v ) / GLfloat( Limits<T>::max ) ); }
-  template <typename T> T ToType( GLfloat f ) { return T( max( -1.0f * GLfloat( Limits<T>::max ), min( GLfloat( Limits<T>::max ), f * GLfloat( Limits<T>::max ) ) ) ); }
+  template <typename T> GLfloat ToFloat( T v ) {
+    return  min( Limits<T>::max, max( Limits<T>::min, v ) ) / GLfloat( Limits<T>::max );
+  }
   
-  /*
-  GLfloat ToFloat( GLubyte v ) { return GLfloat( v ) / GLfloat( 0xff ); }
-  GLfloat ToFloat( GLushort v ) { return GLfloat( v ) / GLfloat( 0xffff ); }
-  GLfloat ToFloat( GLuint v ) { return GLfloat( v ) / GLfloat( 0xffffffff ); }
-
-  GLfloat ToFloat( GLbyte v ) { return max( -1.0f, GLfloat( v ) / GLfloat( 0x7f ) ); }
-  GLfloat ToFloat( GLshort v ) { return max( -1.0f, GLfloat( v ) / GLfloat( 0x7fff ) ); }
-  GLfloat ToFloat( GLint v ) { return max( -1.0f, GLfloat( v ) / GLfloat( 0x7fffffff ) ); }
-  */
+  template <typename T> T ToType( GLfloat f ) {
+    return T( 0.5f + Limits<T>::max * max( -1.0f , min( 1.0f, f ) ) );
+  }
   
   GLubyte ToUbyte( GLfloat v ) { return ToType<GLubyte>( v ); }
   GLushort ToUshort( GLfloat v ) { return ToType<GLushort>( v ); }
@@ -91,11 +86,78 @@ namespace {
   GLshort ToShort( GLfloat v ) { return ToType<GLshort>( v ); }
   GLint ToInt( GLfloat v ) { return ToType<GLint>( v ); }
   
-  Float4 ToFloat4( GLenum format, GLenum type, const GLvoid *pixels ) {
-    return Float4();
+  int PixelSize( GLenum format, GLenum type ) {
+    int cmpsz = 0;
+    switch( type ) {
+      case GL_UNSIGNED_SHORT_5_5_5_1:
+      case GL_UNSIGNED_SHORT_1_5_5_5_REV:
+      case GL_UNSIGNED_SHORT_5_6_5:
+      case GL_UNSIGNED_SHORT_5_6_5_REV:
+      case GL_UNSIGNED_SHORT_4_4_4_4:
+      case GL_UNSIGNED_SHORT_4_4_4_4_REV:
+        return 2;
+      case GL_UNSIGNED_INT_10_10_10_2:
+      case GL_UNSIGNED_INT_2_10_10_10_REV:
+      case GL_UNSIGNED_INT_8_8_8_8:
+      case GL_UNSIGNED_INT_8_8_8_8_REV:
+        return 4;
+      case GL_UNSIGNED_INT:
+      case GL_INT:
+      case GL_FLOAT:
+        cmpsz = 4;
+        break;
+      case GL_UNSIGNED_SHORT:
+      case GL_SHORT:
+      case GL_HALF_FLOAT:
+        cmpsz = 2;
+        break;
+      case GL_UNSIGNED_BYTE:
+      case GL_BYTE:
+        cmpsz = 1;
+        break;
+      default:
+        Warning( "Unsupported Type for pixel transfer" );
+        return 0;
+    }
+    int numcmp = 0;
+    switch ( format ) {
+      case GL_RGBA:
+      case GL_BGRA:
+        numcmp = 4;
+        break;
+      case GL_RGB:
+      case GL_BGR:
+        numcmp = 3;
+        break;
+      case GL_LUMINANCE_ALPHA:
+      case GL_RG:
+      case GL_DEPTH_STENCIL:
+        numcmp = 2;
+        break;
+      case GL_INTENSITY:
+      case GL_LUMINANCE:
+      case GL_ALPHA:
+      case GL_R:
+      case GL_DEPTH_COMPONENT:
+      case GL_STENCIL_INDEX:
+        numcmp = 1;
+      default:
+        Warning( "Unsupported Pixel Transfer format." )
+        return 0;
+    }
+    return cmpsz * numcmp;
   }
   
-  
+  void SubImage2D( RegalContext * ctx, GLint ifmt, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels ) {
+    DispatchTable & tbl = ctx->dispatcher.emulation;
+    void * vline = alloca( width * 4 * sizeof( GLint ) );
+    int rowLength = ctx->xfer->unpackRowLength;
+    if( rowLength == 0 ) {
+      rowLength = PixelSize( format, type ) *  width;
+      RegalAssert( rowLength != 0 );
+    }
+    // now unpack the packed formats into their canonical formats
+  }
 }
 
 void RegalXfer::PixelStore( RegalContext * ctx, GLenum pname, GLint param )
@@ -113,13 +175,16 @@ void RegalXfer::PixelStore( RegalContext * ctx, GLenum pname, GLint param )
 void RegalXfer::TexImage2D( RegalContext * ctx, GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels )
 {
   DispatchTable & tbl = ctx->dispatcher.emulation;
-  tbl.glTexImage2D( target, level, internalFormat, width, height, border, format, type, pixels );
+  tbl.glTexImage2D( target, level, internalFormat, width, height, border, format, type, NULL );
+  name2ifmt[ textureBinding2D[ activeTextureIndex ] ] = internalFormat;
+  SubImage2D( ctx, internalFormat, level, 0, 0, width, height, format, type, pixels );
 }
 
 void RegalXfer::TexSubImage2D( RegalContext * ctx, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels )
 {
-  DispatchTable & tbl = ctx->dispatcher.emulation;
-  tbl.glTexSubImage2D( target, level , xoffset, yoffset, width, height, format, type, pixels );
+  GLint ifmt = name2ifmt[ textureBinding2D[ activeTextureIndex ] ];
+  SubImage2D( ctx, ifmt, level , xoffset, yoffset, width, height, format, type, pixels );
+  
 }
 
 
