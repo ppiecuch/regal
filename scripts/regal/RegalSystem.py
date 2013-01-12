@@ -5,8 +5,14 @@ from string import Template, upper, replace
 from ApiUtil import outputCode
 
 regalSys = '''#if _WIN32
-# ifndef REGAL_SYS_WGL
-#  define REGAL_SYS_WGL 1
+# if defined(PPAPI)
+#  ifndef REGAL_SYS_PPAPI
+#   define REGAL_SYS_PPAPI 1
+#  endif
+# else
+#  ifndef REGAL_SYS_WGL
+#   define REGAL_SYS_WGL 1
+#  endif
 # endif
 #elif __APPLE__
 # include <TargetConditionals.h>
@@ -20,8 +26,8 @@ regalSys = '''#if _WIN32
 #  endif
 # endif
 #elif defined(__native_client__)
-# ifndef REGAL_SYS_NACL
-#  define REGAL_SYS_NACL 1
+# ifndef REGAL_SYS_PPAPI
+#  define REGAL_SYS_PPAPI 1
 # endif
 #elif defined(__ANDROID__)
 # ifndef REGAL_SYS_ANDROID
@@ -30,10 +36,38 @@ regalSys = '''#if _WIN32
 # ifndef REGAL_SYS_EGL
 #  define REGAL_SYS_EGL 1
 # endif
-#elif !defined(_WIN32) && !defined(__APPLE__) && !defined(__native_client__)
+#elif !defined(_WIN32) && !defined(__APPLE__) && !REGAL_SYS_PPAPI
 # ifndef REGAL_SYS_GLX
 #  define REGAL_SYS_GLX 1
 # endif
+#endif
+
+#ifndef REGAL_SYS_WGL
+# define REGAL_SYS_WGL 0
+#endif
+
+#ifndef REGAL_SYS_IOS
+# define REGAL_SYS_IOS 0
+#endif
+
+#ifndef REGAL_SYS_OSX
+# define REGAL_SYS_OSX 0
+#endif
+
+#ifndef REGAL_SYS_PPAPI
+# define REGAL_SYS_PPAPI 0
+#endif
+
+#ifndef REGAL_SYS_ANDROID
+# define REGAL_SYS_ANDROID 0
+#endif
+
+#ifndef REGAL_SYS_EGL
+# define REGAL_SYS_EGL 0
+#endif
+
+#ifndef REGAL_SYS_GLX
+# define REGAL_SYS_GLX 0
 #endif
 '''
 
@@ -57,4 +91,4 @@ def generateSystemHeader(apis, args):
   substitute['REGAL_SYS']     = regalSys
   substitute['HEADER_NAME']   = "REGAL_SYSTEM"
 
-  outputCode( '%s/RegalSystem.h' % args.outdir, systemTemplate.substitute(substitute))
+  outputCode( '%s/RegalSystem.h' % args.srcdir, systemTemplate.substitute(substitute))

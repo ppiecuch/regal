@@ -41,14 +41,16 @@ REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
+void InitDispatchTableCode     (DispatchTable &tbl);
 void InitDispatchTableDebug    (DispatchTable &tbl);
 void InitDispatchTableError    (DispatchTable &tbl);
 void InitDispatchTableEmu      (DispatchTable &tbl);
 void InitDispatchTableLog      (DispatchTable &tbl);
 void InitDispatchTableLoader   (DispatchTable &tbl);
-void InitDispatchTableNacl     (DispatchTable &tbl);
+void InitDispatchTablePpapi    (DispatchTable &tbl);
 void InitDispatchTableStaticES2(DispatchTable &tbl);
 void InitDispatchTableMissing  (DispatchTable &tbl);
+void InitDispatchTableCache    (DispatchTable &tbl);
 
 Dispatcher::Dispatcher()
 : _front(NULL),
@@ -70,6 +72,18 @@ Dispatcher::Dispatcher()
   push_back(emulation,Config::enableEmulation || Config::forceEmulation);
   #endif
 
+  #if REGAL_CACHE
+  ::memset(&cache,0,sizeof(DispatchTable));
+  InitDispatchTableCache(cache);
+  push_back(cache,true);
+  #endif
+
+  #if REGAL_CODE
+  ::memset(&code,0,sizeof(DispatchTable));
+  InitDispatchTableCode(code);
+  push_back(code,Config::enableCode);
+  #endif
+
   #if REGAL_LOG
   InitDispatchTableLog(logging);
   push_back(logging,Config::enableLog);
@@ -79,9 +93,9 @@ Dispatcher::Dispatcher()
   #if REGAL_STATIC_ES2
   ::memset(&driver,0,sizeof(DispatchTable));
   InitDispatchTableStaticES2(driver);           // ES 2.0 functions only
-  #elif defined(__native_client__)
+  #elif REGAL_SYS_PPAPI
   ::memset(&driver,0,sizeof(DispatchTable));
-  InitDispatchTableNacl(driver);                // ES 2.0 functions only
+  InitDispatchTablePpapi(driver);               // ES 2.0 functions only
   #else
   InitDispatchTableLoader(driver);              // Desktop/ES2.0 lazy loader
   #endif
@@ -113,9 +127,9 @@ Dispatcher::push_back(DispatchTable &table, bool enabled)
   }
 
    _table.push_back(&table);
-   
+
    // Cached front() and size()
-   
+
    if (!_size++)
     _front = &table;
 }

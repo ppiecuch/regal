@@ -40,7 +40,6 @@
 
 #include "RegalUtil.h"
 
-#define REGAL_MAX_VERTEX_ATTRIBS 16
 #define REGAL_IMMEDIATE_BUFFER_SIZE 8192
 
 // Configurable
@@ -50,6 +49,21 @@
 // Derived
 
 #define REGAL_FIXED_FUNCTION_PROGRAM_CACHE_SIZE      (1<<REGAL_FIXED_FUNCTION_PROGRAM_CACHE_SIZE_BITS)
+
+// OpenGL spec is four fixed-function texture units.
+// Regal can emulate eight, default is four
+
+#ifndef REGAL_EMU_IFF_TEXTURE_UNITS
+#define REGAL_EMU_IFF_TEXTURE_UNITS 4
+#endif
+
+#ifndef REGAL_EMU_IFF_VERTEX_ATTRIBS
+#define REGAL_EMU_IFF_VERTEX_ATTRIBS 16
+#endif
+
+#define REGAL_FIXED_FUNCTION_MATRIX_STACK_DEPTH 128
+#define REGAL_FIXED_FUNCTION_MAX_LIGHTS           8
+#define REGAL_FIXED_FUNCTION_MAX_CLIP_PLANES      8
 
 #if REGAL_EMULATION
 
@@ -74,6 +88,8 @@ REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
+namespace Emu {
+
 const GLenum texenvModeGL[] = {
   GL_FALSE,
   GL_REPLACE,
@@ -83,12 +99,6 @@ const GLenum texenvModeGL[] = {
   GL_BLEND,
   GL_COMBINE
 };
-
-#define REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS 4
-#define REGAL_FIXED_FUNCTION_NUM_TEXTURE_TARGETS 5
-#define REGAL_FIXED_FUNCTION_MATRIX_STACK_DEPTH 128
-#define REGAL_FIXED_FUNCTION_MAX_LIGHTS 8
-#define REGAL_FIXED_FUNCTION_MAX_CLIP_PLANES 8
 
 enum RegalFFUniformEnum {
   FFU_foo = 0,
@@ -303,18 +313,18 @@ template <> inline GLfloat RFFToFloatN( int i, const int * p ) { return GLfloat(
 
 
 
-struct RegalIff : public RegalEmu
+struct Iff
 {
-  RegalIff()
+  Iff()
   {
   }
 
-  RegalIff(const RegalIff &other)
+  Iff(const Iff &other)
   {
     UNUSED_PARAMETER(other);
   }
 
-  RegalIff &operator=(const RegalIff &other)
+  Iff &operator=(const Iff &other)
   {
     UNUSED_PARAMETER(other);
     if (&other!=this)
@@ -323,24 +333,25 @@ struct RegalIff : public RegalEmu
     return *this;
   }
 
-  ~RegalIff()
+  ~Iff()
   {
   }
 
   // Vertex arrays
   GLuint catIndex;
-  GLuint ffAttrMap[ REGAL_MAX_VERTEX_ATTRIBS ];
-  GLuint ffAttrInvMap[ REGAL_MAX_VERTEX_ATTRIBS ];
+  GLuint ffAttrMap[ REGAL_EMU_IFF_VERTEX_ATTRIBS ];
+  GLuint ffAttrInvMap[ REGAL_EMU_IFF_VERTEX_ATTRIBS ];
   GLuint ffAttrTexBegin;
   GLuint ffAttrTexEnd;
   GLuint ffAttrNumTex;
   GLuint maxVertexAttribs;
 
-  void InitVertexArray( RegalContext * ctx ) {
+  void InitVertexArray( RegalContext * ctx )
+  {
     maxVertexAttribs = ctx->info->maxVertexAttribs;
 
     if( maxVertexAttribs >= 16 ) {
-      RegalAssert( REGAL_MAX_VERTEX_ATTRIBS == 16);
+      RegalAssert( REGAL_EMU_IFF_VERTEX_ATTRIBS == 16);
       //RegalOutput( "Setting up for %d Vertex Attribs\n", maxVertexAttribs );
       for( int i = 0; i < 16; i++ ) {
         ffAttrMap[i] = RFF2AMap16[i];
@@ -355,7 +366,7 @@ struct RegalIff : public RegalEmu
         ffAttrMap[i] = RFF2AMap8[i];
         ffAttrInvMap[i] = RFF2AInvMap8[i];
       }
-      for( int i = 8; i < REGAL_MAX_VERTEX_ATTRIBS; i++ ) {
+      for( int i = 8; i < REGAL_EMU_IFF_VERTEX_ATTRIBS; i++ ) {
         ffAttrMap[i] = GLuint(-1);
         ffAttrInvMap[i] = GLuint(-1);
       }
@@ -636,7 +647,7 @@ struct RegalIff : public RegalEmu
       case GL_TEXTURE_GEN_R:
       case GL_TEXTURE_GEN_Q:
         idx = pname - GL_TEXTURE_GEN_S;
-        if( activeTextureIndex >= REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ) {
+        if( activeTextureIndex >= REGAL_EMU_IFF_TEXTURE_UNITS ) {
           return false;
         }
         enabled = st.tex[ activeTextureIndex ].texgen[ idx ].enable;
@@ -658,14 +669,14 @@ struct RegalIff : public RegalEmu
 
   // immediate mode
 
-  struct Attributes { Float4 attr[ REGAL_MAX_VERTEX_ATTRIBS ]; };
+  struct Attributes { Float4 attr[ REGAL_EMU_IFF_VERTEX_ATTRIBS ]; };
 
   bool immActive;
   GLuint immProvoking;
   int immCurrent;
   GLenum immPrim;
   Attributes immVab;
-  GLubyte immArray[ REGAL_IMMEDIATE_BUFFER_SIZE * REGAL_MAX_VERTEX_ATTRIBS * 16 ];
+  GLubyte immArray[ REGAL_IMMEDIATE_BUFFER_SIZE * REGAL_EMU_IFF_VERTEX_ATTRIBS * 16 ];
 
   GLuint immVbo;
   GLuint immVao;
@@ -794,7 +805,8 @@ struct RegalIff : public RegalEmu
     }
   }
 
-  void Flush( RegalContext * ctx ) {
+  void Flush( RegalContext * ctx )
+  {
     if (immCurrent>0) {  // Do nothing for empty buffer
       DispatchTable &tbl = ctx->dispatcher.emulation;
       tbl.glBufferData( GL_ARRAY_BUFFER, immCurrent * sizeof( Attributes ), immArray, GL_DYNAMIC_DRAW );
@@ -1296,7 +1308,7 @@ struct RegalIff : public RegalEmu
         for (int ii=0; ii<REGAL_FIXED_FUNCTION_MAX_LIGHTS; ii++) {
           light[ii] = Light();
         }
-        for (int ii=0; ii<REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS; ii++) {
+        for (int ii=0; ii<REGAL_EMU_IFF_TEXTURE_UNITS; ii++) {
           tex[ii] = Texture();
           for (int jj=0; jj<4; jj++) {
             tex[ii].texgen[jj].enable = false;
@@ -1336,7 +1348,7 @@ struct RegalIff : public RegalEmu
       AlphaTest alphaTest;
       Fog fog;
       Light light[ REGAL_FIXED_FUNCTION_MAX_LIGHTS ];
-      Texture tex[ REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ];
+      Texture tex[ REGAL_EMU_IFF_TEXTURE_UNITS ];
       Clip clip[ REGAL_FIXED_FUNCTION_MAX_CLIP_PLANES ];
       GLuint64 ver;
     };
@@ -1345,7 +1357,7 @@ struct RegalIff : public RegalEmu
       StoreUniform()
       : ver( 0 )
       {
-        for (int ii=0; ii<REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS; ii++) {
+        for (int ii=0; ii<REGAL_EMU_IFF_TEXTURE_UNITS; ii++) {
           tex[ii].texgen[0].obj = tex[ii].texgen[0].eye = Float4( 1, 0, 0, 0 );
           tex[ii].texgen[1].obj = tex[ii].texgen[1].eye = Float4( 0, 1, 0, 0 );
         }
@@ -1358,7 +1370,7 @@ struct RegalIff : public RegalEmu
         mat[0].diffuse = mat[1].diffuse = Float4( 0.8f, 0.8f, 0.8f, 1.0f );
       }
 
-      TextureUniform tex[ REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ];
+      TextureUniform tex[ REGAL_EMU_IFF_TEXTURE_UNITS ];
       AlphaTestUniform alphaTest;
       ClipUniform clip[ REGAL_FIXED_FUNCTION_MAX_CLIP_PLANES ];
       LightUniform light[ REGAL_FIXED_FUNCTION_MAX_LIGHTS ];
@@ -1377,23 +1389,23 @@ struct RegalIff : public RegalEmu
     Store processed;
     StoreUniform uniform;
 
-    bool SetEnable( RegalIff * ffn, bool enable, GLenum cap );
+    bool SetEnable( Iff * ffn, bool enable, GLenum cap );
 
     void SetTexInfo( Version & ver, GLuint activeTex, TextureUnit & unit ) {
-      if( activeTex >= REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ) {
+      if( activeTex >= REGAL_EMU_IFF_TEXTURE_UNITS ) {
         return;
       }
       raw.tex[ activeTex ].unit = unit;
       raw.ver = ver.Update();
     }
 
-    void SetLight( RegalIff * ffn, GLenum light, GLenum pname, const GLfloat * params );
-    void SetMaterial( RegalIff * ffn, GLenum face, GLenum pname, const GLfloat * params );
-    void GetMaterial( RegalIff * ffn, GLenum face, GLenum pname, GLfloat * params );
-    void SetTexgen( RegalIff * ffn, int coord, GLenum space, const GLfloat * params );
-    void GetTexgen( RegalIff * ffn, int coord, GLenum space, GLfloat * params );
-    void SetAlphaFunc( RegalIff * ffn, CompareFunc comp, GLfloat ref );
-    void SetClip( RegalIff * ffn, GLenum plane, const GLfloat * equation );
+    void SetLight( Iff * ffn, GLenum light, GLenum pname, const GLfloat * params );
+    void SetMaterial( Iff * ffn, GLenum face, GLenum pname, const GLfloat * params );
+    void GetMaterial( Iff * ffn, GLenum face, GLenum pname, GLfloat * params );
+    void SetTexgen( Iff * ffn, int coord, GLenum space, const GLfloat * params );
+    void GetTexgen( Iff * ffn, int coord, GLenum space, GLfloat * params );
+    void SetAlphaFunc( Iff * ffn, CompareFunc comp, GLfloat ref );
+    void SetClip( Iff * ffn, GLenum plane, const GLfloat * equation );
 
     TextureTargetBitfield GetTextureEnable( int unit ) const {
       return TextureTargetBitfield( ( processed.tex[unit].enables ) );
@@ -1411,7 +1423,7 @@ struct RegalIff : public RegalEmu
       }
       return 0;
     }
-    void Process( RegalIff * ffn );
+    void Process( Iff * ffn );
   };
 
   struct MatrixStack {
@@ -1541,12 +1553,12 @@ struct RegalIff : public RegalEmu
 
   MatrixStack modelview;
   MatrixStack projection;
-  MatrixStack texture[ REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ];
+  MatrixStack texture[ REGAL_EMU_IFF_TEXTURE_UNITS ];
 
   GLenum shadowMatrixMode;
-  TextureUnit textureUnit[ REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ];
-  Float4 textureEnvColor[ REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ];
-  GLuint64 textureEnvColorVer[ REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ];
+  TextureUnit textureUnit[ REGAL_EMU_IFF_TEXTURE_UNITS ];
+  Float4 textureEnvColor[ REGAL_EMU_IFF_TEXTURE_UNITS ];
+  GLuint64 textureEnvColorVer[ REGAL_EMU_IFF_TEXTURE_UNITS ];
   GLuint textureBinding[ REGAL_EMU_MAX_TEXTURE_UNITS];
   GLuint shadowActiveTextureIndex;
   GLuint activeTextureIndex;
@@ -1590,7 +1602,7 @@ struct RegalIff : public RegalEmu
       case GL_MODELVIEW: currMatrixStack = &modelview; break;
       case GL_PROJECTION: currMatrixStack = &projection; break;
       case GL_TEXTURE:
-        if( activeTextureIndex > GLuint( REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS - 1 ) ) {
+        if( activeTextureIndex > GLuint( REGAL_EMU_IFF_TEXTURE_UNITS - 1 ) ) {
           break;
         }
         currMatrixStack = &texture[ activeTextureIndex ];
@@ -1600,7 +1612,7 @@ struct RegalIff : public RegalEmu
       case GL_TEXTURE2:
       case GL_TEXTURE3: {
         GLuint idx = mode - GL_TEXTURE0;
-        if( idx > GLuint( REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS - 1 ) ) {
+        if( idx > GLuint( REGAL_EMU_IFF_TEXTURE_UNITS - 1 ) ) {
           break;
         }
         currMatrixStack = &texture[ idx ];
@@ -1671,12 +1683,12 @@ struct RegalIff : public RegalEmu
     }
     switch( pname ) {
       case GL_TEXTURE_ENV_MODE: {
-        RegalAssert(activeTextureIndex<REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS);
+        RegalAssert(activeTextureIndex<REGAL_EMU_IFF_TEXTURE_UNITS);
         *params =  static_cast<T>(texenvModeGL[ textureUnit[ activeTextureIndex ].env.mode ]);
         break;
       }
       case GL_TEXTURE_ENV_COLOR: {
-        RegalAssert(activeTextureIndex<REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS);
+        RegalAssert(activeTextureIndex<REGAL_EMU_IFF_TEXTURE_UNITS);
         Float4 & c = textureEnvColor[ activeTextureIndex ];
         params[0] = T( c.x );
         params[1] = T( c.y );
@@ -1796,8 +1808,8 @@ struct RegalIff : public RegalEmu
   }
 
   template <typename T> void TexGen( GLenum coord, GLenum pname, const T param ) {
-    RegalAssert(activeTextureIndex < REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS);
-    if( activeTextureIndex >= REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ) {
+    RegalAssert(activeTextureIndex < REGAL_EMU_IFF_TEXTURE_UNITS);
+    if( activeTextureIndex >= REGAL_EMU_IFF_TEXTURE_UNITS ) {
       return;
     }
     State::Store & st = ffstate.raw;
@@ -1925,7 +1937,7 @@ struct RegalIff : public RegalEmu
   {
     UNUSED_PARAMETER(ctx);
 
-    if( textureIndex >= REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS ) {
+    if( textureIndex >= REGAL_EMU_IFF_TEXTURE_UNITS ) {
       return false;
     }
     int idx = 0;
@@ -2024,7 +2036,7 @@ struct RegalIff : public RegalEmu
         *params = static_cast<T>(projection.size());
         break;
       case GL_TEXTURE_STACK_DEPTH:
-        RegalAssert(activeTextureIndex<REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS);
+        RegalAssert(activeTextureIndex<REGAL_EMU_IFF_TEXTURE_UNITS);
         *params = static_cast<T>(texture[activeTextureIndex].size());
         break;
       case GL_MODELVIEW_MATRIX: {
@@ -2038,7 +2050,7 @@ struct RegalIff : public RegalEmu
         break;
       }
       case GL_TEXTURE_MATRIX: {
-        RegalAssert(activeTextureIndex<REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS);
+        RegalAssert(activeTextureIndex<REGAL_EMU_IFF_TEXTURE_UNITS);
         const GLfloat * p = texture[ activeTextureIndex ].Top().Ptr();
         for( int i = 0; i < 16; i++ ) params[i] = static_cast<T>(p[i]);
         break;
@@ -2052,7 +2064,7 @@ struct RegalIff : public RegalEmu
         break;
       }
       case GL_MAX_TEXTURE_UNITS: {
-        *params = static_cast<T>(REGAL_FIXED_FUNCTION_MAX_TEXTURE_UNITS);
+        *params = static_cast<T>(REGAL_EMU_IFF_TEXTURE_UNITS);
         break;
       }
       case GL_MAX_CLIP_PLANES: {
@@ -2210,6 +2222,8 @@ struct RegalIff : public RegalEmu
     InitImmediate( &ctx );
   }
 };
+
+}; // namespace Emu
 
 REGAL_NAMESPACE_END
 

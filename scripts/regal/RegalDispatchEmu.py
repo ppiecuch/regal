@@ -7,7 +7,6 @@ from ApiUtil import typeIsVoid
 
 from ApiCodeGen import *
 
-from Regal            import debugPrintFunction
 from RegalContext     import emu
 from RegalContextInfo import cond
 
@@ -251,7 +250,7 @@ def apiEmuFuncDefineCode(apis, args):
                 code += '       #if !REGAL_FORCE_ES2_PROFILE\n'
                 code += '       if (_context->info->gles)\n'
                 code += '       #endif\n'
-                code += '         switch (format)\n'
+                code += '         switch (target)\n'
                 code += '         {\n'
                 for i in api.enums:
                   if i.name=='defines':
@@ -316,7 +315,7 @@ def apiEmuFuncDefineCode(apis, args):
                 code += '    }\n'
                 code += '    if (format!=GLenum(internalformat))\n'
                 code += '    {\n'
-                code += '        Warning("%s does not support mismatching format and internalformat ",GLenumToString(format),"!=",GLenumToString(internalformat)," for ES 2.0.");\n'%(name)              
+                code += '        Warning("%s does not support mismatching format and internalformat ",GLenumToString(format),"!=",GLenumToString(internalformat)," for ES 2.0.");\n'%(name)
                 code += '        return;\n'
                 code += '    }\n'
                 code += '  }\n'
@@ -431,6 +430,8 @@ def generateEmuSource(apis, args):
 #include "RegalMarker.h"
 #include "RegalObj.h"
 #include "RegalDsa.h"
+#include "RegalSo.h"
+#include "RegalTexC.h"
 #include "RegalVao.h"'''
 
   # Output
@@ -447,4 +448,4 @@ def generateEmuSource(apis, args):
   substitute['IFDEF'] = '#if REGAL_EMULATION\n\n'
   substitute['ENDIF'] = '#endif\n'
 
-  outputCode( '%s/RegalDispatchEmu.cpp' % args.outdir, dispatchSourceTemplate.substitute(substitute))
+  outputCode( '%s/RegalDispatchEmu.cpp' % args.srcdir, dispatchSourceTemplate.substitute(substitute))

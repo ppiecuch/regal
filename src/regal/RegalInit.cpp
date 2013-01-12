@@ -129,13 +129,12 @@ Init::getContext(RegalSystemContext sysCtx)
   SC2RC::iterator i = sc2rc.find(sysCtx);
   if (i!=sc2rc.end())
   {
-    Internal("Init::context lookup for ",sysCtx);
+    Internal("Init::context", "lookup for sysCtx=",sysCtx);
     return i->second;
   }
   else
   {
-    Internal("Init::context factory for ",sysCtx);
-
+    Internal("Init::context", "factory for sysCtx=",sysCtx);
     RegalContext *context = new RegalContext();
     RegalAssert(context);
     sc2rc[sysCtx] = context;
@@ -149,43 +148,44 @@ Init::setContext(RegalContext *context)
 {
   Thread::Thread thread = Thread::Self();
 
-  Internal("Init::setContext ",thread," to ",context," ",context ? context->info->version : "");
+  Internal("Init::setContext","thread=",::boost::print::hex(Thread::threadId())," context=",context," ",context ? context->info->version : "");
 
-  // First do the lookup
+  // std::map lookup
 
   TH2RC::iterator i = th2rc.find(thread);
+  
+  // Associate this thread with the Regal context  
+
   if (i!=th2rc.end())
   {
-    // Early out if this context and thread are
-    // already associated.
-
-    if (i->second==context)
-    {
-      RegalAssert(!context || context->thread==thread);
-      return;
-    }
-
     // If some other context is associated
     // with this thread, disassociate it.
 
-    if (i->second)      
+    if (i->second!=context)
     {
-      RegalAssert(i->second->thread==thread);
-      i->second->thread = 0;
+      if (i->second)      
+      {
+        RegalAssert(i->second->thread==thread);
+        i->second->thread = 0;
+      }
+      
+      i->second = context;
     }
-    
-    i->second = context;
-    if (context)
-      context->thread = thread;
   }
   else
-  {
-    // Associate this thread with the Regal context  
     th2rc[thread] = context;
-  }
 
   if (context)
+  {
+    // If some other thread is associated
+    // with this context, disassociate it.
+
+    th2rc.erase(context->thread);  
+
+    // Associate the context with this thread.
+
     context->thread = thread;
+  }
 
   setContextTLS(context);
 }
@@ -244,7 +244,7 @@ TlsInit tlsInit;
 void 
 Init::setContextTLS(RegalContext *context)
 {
-  Internal("Init::setContextTLS ",context);
+  Internal("Init::setContextTLS","thread=",::boost::print::hex(Thread::threadId())," context=",context);
 
   // Without thread local storage, simply set the
   // current Regal context
@@ -334,13 +334,15 @@ Init::shareContext(RegalSystemContext a, RegalSystemContext b)
 }
 
 void
-#if REGAL_SYS_NACL
+#if REGAL_SYS_PPAPI
 Init::makeCurrent(RegalSystemContext sysCtx, PPB_OpenGLES2 *interface)
 #else
 Init::makeCurrent(RegalSystemContext sysCtx)
 #endif
 {
   init();
+
+  Internal("Init::makeCurrent","thread=",::boost::print::hex(Thread::threadId())," sysCtx=",sysCtx);
 
   if (sysCtx)
   {
@@ -356,9 +358,9 @@ Init::makeCurrent(RegalSystemContext sysCtx)
 
       setContextTLS(context);
 
-#if REGAL_SYS_NACL
-      context->naclResource = sysCtx;
-      context->naclES2      = interface;
+#if REGAL_SYS_PPAPI
+      context->ppapiResource = sysCtx;
+      context->ppapiES2      = interface;
 #endif
 
       // RegalContextInfo init makes GL calls, need an
@@ -370,8 +372,6 @@ Init::makeCurrent(RegalSystemContext sysCtx)
     }
 
     setContext(context);
-
-    Internal("Init::makeCurrent ",context," ",context->info->version);
     
     return;
   }
@@ -429,13 +429,13 @@ REGAL_DECL void RegalShareContext(RegalSystemContext a, RegalSystemContext b)
   ::REGAL_NAMESPACE_INTERNAL::Init::shareContext(a,b);
 }
 
-#if REGAL_SYS_NACL
+#if REGAL_SYS_PPAPI
 REGAL_DECL void RegalMakeCurrent(RegalSystemContext sysCtx, PPB_OpenGLES2 *interface)
 #else
 REGAL_DECL void RegalMakeCurrent(RegalSystemContext sysCtx)
 #endif
 {
-#if REGAL_SYS_NACL
+#if REGAL_SYS_PPAPI
   ::REGAL_NAMESPACE_INTERNAL::Init::makeCurrent(sysCtx,interface);
 #else
   ::REGAL_NAMESPACE_INTERNAL::Init::makeCurrent(sysCtx);

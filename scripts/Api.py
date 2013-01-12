@@ -71,7 +71,7 @@ class Typedef:
 
 class Return:
 
-  def __init__(self, type = '', default = '', cast = None, binary = False, size = None, maxSize = None, intercept = None, trace = True, play = True, filter = None):
+  def __init__(self, type = '', default = '', cast = None, binary = False, size = None, maxSize = None, intercept = None, trace = True, play = True, filter = None, regalLog = None):
 
     self.type      = type           # Type string, e.g. int
     self.default   = default        # Default value, e.g. 0
@@ -83,6 +83,7 @@ class Return:
     self.trace     = trace          # Include in text trace
     self.play      = play           # Include in playback
     self.filter    = filter         # Filtering function
+    self.regalLog  = None           # Function for Regal logging purposes
 
 class Parameter:
 

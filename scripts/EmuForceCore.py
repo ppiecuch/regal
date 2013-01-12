@@ -8,7 +8,6 @@ formulae = {
     'ForceCoreMac' : {
         'entries' : [ 'CGLChoosePixelFormat' ],
         'impl' : [
-                    'Init::init();',
                     'static const CGLPixelFormatAttribute nattribs[] =',
                     '{',
                     '  kCGLPFAOpenGLProfile,',

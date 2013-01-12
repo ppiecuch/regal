@@ -45,13 +45,13 @@ REGAL_GLOBAL_BEGIN
 #include "RegalThread.h"
 #include "RegalContext.h"
 
-#ifndef REGAL_SYS_WGL
+#if !(REGAL_SYS_WGL || (REGAL_SYS_PPAPI && !defined(__native_client__)))
 #include <pthread.h>
 #endif
 
 // Otherwise we'd need to #include <windows.h>
 
-#ifdef REGAL_SYS_WGL
+#if REGAL_SYS_WGL || (REGAL_SYS_PPAPI && !defined(__native_client__))
 extern "C"
 {
   __declspec(dllimport) void __stdcall OutputDebugStringA( __in_opt const char* lpOutputString);
@@ -86,7 +86,10 @@ namespace Logging {
   bool enableHttp     = true;
 
   int  maxLines  = (REGAL_LOG_MAX_LINES);
+  int  maxBytes  = (REGAL_LOG_MAX_BYTES);
   bool frameTime = false;
+  bool pointers  = (REGAL_LOG_POINTERS);
+  bool thread    = false;
   bool callback  = (REGAL_LOG_CALLBACK);
 
   bool         log          = (REGAL_LOG);
@@ -102,6 +105,12 @@ namespace Logging {
   std::size_t             bufferLimit = 500;
 
   bool initialized = false;
+
+#if REGAL_LOG_ONCE
+  bool once      = (REGAL_LOG_ONCE);
+  std::set<std::string> uniqueErrors;
+  std::set<std::string> uniqueWarnings;
+#endif
 
   Timer                   timer;
 
@@ -137,8 +146,26 @@ namespace Logging {
     const char *ml = GetEnv("REGAL_LOG_MAX_LINES");
     if (ml) maxLines = atoi(ml);
 
+    const char *mb = GetEnv("REGAL_LOG_MAX_BYTES");
+    if (mb) maxBytes = atoi(mb);
+
+#if REGAL_LOG_ONCE
+    const char *lo = GetEnv("REGAL_LOG_ONCE");
+    if (lo) once = atoi(lo)!=0;
+#endif
+
     const char *tmp = GetEnv("REGAL_FRAME_TIME");
     if (tmp) frameTime = atoi(tmp)!=0;
+
+#if REGAL_LOG_POINTERS
+    const char *p = GetEnv("REGAL_LOG_POINTERS");
+    if (p) pointers = atoi(p)!=0;
+#endif
+
+#if REGAL_LOG_THREAD
+    const char *t = GetEnv("REGAL_LOG_THREAD");
+    if (t) thread = atoi(t)!=0;
+#endif
 
     const char *cb = GetEnv("REGAL_LOG_CALLBACK");
     if (cb) callback = atoi(cb)!=0;
@@ -227,6 +254,18 @@ namespace Logging {
 #if REGAL_LOG_STDOUT
     Info("REGAL_LOG_STDOUT   ", stdOut         ? "enabled" : "disabled");
 #endif
+
+#if REGAL_LOG_ONCE
+    Info("REGAL_LOG_ONCE     ", once           ? "enabled" : "disabled");
+#endif
+
+#if REGAL_LOG_POINTERS
+    Info("REGAL_LOG_POINTERS ", pointers       ? "enabled" : "disabled");
+#endif
+
+#if REGAL_LOG_THREAD
+    Info("REGAL_LOG_THREAD   ", thread         ? "enabled" : "disabled");
+#endif
   }
 
   void Cleanup()
@@ -251,7 +290,7 @@ namespace Logging {
     // trying to create a RegalContext and triggering more
     // (recursive) logging.
 
-#if !defined(REGAL_SYS_WGL) && !REGAL_NO_TLS
+#if !REGAL_SYS_WGL && !REGAL_NO_TLS
     if (!Thread::currentContextKey || !pthread_getspecific(Thread::currentContextKey))
       return 0;
 #endif
@@ -270,8 +309,12 @@ namespace Logging {
   inline string message(const char *prefix, const char *delim, const char *name, const string &str)
   {
     static const char *trimSuffix = " ...";
-    std::string trimPrefix = print_string(prefix ? prefix : "", delim ? delim : "", string(indent(),' '), name ? name : "", ' ');
-    return print_string(trim(str.c_str(),'\n',maxLines>0 ? maxLines : ~0,trimPrefix.c_str(),trimSuffix), '\n');
+    string_list trimPrefix;
+    trimPrefix << print_string(prefix ? prefix : "",delim ? delim : "");
+    if (thread)
+      trimPrefix << print_string(hex(Thread::threadId()),delim ? delim : "");
+    trimPrefix << print_string(string(indent(),' '),name ? name : "",name ? " " : "");
+    return print_string(trim(str.c_str(),'\n',maxLines>0 ? maxLines : ~0,trimPrefix.str().c_str(),trimSuffix), '\n');
   }
 
   inline string jsonObject(const char *prefix, const char *name, const string &str)
@@ -380,15 +423,44 @@ namespace Logging {
 #define REGAL_LOG_TAG "Regal"
 #endif
 
-  void Output(const char *prefix, const char *delim, const char *name, const string &str)
+  void Output(const Mode mode, const char *file, const int line, const char *prefix, const char *delim, const char *name, const string &str)
   {
     if (initialized && str.length())
     {
       string m = message(prefix,delim,name,str);
 
+      // TODO - optional Regal source line numbers.
+#if 1
+      UNUSED_PARAMETER(file);
+      UNUSED_PARAMETER(line);
+#else
+      m = print_string(file,":",line," ",m);
+#endif
+
+#if REGAL_LOG_ONCE
+      if (once)
+        switch (mode)
+        {
+          case LOG_WARNING:
+            if (uniqueWarnings.find(m)!=uniqueWarnings.end())
+              return;
+            uniqueWarnings.insert(m);
+            break;
+
+          case LOG_ERROR:
+            if (uniqueErrors.find(m)!=uniqueErrors.end())
+              return;
+            uniqueErrors.insert(m);
+            break;
+
+          default:
+            break;
+        }
+#endif
+
       RegalContext *rCtx = NULL;
 
-#if !defined(REGAL_SYS_WGL) && !REGAL_NO_TLS
+#if !REGAL_SYS_WGL && !REGAL_NO_TLS
       if (Thread::currentContextKey && pthread_getspecific(Thread::currentContextKey))
         rCtx = REGAL_GET_CONTEXT();
 #else
@@ -425,9 +497,7 @@ namespace Logging {
         fprintf(logOutput, "%s", m.c_str());
         fflush(logOutput);
 #elif REGAL_SYS_ANDROID
-#elif REGAL_SYS_NACL
-        fprintf(logOutput, "%s", m.c_str());
-        fflush(logOutput);
+
 #else
         fprintf(logOutput, "%s", m.c_str());
         fflush(logOutput);

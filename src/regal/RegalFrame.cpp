@@ -60,6 +60,7 @@ void Frame::capture(RegalContext &context)
   if (Logging::frameTime)
   {
     Timer::Value elapsed = frameTimer.restart();
+    UNUSED_PARAMETER(elapsed); // Unused if info logging disabled at compile-time
     Info("Frame ",frame,' ',elapsed/1000," msec, ",1000000.0/elapsed," FPS.");
   }
 
@@ -99,26 +100,6 @@ void Frame::capture(RegalContext &context)
         // Do once we have the pixels, could we do the rest in another
         // thread?
 
-        if (Config::frameMd5Color)
-        {
-          // Compute pixel md5sum
-
-          MD5Context md5c;
-          MD5Init(&md5c);
-          MD5Update(&md5c, buffer, bufferSize);
-
-          unsigned char digest[16];
-          MD5Final(digest, &md5c);
-
-          // Convert md5sum to string
-
-          char md5sum[sizeof(digest)*2+1];
-          for (size_t i=0; i<sizeof(digest); ++i)
-            sprintf(md5sum+i*2,"%02x",digest[i]);
-
-          Info("Color md5sum ",md5sum);
-        }
-
 #ifndef REGAL_NO_PNG
         if (Config::frameSaveColor)
         {
@@ -156,6 +137,32 @@ void Frame::capture(RegalContext &context)
           }
         }
 #endif
+
+        if (Config::frameMd5Color)
+        {
+          // Apply masking
+          
+          for (size_t i=0; i<bufferSize; ++i)
+            buffer[i] &= Config::frameMd5ColorMask;
+
+          // Compute pixel md5sum
+
+          MD5Context md5c;
+          MD5Init(&md5c);
+          MD5Update(&md5c, buffer, bufferSize);
+
+          unsigned char digest[16];
+          MD5Final(digest, &md5c);
+
+          // Convert md5sum to string
+
+          char md5sum[sizeof(digest)*2+1];
+          for (size_t i=0; i<sizeof(digest); ++i)
+            sprintf(md5sum+i*2,"%02x",digest[i]);
+
+          Info("Color md5sum ",md5sum);
+        }
+
         free(buffer);
       }
     }

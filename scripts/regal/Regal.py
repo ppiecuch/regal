@@ -6,6 +6,7 @@ from ApiUtil      import typeIsVoid
 from ApiUtil      import toLong
 from ApiUtil      import hexValue
 from ApiCodeGen   import *
+from ApiRegal     import logFunction
 from Emu          import emuFindEntry, emuCodeGen
 
 from RegalContext     import emuRegal
@@ -92,8 +93,15 @@ extern "C" {
       typedef struct HGLRC__* HGLRC;
     #endif
   #endif
+#elif REGAL_SYS_PPAPI
+  #if defined(__native_client__)
+    #include <inttypes.h>
+  #else
+    typedef __int64 int64_t;
+    typedef unsigned __int64 uint64_t;
+  #endif
 #else
-# include <inttypes.h>
+  #include <inttypes.h>
 #endif
 
 ${API_TYPEDEF}
@@ -120,7 +128,7 @@ ${API_FUNC_DECLARE}
 #ifndef __REGAL_API_H
 #define __REGAL_API_H
 
-#if REGAL_SYS_NACL
+#if REGAL_SYS_PPAPI
 #include <stdint.h>
 struct PPB_OpenGLES2;
 typedef int32_t RegalSystemContext;
@@ -150,7 +158,7 @@ REGAL_DECL void RegalShareContext(RegalSystemContext ctx, RegalSystemContext oth
  *
  */
 
-#if REGAL_SYS_NACL
+#if REGAL_SYS_PPAPI
 REGAL_DECL void RegalMakeCurrent( RegalSystemContext ctx, struct PPB_OpenGLES2 *interface );
 #else
 REGAL_DECL void RegalMakeCurrent( RegalSystemContext ctx );
@@ -187,23 +195,7 @@ def generatePublicHeader(apis, args):
   substitute['API_ENUM']         = apiEnum
   substitute['API_FUNC_DECLARE'] = apiFuncDeclare
 
-  outputCode( 'include/GL/Regal.h', publicHeaderTemplate.substitute(substitute))
-
-## Map gl.py helper functions to Regal namespace
-
-helpers = {
-  'helperGLCallListsSize'         : 'helper::size::callLists',
-  'helperGLFogvSize'              : 'helper::size::fogv',
-  'helperGLLightvSize'            : 'helper::size::lightv',
-  'helperGLLightModelvSize'       : 'helper::size::lightModelv',
-  'helperGLMaterialvSize'         : 'helper::size::materialv',
-  'helperGLTexParametervSize'     : 'helper::size::texParameterv',
-  'helperGLTexEnvvSize'           : 'helper::size::texEnvv',
-  'helperGLTexGenvSize'           : 'helper::size::texGenv',
-  'helperGLNamedStringSize'       : 'helper::size::namedString',
-#  'helperGLDrawElementsSize'      : 'helper::size::drawElements',
-  'helperGLNamedStringParamsSize' : 'helper::size::namedStringParams'
-}
+  outputCode( '%s/Regal.h' % args.incdir, publicHeaderTemplate.substitute(substitute))
 
 def apiFuncDefineCode(apis, args):
 
@@ -233,7 +225,7 @@ def apiFuncDefineCode(apis, args):
 
       if function.needsContext:
         c += '  RegalContext *_context = REGAL_GET_CONTEXT();\n'
-        c += '  %s\n' % debugPrintFunction( function, 'App' )
+        c += '  %s\n' % logFunction( function, 'App' )
         c += '  if (!_context) return'
         if typeIsVoid(rType):
           c += ';\n'
@@ -257,12 +249,17 @@ def apiFuncDefineCode(apis, args):
           if getattr(function,'regalOnly',False)==False:
             c += '  DispatchTable *_next = &_context->dispatcher.front();\n'
             c += '  RegalAssert(_next);\n'
+
+            c += listToString(indent(emuCodeGen(emue,'suffix'),'  '))
+
             c += '  '
             if not typeIsVoid(rType):
               c += 'return '
             c += '_next->call(&_next->%s)(%s);\n' % ( name, callParams )
       else:
-        c += '  %s\n' % debugPrintFunction(function, 'App' )
+        c += '  %s\n' % logFunction(function, 'App' )
+
+        c += listToString(indent(emuCodeGen(emue,'prefix'),'  '))
 
         if api.name=='egl':
           c += '\n'
@@ -289,7 +286,7 @@ def apiFuncDefineCode(apis, args):
 
         c += '  if (dispatchTableGlobal.%s)\n' % name
         c += '  {\n'
-        c += '    %s\n' % debugPrintFunction( function, 'Driver' )
+        c += '    %s\n' % logFunction( function, 'Driver' )
         c += '    '
         if not typeIsVoid(rType):
           c += 'ret = '
@@ -330,73 +327,6 @@ def apiFuncDefineCode(apis, args):
     code += tmp
 
   return code
-
-#
-# debug print function
-#
-
-def debugPrintFunction(function, trace = 'ITrace', input = True, output = False):
-  c =  ''
-  args = []
-  for i in function.parameters:
-
-    if not output and i.output:
-      continue
-
-    if not input and not i.output:
-      continue
-
-    # Use a cast, if necessary
-
-    t = i.type
-    n = i.name
-    if i.cast != None:
-      t = i.cast
-      n = 'reinterpret_cast<%s>(%s)'%(t,n)
-
-    # If it's array of strings, quote each string
-
-    quote = ''
-    if t == 'char **' or t == 'const char **' or t == 'GLchar **' or t == 'const GLchar **' or t == 'LPCSTR *':
-      quote = ',"\\\""'
-
-    if i.regalLog != None:
-      args.append('%s'%i.regalLog)
-    elif t == 'GLenum':
-      args.append('toString(%s)'%n)
-    elif t == 'GLXenum':
-      args.append('GLXenumToString(%s)'%n)
-    elif t == 'EGLenum':
-      args.append('EGLenumToString(%s)'%n)
-    elif t == 'GLboolean' or t == 'const GLboolean':
-      args.append('toString(%s)'%n)
-    elif t == 'char *' or t == 'const char *' or t == 'GLchar *' or t == 'const GLchar *' or t == 'LPCSTR':
-      args.append('boost::print::quote(%s,\'"\')'%n)
-    elif i.input and i.size!=None and (isinstance(i.size,int) or isinstance(i.size, long)) and t.find('void')==-1 and t.find('PIXELFORMATDESCRIPTOR')==-1:
-      args.append('boost::print::array(%s,%s)'%(n,i.size))
-    elif i.input and i.size!=None and (isinstance(i.size, str) or isinstance(i.size, unicode)) and t.find('void')==-1 and t.find('PIXELFORMATDESCRIPTOR')==-1 and i.size.find('helper')==-1:
-      args.append('boost::print::array(%s,%s%s)'%(n,i.size,quote))
-    elif i.input and i.size!=None and (isinstance(i.size, str) or isinstance(i.size, unicode)) and t.find('void')==-1 and t.find('PIXELFORMATDESCRIPTOR')==-1 and i.size.find('helper')==0:
-      h = i.size.split('(')[0]
-      if h in helpers:
-        args.append('boost::print::array(%s,%s(%s%s)'%(n,helpers[h],i.size.split('(',1)[1],quote))
-      else:
-        args.append(n)
-    elif t.startswith('GLDEBUG'):
-      pass
-    elif t.startswith('GLLOGPROC'):
-      pass
-    else:
-      args.append(n)
-
-  args = args[:9]
-  if len(args):
-    c += '%s("%s","(", ' % (trace, function.name)
-    c += ', ", ", '.join(args)
-    c += ', ")");'
-  else:
-    c += '%s("%s","()");' % (trace, function.name)
-  return c
 
 def apiTypedefCode( apis, args ):
 
@@ -660,6 +590,7 @@ REGAL_GLOBAL_BEGIN
 #include "RegalPrivate.h"
 #include "RegalDebugInfo.h"
 #include "RegalContextInfo.h"
+#include "RegalShaderCache.h"
 
 #include "RegalFrame.h"
 #include "RegalMarker.h"
@@ -693,7 +624,7 @@ def generateSource(apis, args):
   substitute['API_FUNC_DEFINE'] = apiFuncDefine
   substitute['API_GLOBAL_DISPATCH_INIT'] = globalDispatch
 
-  outputCode( '%s/Regal.cpp' % args.outdir, sourceTemplate.substitute(substitute))
+  outputCode( '%s/Regal.cpp' % args.srcdir, sourceTemplate.substitute(substitute))
 
 ##############################################################################################
 
@@ -724,6 +655,6 @@ def generateDefFile(apis, args, additional_exports):
   code2 += ['  %s' % export for export in additional_exports]
   code3 += ['_%s' % export for export in additional_exports]
 
-  outputCode( '%s/Regal.def'  % args.outdir, 'EXPORTS\n' + '\n'.join(code1))
-  outputCode( '%s/Regalm.def' % args.outdir, 'EXPORTS\n' + '\n'.join(code2))
-  outputCode( '%s/export_list_mac.txt' % args.outdir, '# File: export_list\n' + '\n'.join(code3))
+  outputCode( '%s/Regal.def'  % args.srcdir, 'EXPORTS\n' + '\n'.join(code1))
+  outputCode( '%s/Regalm.def' % args.srcdir, 'EXPORTS\n' + '\n'.join(code2))
+  outputCode( '%s/export_list_mac.txt' % args.srcdir, '# File: export_list\n' + '\n'.join(code3))

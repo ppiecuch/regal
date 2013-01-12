@@ -42,6 +42,8 @@ using namespace std;
 #include <boost/print/print_string.hpp>
 using boost::print::print_string;
 
+#include "RegalConfig.h"
+
 #if REGAL_SYS_WGL
 
 typedef void *HMODULE;
@@ -167,6 +169,20 @@ const char *libraryLocation(const Library &library)
 
   // GLES
 
+  /* Ubuntu 12.04 x86
+
+  $ find  /usr/lib/i386-linux-gnu/ -name "libEGL*" | xargs ls -la
+  lrwxrwxrwx 1 root root     18 Oct 12 05:02 /usr/lib/i386-linux-gnu/libEGL.so -> mesa-egl/libEGL.so
+  lrwxrwxrwx 1 root root     15 Oct 12 05:02 /usr/lib/i386-linux-gnu/mesa-egl/libEGL.so -> libEGL.so.1.0.0
+  lrwxrwxrwx 1 root root     15 Oct 12 05:02 /usr/lib/i386-linux-gnu/mesa-egl/libEGL.so.1 -> libEGL.so.1.0.0
+  -rw-r--r-- 1 root root 129660 Oct 12 05:02 /usr/lib/i386-linux-gnu/mesa-egl/libEGL.so.1.0.0
+
+  $ find  /usr/lib/i386-linux-gnu/ -name "libGLES*" | xargs ls -la
+  lrwxrwxrwx 1 root root    18 Oct 12 05:02 /usr/lib/i386-linux-gnu/mesa-egl/libGLESv2.so.2 -> libGLESv2.so.2.0.0
+  -rw-r--r-- 1 root root 16248 Oct 12 05:02 /usr/lib/i386-linux-gnu/mesa-egl/libGLESv2.so.2.0.0
+
+  */
+
   if (library==LIBRARY_GLES)
   {
     // First, try ... variable
@@ -175,8 +191,14 @@ const char *libraryLocation(const Library &library)
 
     if (!ret)
     {
-#if REGAL_SYS_GLX
+#if REGAL_SYS_EGL || REGAL_SYS_GLX
+#if defined(__arm__)
       return "/usr/lib/libGLESv2.so";
+#elif defined(__x86_64__) || defined(__x86_64)
+      return "/usr/lib/x86_64-linux-gnu/mesa-egl/libGLESv2.so.2";
+#else
+      return "/usr/lib/i386-linux-gnu/mesa-egl/libGLESv2.so.2";
+#endif
 #endif
     }
   }
@@ -191,8 +213,14 @@ const char *libraryLocation(const Library &library)
 
     if (!ret)
     {
-#if REGAL_SYS_GLX
+#if REGAL_SYS_EGL
+#if defined(__arm__)
       return "/usr/lib/libEGL.so";
+#elif defined(__x86_64__) || defined(__x86_64)
+      return "/usr/lib/x86_64-linux-gnu/mesa-egl/libEGL.so";
+#else
+      return "/usr/lib/i386-linux-gnu/mesa-egl/libEGL.so";
+#endif
 #endif
     }
   }
@@ -255,7 +283,7 @@ void *GetProcAddress( const char *entry )
   return NULL;
 }
 
-#elif REGAL_SYS_NACL
+#elif REGAL_SYS_PPAPI
 
 void *GetProcAddress( const char *entry )
 {
@@ -283,9 +311,10 @@ void *GetProcAddress( const char * entry )
   return NULL;
 }
 
-#elif REGAL_SYS_GLX && REGAL_SYS_EGL
+#elif REGAL_SYS_GLX || REGAL_SYS_EGL
 
-// GLX and EGL
+// General purpose GetProcAddress for GLX or EGL,
+// GL or ES 2.0 for Linux, so far.
 
 #include <dlfcn.h>
 
@@ -296,71 +325,165 @@ void *GetProcAddress(const char *entry)
   if (!entry)
     return NULL;
 
-  // EGL
+  // GL ES 2.0
+  // REVISIT - Eventually we need REGAL_SYS_ES2
 
-  static void       *lib_EGL          = NULL;
-  static const char *lib_EGL_filename = NULL;
-
-  // Search for EGL library (libEGL.so usually) as necessary
-
-  if (!lib_EGL_filename)
-  {
-    lib_EGL_filename = libraryLocation(LIBRARY_EGL);
-    if (!lib_EGL_filename)
-      Warning("EGL library not found: ",lib_EGL_filename);
-  }
-
-  // Load the EGL library as necessary
-
-  if (!lib_EGL && lib_EGL_filename)
-  {
-    Info("Loading EGL from ",lib_EGL_filename);
-    lib_EGL = dlopen( lib_EGL_filename, RTLD_LAZY );
-  }
-
-  // GL ES
+#if REGAL_SYS_EGL
 
   static void       *lib_GLES          = NULL;
   static const char *lib_GLES_filename = NULL;
 
-  // Search for OpenGL ES library (libGLESv2.so usually) as necessary
-
-  if (!lib_GLES_filename)
+  if (Regal::Config::sysEGL)  // REVISIT - Eventually we need REGAL_SYS_ES2
   {
-    lib_GLES_filename = libraryLocation(LIBRARY_GLES);
+    // Search for OpenGL ES library (libGLESv2.so usually) as necessary
+
     if (!lib_GLES_filename)
-      Warning("OpenGL ES library not found: ",lib_GLES_filename);
+    {
+      lib_GLES_filename = libraryLocation(LIBRARY_GLES);
+      if (!lib_GLES_filename)
+        Warning("OpenGL ES library not found.");
+    }
+
+    // Load the OpenGL ES library as necessary
+
+    if (!lib_GLES && lib_GLES_filename)
+    {
+      Info("Loading OpenGL ES from ",lib_GLES_filename);
+      lib_GLES = dlopen( lib_GLES_filename, RTLD_LAZY );
+    }
   }
+#endif
 
-  // Load the OpenGL ES library as necessary
+  // GL
+  // REVISIT - Eventually we need REGAL_SYS_GL
 
-  if (!lib_GLES && lib_GLES_filename)
+#if REGAL_SYS_GLX
+
+  static void       *lib_GL           = NULL;
+  static const char *lib_GL_filename  = NULL;
+
+  if (Regal::Config::sysGLX)  // REVISIT - Eventually we need REGAL_SYS_GL
   {
-    Info("Loading OpenGL ES from ",lib_GLES_filename);
-    lib_GLES = dlopen( lib_GLES_filename, RTLD_LAZY );
+    // Search for OpenGL library (libGL.so.1 usually) as necessary
+
+    if (!lib_GL_filename)
+    {
+      lib_GL_filename = libraryLocation(LIBRARY_GL);
+      if (!lib_GL_filename)
+        Warning("OpenGL library not found.");
+    }
+
+    // Load the OpenGL library as necessary
+
+    if (!lib_GL && lib_GL_filename)
+    {
+      Info("Loading OpenGL from ",lib_GL_filename);
+      lib_GL = dlopen( lib_GL_filename, RTLD_LAZY );
+    }
   }
+#endif
+
+  // EGL
+
+#if REGAL_SYS_EGL
+
+  static void       *lib_EGL          = NULL;
+  static const char *lib_EGL_filename = NULL;
+
+  if (Regal::Config::sysEGL)
+  {
+    // Search for EGL library (libEGL.so usually) as necessary
+
+    if (!lib_EGL_filename)
+    {
+      lib_EGL_filename = libraryLocation(LIBRARY_EGL);
+      if (!lib_EGL_filename)
+        Warning("EGL library not found.");
+    }
+
+    // Load the EGL library as necessary
+
+    if (!lib_EGL && lib_EGL_filename)
+    {
+      Info("Loading EGL from ",lib_EGL_filename);
+      lib_EGL = dlopen( lib_EGL_filename, RTLD_LAZY );
+    }
+  }
+#endif
+
+  // GLX
+
+#if REGAL_SYS_GLX
+
+  static void       *lib_GLX           = NULL;
+  static const char *lib_GLX_filename  = NULL;
+
+  if (Regal::Config::sysGLX)
+  {
+    // Search for OpenGL library (libGL.so.1 usually) as necessary
+
+    if (!lib_GLX_filename)
+    {
+      lib_GLX_filename = libraryLocation(LIBRARY_GL);
+      if (!lib_GLX_filename)
+        Warning("GL/GLX library not found.");
+    }
+
+    // Load the OpenGL library as necessary
+
+    if (!lib_GLX && lib_GLX_filename)
+    {
+      Info("Loading GL/GLX from: ",lib_GLX_filename);
+      lib_GLX = dlopen( lib_GLX_filename, RTLD_LAZY );
+    }
+  }
+#endif
 
   // Load the entry-point by name, if possible
 
-  if (lib_EGL)
-  {
-    void *sym = dlsym(lib_EGL,entry);
-    Internal("Regal::GetProcAddress ","loading ",entry," from ",lib_EGL_filename,sym ? " succeeded." : " failed.");
-    if (sym)
-      return sym;
-  }
-
-  if (lib_GLES)
+#if REGAL_SYS_EGL
+  if (Regal::Config::sysEGL && lib_GLES)
   {
     void *sym = dlsym(lib_GLES,entry);
-    Internal("Regal::GetProcAddress ","loading ",entry," from ",lib_GLES_filename,sym ? " succeeded." : " failed.");
+    Internal("Regal::GetProcAddress","loading ",entry," from ",lib_GLES_filename,sym ? " succeeded." : " failed.");
     if (sym)
       return sym;
   }
+#endif
 
+#if REGAL_SYS_GLX
+  if (Regal::Config::sysGLX && lib_GL)
+  {
+    void *sym = dlsym(lib_GL,entry);
+    Internal("Regal::GetProcAddress","loading ",entry," from ",lib_GL_filename,sym ? " succeeded." : " failed.");
+    return sym;
+  }
+#endif
+
+#if REGAL_SYS_EGL
+  if (Regal::Config::sysEGL && lib_EGL)
+  {
+    void *sym = dlsym(lib_EGL,entry);
+    Internal("Regal::GetProcAddress","loading ",entry," from ",lib_EGL_filename,sym ? " succeeded." : " failed.");
+    if (sym)
+      return sym;
+  }
+#endif
+
+#if REGAL_SYS_GLX
+  if (Regal::Config::sysGLX && lib_GLX)
+  {
+    void *sym = dlsym(lib_GLX,entry);
+    Internal("Regal::GetProcAddress","loading ",entry," from ",lib_GLX_filename,sym ? " succeeded." : " failed.");
+    if (sym)
+      return sym;
+  }
+#endif
+
+#if REGAL_SYS_EGL
   static PFNEGLGETPROCADDRESSPROC eglGetProcAddress = NULL;
 
-  if (lib_EGL)
+  if (Regal::Config::sysEGL && lib_EGL)
   {
     if (!eglGetProcAddress)
       eglGetProcAddress = (PFNEGLGETPROCADDRESSPROC) dlsym(lib_EGL, "eglGetProcAddress");
@@ -372,51 +495,12 @@ void *GetProcAddress(const char *entry)
       return sym;
     }
   }
+#endif
 
-  return NULL;
-}
+  // Do we need glxGetProcAddress here?
 
-#elif REGAL_SYS_GLX
-
-// Vanilla GLX
-
-#include <dlfcn.h>
-
-void *GetProcAddress(const char *entry)
-{
-  // Early-out for NULL entry name
-
-  if (!entry)
-    return NULL;
-
-  static void       *lib_GL           = NULL;
-  static const char *lib_GL_filename  = NULL;
-
-  // Search for OpenGL library (libGL.so.1 usually) as necessary
-
-  if (!lib_GL_filename)
-  {
-    lib_GL_filename = libraryLocation(LIBRARY_GL);
-    if (!lib_GL_filename)
-      Warning("OpenGL library not found.",lib_GL_filename);
-  }
-
-  // Load the OpenGL library as necessary
-
-  if (!lib_GL && lib_GL_filename)
-  {
-    Info("Loading OpenGL from ",lib_GL_filename);
-    lib_GL = dlopen( lib_GL_filename, RTLD_LAZY );
-  }
-
-  // Load the entry-point by name, if possible
-
-  if (lib_GL)
-  {
-    void *sym = dlsym(lib_GL,entry);
-    Internal("Regal::GetProcAddress ","loading ",entry," from ",lib_GL_filename,sym ? " succeeded." : " failed.");
-    return sym;
-  }
+#if REGAL_SYS_GLX
+#endif
 
   return NULL;
 }
@@ -538,6 +622,17 @@ void fileClose(FILE **file)
 
   fclose(*file);
   *file = NULL;
+}
+
+string makePath(const string &dir, const string &filename)
+{
+  string tmp(dir);
+  const size_t len = tmp.length();
+  const char   last = len ? tmp[len-1] : '\0';
+  if (len && last!='/' && last!='\\')
+    tmp += "/";
+  tmp += filename;
+  return tmp;
 }
 
 REGAL_NAMESPACE_END

@@ -134,6 +134,8 @@ def writeFunctions(file,name,functions):
     for j in i:
       print >>file, '%s = Function(\'%s\')'%(j.name,j.name)
       print >>file, '%s.ret = Return(\'%s\')'%(j.name,j.ret.type)
+      if getattr(j.ret,'cast',None) != None:
+        print >>file, '%s.ret.cast = \'%s\''%(j.name,j.ret.cast)
       for k in j.parameters:
         print >>file, '%s.add('%(j.name),
         if k.input:
@@ -146,6 +148,11 @@ def writeFunctions(file,name,functions):
             print >>file, ',size = \'%s\''%(k.size),
           else:
             print >>file, ',size = %s'%(k.size),
+        if getattr(k,'maxSize') != None:
+          if isinstance(k.maxSize, str) or isinstance(k.maxSize, unicode):
+            print >>file, ',maxSize = \'%s\''%(k.maxSize),
+          else:
+            print >>file, ',maxSize = %s'%(k.maxSize),
         if getattr(k,'cast',None) != None:
           print >>file, ',cast = \'%s\''%(k.cast),
         if getattr(k,'regalLog',None) != None:

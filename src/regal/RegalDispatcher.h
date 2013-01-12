@@ -58,13 +58,21 @@ public:
    DispatchTable emulation;
 #endif
 
+#if REGAL_CACHE
+   DispatchTable cache;
+#endif
+
+#if REGAL_CODE
+   DispatchTable code;
+#endif
+
 #if REGAL_LOG
    DispatchTable logging;
 #endif
 
-   DispatchTable driver;   // Underlying OpenGL/ES implementation
+   DispatchTable driver;      // Underlying OpenGL/ES implementation
 
-   DispatchTable missing;  // Must have this last
+   DispatchTable missing;     // Must have this last
 
 public:
   Dispatcher();
@@ -92,7 +100,6 @@ public:
   inline std::size_t size() const
   {
     return _size;
-//  return _table.size();
   }
 
   inline DispatchTable &operator[](const std::size_t i)
@@ -105,7 +112,6 @@ public:
   {
     RegalAssert(size());
     return *_front;
-//  return *_table.front();
   }
 
   inline DispatchTable &back()

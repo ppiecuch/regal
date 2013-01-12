@@ -304,28 +304,195 @@ materialv(GLenum pname)
   }
 }
 
-/* TODO: Review extensions later. */
+size_t
+pixelImage(GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLint pack, GLenum target)
+{
+  /* TODO: Review later: Does texture "level" affect size? */
+  /* TODO: Review later: Properly account for effects of glPixelStore. */
+
+  size_t numComponent = componentsPerPixel(format);
+  size_t sizeElement  = 8; /* bits */
+
+  size_t dataWidth  = 0;
+  size_t dataHeight = 0;
+  size_t dataDepth  = 0;
+
+//  if (!traceGL_Native.glGetIntegerv)
+//    return 0;
+
+  if (width < 0 || height < 0 || depth < 0)
+    return 0;
+
+  if (pack != 0 && pack != 1)
+    return 0;
+
+  /* When target is a GL_PROXY_TEXUTRE_xx, size is 0. */
+
+  if ((target == GL_PROXY_TEXTURE_1D) ||
+      (target == GL_PROXY_TEXTURE_2D) ||
+      (target == GL_PROXY_TEXTURE_3D))
+    return 0;
+
+  /* TODO: If an unpack buffer is bound for glDrawPixels... */
+  if (!pack)
+  {
+#if 0
+    GLint bufferBinding = 0;
+    traceGL_Native.glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &bufferBinding);
+    if (bufferBinding > 0)
+      return 1;
+#endif
+  }
+  else
+  {
+#if 0
+    /* TODO: Data is treated as byte offset when a non-zero named buffer is bound. */
+    GLint bufferBinding = 0;
+    traceGL_Native.glGetIntegerv(GL_PIXEL_PACK_BUFFER_BINDING, &bufferBinding);
+    if (bufferBinding > 0)
+      return 1;
+#endif
+  }
+
+  /* Compute size of each element. */
+
+  sizeElement *= bytesPerComponent(type);
+
+  switch (type)
+  {
+    case GL_UNSIGNED_BYTE:      
+    case GL_BYTE:               
+    case GL_BITMAP:               
+    case GL_UNSIGNED_SHORT:     
+    case GL_SHORT:             
+    case GL_UNSIGNED_INT:     
+    case GL_INT:              
+    case GL_FLOAT:           sizeElement *= numComponent; break;
+    default:                                              break;
+  }
+
+  /* Special case: GL_BITMAP. */
+
+  if (type == GL_BITMAP)
+  {
+     /* TODO: Confirm calculations. */
+    if ((format == GL_COLOR_INDEX) || (format == GL_STENCIL_INDEX))
+      sizeElement = sizeElement/8;
+    else
+      return 0;
+  }
+
+  /* Take into account client state set by glPixelStore. */
+
+  if (depth)
+  {
+#if 0
+    GLint skipImages = 0;
+
+    /* GL_PACK_SKIP_IMAGES */
+    if (pack)
+      traceGL_Native.glGetIntegerv(GL_PACK_SKIP_IMAGES, &skipImages);
+    else
+      traceGL_Native.glGetIntegerv(GL_UNPACK_SKIP_IMAGES, &skipImages);
+    dataDepth += skipImages > 0 ? skipImages : 0;
+#endif
+  }
+  else
+  {
+    dataDepth = 1;
+  }
+
+  if (height)
+  {
+    GLint imageHeight = 0;
+    GLint skipRows    = 0;
+    GLint rowLength   = 0;
+    GLint alignment   = 1; /* Allowed values: 1,2,4,8 */
+
+#if 0
+    /* GL_PACK_IMAGE_HEIGHT */
+    if (pack)
+      traceGL_Native.glGetIntegerv(GL_PACK_IMAGE_HEIGHT, &imageHeight);
+    else
+      traceGL_Native.glGetIntegerv(GL_UNPACK_IMAGE_HEIGHT, &imageHeight);
+#endif
+    dataHeight = imageHeight > 0 ? imageHeight : height;
+
+#if 0
+    /* GL_PACK_SKIP_ROWS */
+    if (pack)
+      traceGL_Native.glGetIntegerv(GL_PACK_SKIP_ROWS, &skipRows);
+    else
+      traceGL_Native.glGetIntegerv(GL_UNPACK_SKIP_ROWS, &skipRows);
+#endif
+    dataHeight += skipRows > 0 ? skipRows : 0;
+
+#if 0
+    /* GL_PACK_ROW_LENGTH */
+    if (pack)
+      traceGL_Native.glGetIntegerv(GL_PACK_ROW_LENGTH, &rowLength);
+    else
+      traceGL_Native.glGetIntegerv(GL_UNPACK_ROW_LENGTH, &rowLength);
+#endif
+    dataWidth = rowLength > 0 ? rowLength : width;
+
+    /* Align byte boundary */
+    dataWidth = (dataWidth * sizeElement + 7)/8;
+
+#if 0
+    /* GL_PACK_ALIGNMENT */
+    if (pack)
+      traceGL_Native.glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+    else
+      traceGL_Native.glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
+#endif
+    dataWidth = alignment > 0 ? alignment * (dataWidth + alignment - 1)/alignment : dataWidth;
+  }
+  else
+  {
+    dataHeight = 1;
+
+    /* Align byte boundary */
+    dataWidth = (width * sizeElement + 7)/8;
+  }
+
+  return dataWidth * dataHeight * dataDepth;
+}
+
+/* TODO: Extension enums. */
 
 size_t
 texParameterv(GLenum pname)
 {
   switch (pname)
   {
-    case GL_TEXTURE_MIN_FILTER:   return 1;
-    case GL_TEXTURE_MAG_FILTER:   return 1;
-    case GL_TEXTURE_MIN_LOD:      return 1;
-    case GL_TEXTURE_MAX_LOD:      return 1;
-    case GL_TEXTURE_BASE_LEVEL:   return 1;
-    case GL_TEXTURE_MAX_LEVEL:    return 1;
-    case GL_TEXTURE_WRAP_S:       return 1;
-    case GL_TEXTURE_WRAP_T:       return 1;
-    case GL_TEXTURE_WRAP_R:       return 1;
-    case GL_TEXTURE_BORDER_COLOR: return 4;
-    case GL_TEXTURE_PRIORITY:     return 1;
-    case GL_TEXTURE_COMPARE_MODE: return 1;
-    case GL_TEXTURE_COMPARE_FUNC: return 1;
-    case GL_DEPTH_TEXTURE_MODE:   return 1;
-    case GL_GENERATE_MIPMAP:      return 1;
+    /* Dec 2012 - http://www.opengl.org/sdk/docs/man/xhtml/glTexParameter.xml */
+
+    case GL_DEPTH_STENCIL_TEXTURE_MODE: return 1;
+    case GL_TEXTURE_BASE_LEVEL:         return 1;
+    case GL_TEXTURE_BORDER_COLOR:       return 4;
+    case GL_TEXTURE_COMPARE_FUNC:       return 1;
+    case GL_TEXTURE_COMPARE_MODE:       return 1;
+    case GL_TEXTURE_LOD_BIAS:           return 1;
+    case GL_TEXTURE_MIN_FILTER:         return 1;
+    case GL_TEXTURE_MAG_FILTER:         return 1;
+    case GL_TEXTURE_MIN_LOD:            return 1;
+    case GL_TEXTURE_MAX_LOD:            return 1;
+    case GL_TEXTURE_MAX_LEVEL:          return 1;
+    case GL_TEXTURE_SWIZZLE_R:          return 1;
+    case GL_TEXTURE_SWIZZLE_G:          return 1;
+    case GL_TEXTURE_SWIZZLE_B:          return 1;
+    case GL_TEXTURE_SWIZZLE_A:          return 1;
+    case GL_TEXTURE_SWIZZLE_RGBA:       return 4;
+    case GL_TEXTURE_WRAP_S:             return 1;
+    case GL_TEXTURE_WRAP_T:             return 1;
+    case GL_TEXTURE_WRAP_R:             return 1;
+
+    /* others */
+
+    case GL_TEXTURE_PRIORITY:               return 1;
+    case GL_DEPTH_TEXTURE_MODE:             return 1;
+    case GL_GENERATE_MIPMAP:                return 1;
 
     // GL_EXT_texture_filter_anisotropic
 
@@ -340,20 +507,9 @@ texParameterv(GLenum pname)
 
     case GL_TEXTURE_UNSIGNED_REMAP_MODE_NV: return 1;
 
-    // GL_EXT_texture_swizzle
-
-    case GL_TEXTURE_SWIZZLE_R_EXT:
-    case GL_TEXTURE_SWIZZLE_G_EXT:
-    case GL_TEXTURE_SWIZZLE_B_EXT:
-    case GL_TEXTURE_SWIZZLE_A_EXT:          return 1;
-
     // GL_NV_texture_shader
 
     case GL_TEXTURE_BORDER_VALUES_NV:       return 4;
-
-    // GL_EXT_texture_swizzle
-
-    case GL_TEXTURE_SWIZZLE_RGBA_EXT:       return 4;
 
     default:                                return 0;
   }
@@ -407,6 +563,36 @@ texGenv(GLenum pname)
     case GL_OBJECT_PLANE:     return 4;
     case GL_EYE_PLANE:        return 4;
     default:                  return 0;
+  }
+}
+
+/* TODO: Extension enums. */
+
+size_t
+samplerParameterv(GLenum pname)
+{
+  switch (pname)
+  {
+    /* Dec 2012 - http://www.opengl.org/sdk/docs/man4/xhtml/glSamplerParameter.xml */
+
+    case GL_TEXTURE_MIN_FILTER:         return 1;
+    case GL_TEXTURE_MAG_FILTER:         return 1;
+    case GL_TEXTURE_MIN_LOD:            return 1;
+    case GL_TEXTURE_MAX_LOD:            return 1;
+    case GL_TEXTURE_WRAP_S:             return 1;
+    case GL_TEXTURE_WRAP_T:             return 1;
+    case GL_TEXTURE_WRAP_R:             return 1;
+    case GL_TEXTURE_BORDER_COLOR:       return 4;
+    case GL_TEXTURE_COMPARE_MODE:       return 1;
+    case GL_TEXTURE_COMPARE_FUNC:       return 1;
+
+    /* Extensions */
+
+    case GL_TEXTURE_LOD_BIAS:           return 1;
+    case GL_TEXTURE_MAX_ANISOTROPY_EXT: return 1;
+    case GL_TEXTURE_SRGB_DECODE_EXT:    return 1;
+
+    default:                            return 0;
   }
 }
 
@@ -466,16 +652,16 @@ namedStringParams(const GLenum pname)
 
 }
 
-/* Convert glShaderSource parameters into NULL-terminated array of NUL-terminated strings. */
+/* Convert glShaderSource parameters into NUL-terminated string. */
 
-const GLchar **
+char *
 shaderSourceStrings(const GLsizei count, const GLchar **string,  const GLint *length)
 {
-  size_t total;   /* Total size of copy (bytes)      */
-  GLchar **tmp;   /* Copy of string array            */
-  GLsizei i;      /* Input iterator                  */
-  GLchar *j;      /* Output iterator                 */
-  size_t  k;      /* Scratch space for string length */
+  size_t total;  /* Total size of copy (bytes)      */
+  char *tmp;     /* Copy of string array            */
+  GLsizei i;     /* Input iterator                  */
+  GLchar *j;     /* Output iterator                 */
+  size_t  k;     /* Scratch space for string length */
 
   if (count<=0)
     return NULL;
@@ -487,29 +673,26 @@ shaderSourceStrings(const GLsizei count, const GLchar **string,  const GLint *le
     total += length ? length[i] : (string[i] ? strlen(string[i]) : 0);
   total += count;                        /* One NUL-terminator per string */
   total *= sizeof(GLchar);
-  total += (count + 1)*sizeof(GLchar *); /* One GLchar pointer per string, plus NULL terminator */
+  total += 1;                            /*  NULL terminator */
 
   /* Do the allocation */
 
-  tmp = (GLchar **) malloc(total);
+  tmp = (char *) malloc(total);
 
   /* Copy the strings */
 
-  j = (GLchar *) (tmp + count + 1);
+  j = tmp;
   for (i=0; i<count; ++i)
   {
     k = length ? length[i] : (string[i] ? strlen(string[i]) : 0);
-    tmp[i] = j;
     memcpy(j,string[i],k);
     j += k;
-    *(j++) = '\0';
   }
+  *(j++) = '\0';
 
-  tmp[count] = NULL;
+  RegalAssert(tmp+total == j);
 
-  RegalAssert(((GLchar *) tmp) + total == j);
-
-  return (const GLchar **) tmp;
+  return tmp;
 }
 
 }

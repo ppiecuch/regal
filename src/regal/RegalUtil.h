@@ -4,6 +4,7 @@
   Copyright (c) 2012 Scott Nations
   Copyright (c) 2012 Mathias Schott
   Copyright (c) 2012 Nigel Stewart
+  Copyright (c) 2012 Google Inc.
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without modification,
@@ -60,6 +61,7 @@
 // VC8, VC9  - C4127: conditional expression is constant in std::list
 // VC10      - C4512:
 // VC9, VC10 - C4996: 'vsprintf': This function or variable may be unsafe
+// VC10      - C4127: conditional expression is constant
 
 #ifdef _MSC_VER
 # define REGAL_GLOBAL_BEGIN         \
@@ -85,6 +87,7 @@
   __pragma(pack(8))                    \
   __pragma(warning(push))              \
   __pragma(warning(disable : 4996))    \
+  __pragma(warning(disable : 4127))    \
   namespace REGAL_NAMESPACE_INTERNAL   \
   {
 # define REGAL_NAMESPACE_END           \
@@ -129,6 +132,17 @@
 #endif
 #endif
 
+// Code logging disabled by default in
+// release mode, or embedded
+
+#ifndef REGAL_CODE
+# if defined(NDEBUG) || REGAL_SYS_IOS || REGAL_SYS_PPAPI || REGAL_SYS_ANDROID
+#  define REGAL_CODE 0
+# else
+#  define REGAL_CODE 0
+# endif
+#endif
+
 // Emulation dispatch enabled by default
 
 #ifndef REGAL_EMULATION
@@ -169,12 +183,48 @@
 #define REGAL_EMU_IFF 1
 #endif
 
+#ifndef REGAL_EMU_SO
+#define REGAL_EMU_SO 1
+#endif
+
 #ifndef REGAL_EMU_VAO
 #define REGAL_EMU_VAO 1
 #endif
 
 #ifndef REGAL_EMU_FILTER
 #define REGAL_EMU_FILTER 1
+#endif
+
+//
+
+// Caching enabled by default
+// ... except for release-mode and embedded platforms
+
+#ifndef REGAL_CACHE
+# if defined(NDEBUG) || REGAL_SYS_IOS || REGAL_SYS_PPAPI || REGAL_SYS_ANDROID
+#  define REGAL_CACHE 0
+# else
+#  define REGAL_CACHE 1
+# endif
+#endif
+
+
+// Shader caching support by default
+
+#ifndef REGAL_CACHE_SHADER
+#define REGAL_CACHE_SHADER REGAL_CACHE
+#endif
+
+// Cache writing supported by default
+
+#ifndef REGAL_CACHE_SHADER_WRITE
+#define REGAL_CACHE_SHADER_WRITE REGAL_CACHE_SHADER
+#endif
+
+// Cache reading supported by default
+
+#ifndef REGAL_CACHE_SHADER_READ
+#define REGAL_CACHE_SHADER_READ REGAL_CACHE_SHADER
 #endif
 
 //
@@ -199,6 +249,14 @@
 
 #ifndef REGAL_STATIC_EGL
 #define REGAL_STATIC_EGL 0
+#endif
+
+#ifndef REGAL_EMU_TEXC
+#if REGAL_SYS_PPAPI
+#define REGAL_EMU_TEXC 1
+#else
+#define REGAL_EMU_TEXC 0
+#endif
 #endif
 
 // AssertFunction depends on Error log, but
@@ -295,6 +353,10 @@ strndup(const char *str, size_t n)
 extern bool  fileExists(const char *filename);
 extern FILE *fileOpen  (const char *filename, const char *mode);
 extern void  fileClose (FILE **file);
+
+//
+
+std::string makePath(const std::string &dir, const std::string &filename);
 
 // ToFloat for integer -> float
 

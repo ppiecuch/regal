@@ -75,7 +75,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../../../src/boost;../../../../include;../../../../src/mongoose;../../../../src/lookup3;../../../../src/md5/include;../../../../src/libpng/include;../../../../src/zlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>REGAL_WIN_TLS=1;REGAL_NAMESPACE;REGAL_DECL_EXPORT;REGAL_SYS_WGL_DECLARE_WGL;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>REGAL_WIN_TLS=1;REGAL_NAMESPACE;REGAL_DECL_EXPORT;REGAL_SYS_WGL_DECLARE_WGL;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -90,7 +90,7 @@
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;jsonsllib.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Release\Win32\regalm32.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Release\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -114,7 +114,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../../../src/boost;../../../../include;../../../../src/mongoose;../../../../src/lookup3;../../../../src/md5/include;../../../../src/libpng/include;../../../../src/zlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>REGAL_WIN_TLS=1;REGAL_NAMESPACE;REGAL_DECL_EXPORT;REGAL_SYS_WGL_DECLARE_WGL;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>REGAL_WIN_TLS=1;REGAL_NAMESPACE;REGAL_DECL_EXPORT;REGAL_SYS_WGL_DECLARE_WGL;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -130,7 +130,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;jsonsllib.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Release\x64\regalm32.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Release\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -152,7 +152,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../../src/boost;../../../../include;../../../../src/mongoose;../../../../src/lookup3;../../../../src/md5/include;../../../../src/libpng/include;../../../../src/zlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>REGAL_WIN_TLS=1;REGAL_NAMESPACE;REGAL_DECL_EXPORT;REGAL_SYS_WGL_DECLARE_WGL;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>REGAL_WIN_TLS=1;REGAL_NAMESPACE;REGAL_DECL_EXPORT;REGAL_SYS_WGL_DECLARE_WGL;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -167,7 +167,7 @@
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;jsonsllib.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Debug\Win32\regalm32.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Debug\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -191,7 +191,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../../src/boost;../../../../include;../../../../src/mongoose;../../../../src/lookup3;../../../../src/md5/include;../../../../src/libpng/include;../../../../src/zlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>REGAL_WIN_TLS=1;REGAL_NAMESPACE;REGAL_DECL_EXPORT;REGAL_SYS_WGL_DECLARE_WGL;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>REGAL_WIN_TLS=1;REGAL_NAMESPACE;REGAL_DECL_EXPORT;REGAL_SYS_WGL_DECLARE_WGL;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -206,7 +206,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;jsonsllib.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Debug\x64\regalm32.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Debug\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -227,6 +227,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\Regal\RegalMac.cpp" />
+    <ClCompile Include="..\..\..\..\src\Regal\RegalSo.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\Regal.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalBin.h" />
     <ClCompile Include="..\..\..\..\src\regal\RegalConfig.cpp" />
@@ -237,6 +238,8 @@
     <ClInclude Include="..\..\..\..\src\regal\RegalContextInfo.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalDebugInfo.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalDispatch.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalDispatchCache.cpp" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalDispatchCode.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchDebug.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchEmu.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchError.cpp" />
@@ -245,7 +248,7 @@
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchLoader.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchLog.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchMissing.cpp" />
-    <ClCompile Include="..\..\..\..\src\regal\RegalDispatchNacl.cpp" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalDispatchPpapi.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchStaticEGL.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchStaticES2.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatcher.cpp" />
@@ -273,16 +276,23 @@
     <ClCompile Include="..\..\..\..\src\regal\RegalMarker.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalMarker.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalObj.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalPixelConversions.cpp" />
+    <ClInclude Include="..\..\..\..\src\regal\RegalPixelConversions.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPpa.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPpc.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPrecompile.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPrivate.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPush.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalShaderCache.cpp" />
+    <ClInclude Include="..\..\..\..\src\regal\RegalShaderCache.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalSharedList.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalSharedMap.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalSharedPtr.h" />
+    <ClInclude Include="..\..\..\..\src\regal\RegalSo.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalState.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalSystem.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalTexC.cpp" />
+    <ClInclude Include="..\..\..\..\src\regal\RegalTexC.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalThread.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalTimer.h" />
     <ClCompile Include="..\..\..\..\src\regal\RegalToken.cpp" />
