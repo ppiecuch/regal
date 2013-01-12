@@ -37,7 +37,7 @@
 
 #include "gluos.h"
 #include <GL/Regal.h>
-#include <GL/glu.h>
+#include <GL/RegalGLU.h>
 #include <stdio.h>
 #include "glimports.h"
 #include "glrenderer.h"

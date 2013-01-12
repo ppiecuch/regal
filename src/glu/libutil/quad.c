@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <GL/Regal.h>
-#include <GL/glu.h>
+#include <GL/RegalGLU.h>
 
 /* Make it not a power of two to avoid cache thrashing on the chip */
 #define CACHE_SIZE	240

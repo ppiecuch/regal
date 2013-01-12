@@ -69,6 +69,262 @@
 		BC6C912A15EE3DC60056E4F7 /* RegalDispatchGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC6C912915EE3DC60056E4F7 /* RegalDispatchGlobal.cpp */; };
 		BC921A5E15D5624600E52C91 /* RegalDispatchMissing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC921A5C15D5624600E52C91 /* RegalDispatchMissing.cpp */; };
 		BC921A5F15D5624600E52C91 /* RegalDispatchNacl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC921A5D15D5624600E52C91 /* RegalDispatchNacl.cpp */; };
+		FB839AD4162FAE5A00F06C0E /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = BC020957160D1C73003FAB99 /* md5.c */; };
+		FBCBD9A515FF25E500C34F95 /* Regal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F4C15C4619B00D0177C /* Regal.cpp */; };
+		FBCBD9A615FF25E500C34F95 /* RegalConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F4E15C4619B00D0177C /* RegalConfig.cpp */; };
+		FBCBD9A715FF25E500C34F95 /* RegalContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F5015C4619B00D0177C /* RegalContext.cpp */; };
+		FBCBD9A815FF25E500C34F95 /* RegalContextInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F5215C4619B00D0177C /* RegalContextInfo.cpp */; };
+		FBCBD9A915FF25E500C34F95 /* RegalDispatchDebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F5615C4619B00D0177C /* RegalDispatchDebug.cpp */; };
+		FBCBD9AA15FF25E500C34F95 /* RegalDispatchEmu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F5715C4619B00D0177C /* RegalDispatchEmu.cpp */; };
+		FBCBD9AB15FF25E500C34F95 /* RegalDispatchError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F5815C4619B00D0177C /* RegalDispatchError.cpp */; };
+		FBCBD9AC15FF25E500C34F95 /* RegalDispatchLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F5A15C4619B00D0177C /* RegalDispatchLoader.cpp */; };
+		FBCBD9AD15FF25E500C34F95 /* RegalDispatchLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F5B15C4619B00D0177C /* RegalDispatchLog.cpp */; };
+		FBCBD9AE15FF25E500C34F95 /* RegalDllMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F5D15C4619B00D0177C /* RegalDllMain.cpp */; };
+		FBCBD9AF15FF25E500C34F95 /* RegalHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F6015C4619B00D0177C /* RegalHelper.cpp */; };
+		FBCBD9B015FF25E500C34F95 /* RegalHttp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F6215C4619B00D0177C /* RegalHttp.cpp */; };
+		FBCBD9B115FF25E500C34F95 /* RegalIff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F6415C4619B00D0177C /* RegalIff.cpp */; };
+		FBCBD9B215FF25E500C34F95 /* RegalInit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F6615C4619B00D0177C /* RegalInit.cpp */; };
+		FBCBD9B315FF25E500C34F95 /* RegalLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F6815C4619B00D0177C /* RegalLog.cpp */; };
+		FBCBD9B415FF25E500C34F95 /* RegalLookup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F6A15C4619B00D0177C /* RegalLookup.cpp */; };
+		FBCBD9B515FF25E500C34F95 /* RegalToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F7315C4619B00D0177C /* RegalToken.cpp */; };
+		FBCBD9B615FF25E500C34F95 /* RegalUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5F7515C4619B00D0177C /* RegalUtil.cpp */; };
+		FBCBD9B715FF25E500C34F95 /* mongoose.c in Sources */ = {isa = PBXBuildFile; fileRef = 43FC5FA615C461AC00D0177C /* mongoose.c */; };
+		FBCBD9B815FF25E500C34F95 /* RegalFavicon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4366EEEB15C9B54E00211205 /* RegalFavicon.cpp */; };
+		FBCBD9B915FF25E500C34F95 /* RegalMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4366EEED15C9B54E00211205 /* RegalMac.cpp */; };
+		FBCBD9BA15FF25E500C34F95 /* RegalDispatchMissing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC921A5C15D5624600E52C91 /* RegalDispatchMissing.cpp */; };
+		FBCBD9BB15FF25E500C34F95 /* RegalDispatchNacl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC921A5D15D5624600E52C91 /* RegalDispatchNacl.cpp */; };
+		FBCBD9BC15FF25E500C34F95 /* RegalDispatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43EFD6F415EAADAC004080CE /* RegalDispatcher.cpp */; };
+		FBCBD9BD15FF25E500C34F95 /* RegalDispatchStaticEGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43EFD6F615EAADAC004080CE /* RegalDispatchStaticEGL.cpp */; };
+		FBCBD9BE15FF25E500C34F95 /* RegalDispatchStaticES2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43EFD6F715EAADAC004080CE /* RegalDispatchStaticES2.cpp */; };
+		FBCBD9BF15FF25E500C34F95 /* RegalDispatchGlobal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BC6C912915EE3DC60056E4F7 /* RegalDispatchGlobal.cpp */; };
+		FBCBD9C115FF25E500C34F95 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43FC5EDE15C45EBB00D0177C /* Foundation.framework */; };
+		FBCBD9C315FF25E500C34F95 /* linear.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F4B15C4619B00D0177C /* linear.h */; };
+		FBCBD9C415FF25E500C34F95 /* RegalBin.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F4D15C4619B00D0177C /* RegalBin.h */; };
+		FBCBD9C515FF25E500C34F95 /* RegalConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F4F15C4619B00D0177C /* RegalConfig.h */; };
+		FBCBD9C615FF25E500C34F95 /* RegalContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F5115C4619B00D0177C /* RegalContext.h */; };
+		FBCBD9C715FF25E500C34F95 /* RegalContextInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F5315C4619B00D0177C /* RegalContextInfo.h */; };
+		FBCBD9C815FF25E500C34F95 /* RegalDebugInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F5415C4619B00D0177C /* RegalDebugInfo.h */; };
+		FBCBD9C915FF25E500C34F95 /* RegalDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F5515C4619B00D0177C /* RegalDispatch.h */; };
+		FBCBD9CA15FF25E500C34F95 /* RegalDispatchError.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F5915C4619B00D0177C /* RegalDispatchError.h */; };
+		FBCBD9CB15FF25E500C34F95 /* RegalDsa.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F5E15C4619B00D0177C /* RegalDsa.h */; };
+		FBCBD9CC15FF25E500C34F95 /* RegalEmu.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F5F15C4619B00D0177C /* RegalEmu.h */; };
+		FBCBD9CD15FF25E500C34F95 /* RegalHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6115C4619B00D0177C /* RegalHelper.h */; };
+		FBCBD9CE15FF25E500C34F95 /* RegalHttp.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6315C4619B00D0177C /* RegalHttp.h */; };
+		FBCBD9CF15FF25E500C34F95 /* RegalIff.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6515C4619B00D0177C /* RegalIff.h */; };
+		FBCBD9D015FF25E500C34F95 /* RegalInit.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6715C4619B00D0177C /* RegalInit.h */; };
+		FBCBD9D115FF25E500C34F95 /* RegalLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6915C4619B00D0177C /* RegalLog.h */; };
+		FBCBD9D215FF25E500C34F95 /* RegalLookup.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6B15C4619B00D0177C /* RegalLookup.h */; };
+		FBCBD9D315FF25E500C34F95 /* RegalMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6C15C4619B00D0177C /* RegalMarker.h */; };
+		FBCBD9D415FF25E500C34F95 /* RegalObj.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6D15C4619B00D0177C /* RegalObj.h */; };
+		FBCBD9D515FF25E500C34F95 /* RegalPpa.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6E15C4619B00D0177C /* RegalPpa.h */; };
+		FBCBD9D615FF25E500C34F95 /* RegalPpc.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F6F15C4619B00D0177C /* RegalPpc.h */; };
+		FBCBD9D715FF25E500C34F95 /* RegalPrecompile.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F7015C4619B00D0177C /* RegalPrecompile.h */; };
+		FBCBD9D815FF25E500C34F95 /* RegalPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F7115C4619B00D0177C /* RegalPrivate.h */; };
+		FBCBD9D915FF25E500C34F95 /* RegalState.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F7215C4619B00D0177C /* RegalState.h */; };
+		FBCBD9DA15FF25E500C34F95 /* RegalToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F7415C4619B00D0177C /* RegalToken.h */; };
+		FBCBD9DB15FF25E500C34F95 /* RegalUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F7615C4619B00D0177C /* RegalUtil.h */; };
+		FBCBD9DC15FF25E500C34F95 /* RegalVao.h in Headers */ = {isa = PBXBuildFile; fileRef = 43FC5F7715C4619B00D0177C /* RegalVao.h */; };
+		FBCBD9DD15FF25E500C34F95 /* RegalEnum.h in Headers */ = {isa = PBXBuildFile; fileRef = 4366EEEA15C9B54E00211205 /* RegalEnum.h */; };
+		FBCBD9DE15FF25E500C34F95 /* RegalFavicon.h in Headers */ = {isa = PBXBuildFile; fileRef = 4366EEEC15C9B54E00211205 /* RegalFavicon.h */; };
+		FBCBD9DF15FF25E500C34F95 /* RegalDispatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 43EFD6F515EAADAC004080CE /* RegalDispatcher.h */; };
+		FBCBD9E015FF25E500C34F95 /* RegalSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 43EFD6F815EAADAC004080CE /* RegalSystem.h */; };
+		FBCBDABE15FF260900C34F95 /* glu.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9EA15FF260800C34F95 /* glu.h */; };
+		FBCBDABF15FF260900C34F95 /* gluos.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9EB15FF260800C34F95 /* gluos.h */; };
+		FBCBDAC015FF260900C34F95 /* bezierEval.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBD9F015FF260800C34F95 /* bezierEval.cc */; };
+		FBCBDAC115FF260900C34F95 /* bezierEval.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9F115FF260800C34F95 /* bezierEval.h */; };
+		FBCBDAC215FF260900C34F95 /* bezierPatch.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBD9F215FF260800C34F95 /* bezierPatch.cc */; };
+		FBCBDAC315FF260900C34F95 /* bezierPatch.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9F315FF260800C34F95 /* bezierPatch.h */; };
+		FBCBDAC415FF260900C34F95 /* bezierPatchMesh.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBD9F415FF260800C34F95 /* bezierPatchMesh.cc */; };
+		FBCBDAC515FF260900C34F95 /* bezierPatchMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9F515FF260800C34F95 /* bezierPatchMesh.h */; };
+		FBCBDAC615FF260900C34F95 /* glcurveval.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBD9F615FF260800C34F95 /* glcurveval.cc */; };
+		FBCBDAC715FF260900C34F95 /* glcurveval.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9F715FF260800C34F95 /* glcurveval.h */; };
+		FBCBDAC815FF260900C34F95 /* glimports.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9F815FF260800C34F95 /* glimports.h */; };
+		FBCBDAC915FF260900C34F95 /* glinterface.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBD9F915FF260800C34F95 /* glinterface.cc */; };
+		FBCBDACA15FF260900C34F95 /* glrenderer.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBD9FA15FF260800C34F95 /* glrenderer.cc */; };
+		FBCBDACB15FF260900C34F95 /* glrenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9FB15FF260800C34F95 /* glrenderer.h */; };
+		FBCBDACC15FF260900C34F95 /* glsurfeval.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBD9FC15FF260800C34F95 /* glsurfeval.cc */; };
+		FBCBDACD15FF260900C34F95 /* glsurfeval.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBD9FD15FF260800C34F95 /* glsurfeval.h */; };
+		FBCBDACE15FF260900C34F95 /* incurveeval.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA0015FF260800C34F95 /* incurveeval.cc */; };
+		FBCBDACF15FF260900C34F95 /* insurfeval.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA0115FF260800C34F95 /* insurfeval.cc */; };
+		FBCBDAD015FF260900C34F95 /* mystdio.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA0215FF260800C34F95 /* mystdio.h */; };
+		FBCBDAD115FF260900C34F95 /* mystdlib.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA0315FF260800C34F95 /* mystdlib.h */; };
+		FBCBDAD215FF260900C34F95 /* arc.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA0515FF260800C34F95 /* arc.cc */; };
+		FBCBDAD315FF260900C34F95 /* arc.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA0615FF260800C34F95 /* arc.h */; };
+		FBCBDAD415FF260900C34F95 /* arcsorter.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA0715FF260800C34F95 /* arcsorter.cc */; };
+		FBCBDAD515FF260900C34F95 /* arcsorter.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA0815FF260800C34F95 /* arcsorter.h */; };
+		FBCBDAD615FF260900C34F95 /* arctess.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA0915FF260800C34F95 /* arctess.cc */; };
+		FBCBDAD715FF260900C34F95 /* arctess.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA0A15FF260800C34F95 /* arctess.h */; };
+		FBCBDAD815FF260900C34F95 /* backend.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA0B15FF260800C34F95 /* backend.cc */; };
+		FBCBDAD915FF260900C34F95 /* backend.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA0C15FF260800C34F95 /* backend.h */; };
+		FBCBDADA15FF260900C34F95 /* basiccrveval.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA0D15FF260800C34F95 /* basiccrveval.cc */; };
+		FBCBDADB15FF260900C34F95 /* basiccrveval.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA0E15FF260800C34F95 /* basiccrveval.h */; };
+		FBCBDADC15FF260900C34F95 /* basicsurfeval.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA0F15FF260800C34F95 /* basicsurfeval.cc */; };
+		FBCBDADD15FF260900C34F95 /* basicsurfeval.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA1015FF260800C34F95 /* basicsurfeval.h */; };
+		FBCBDADE15FF260900C34F95 /* bezierarc.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA1115FF260800C34F95 /* bezierarc.h */; };
+		FBCBDADF15FF260900C34F95 /* bin.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA1215FF260800C34F95 /* bin.cc */; };
+		FBCBDAE015FF260900C34F95 /* bin.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA1315FF260800C34F95 /* bin.h */; };
+		FBCBDAE115FF260900C34F95 /* bufpool.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA1415FF260800C34F95 /* bufpool.cc */; };
+		FBCBDAE215FF260900C34F95 /* bufpool.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA1515FF260800C34F95 /* bufpool.h */; };
+		FBCBDAE315FF260900C34F95 /* cachingeval.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA1615FF260800C34F95 /* cachingeval.cc */; };
+		FBCBDAE415FF260900C34F95 /* cachingeval.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA1715FF260800C34F95 /* cachingeval.h */; };
+		FBCBDAE515FF260900C34F95 /* ccw.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA1815FF260800C34F95 /* ccw.cc */; };
+		FBCBDAE615FF260900C34F95 /* coveandtiler.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA1915FF260800C34F95 /* coveandtiler.cc */; };
+		FBCBDAE715FF260900C34F95 /* coveandtiler.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA1A15FF260800C34F95 /* coveandtiler.h */; };
+		FBCBDAE815FF260900C34F95 /* curve.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA1B15FF260800C34F95 /* curve.cc */; };
+		FBCBDAE915FF260900C34F95 /* curve.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA1C15FF260800C34F95 /* curve.h */; };
+		FBCBDAEA15FF260900C34F95 /* curvelist.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA1D15FF260800C34F95 /* curvelist.cc */; };
+		FBCBDAEB15FF260900C34F95 /* curvelist.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA1E15FF260800C34F95 /* curvelist.h */; };
+		FBCBDAEC15FF260900C34F95 /* curvesub.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA1F15FF260800C34F95 /* curvesub.cc */; };
+		FBCBDAED15FF260900C34F95 /* dataTransform.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA2015FF260800C34F95 /* dataTransform.cc */; };
+		FBCBDAEE15FF260900C34F95 /* dataTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2115FF260800C34F95 /* dataTransform.h */; };
+		FBCBDAEF15FF260900C34F95 /* defines.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2215FF260800C34F95 /* defines.h */; };
+		FBCBDAF015FF260900C34F95 /* displaylist.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA2315FF260800C34F95 /* displaylist.cc */; };
+		FBCBDAF115FF260900C34F95 /* displaylist.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2415FF260800C34F95 /* displaylist.h */; };
+		FBCBDAF215FF260900C34F95 /* displaymode.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2515FF260800C34F95 /* displaymode.h */; };
+		FBCBDAF315FF260900C34F95 /* flist.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA2615FF260800C34F95 /* flist.cc */; };
+		FBCBDAF415FF260900C34F95 /* flist.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2715FF260800C34F95 /* flist.h */; };
+		FBCBDAF515FF260900C34F95 /* flistsorter.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA2815FF260800C34F95 /* flistsorter.cc */; };
+		FBCBDAF615FF260900C34F95 /* flistsorter.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2915FF260800C34F95 /* flistsorter.h */; };
+		FBCBDAF715FF260900C34F95 /* gridline.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2B15FF260800C34F95 /* gridline.h */; };
+		FBCBDAF815FF260900C34F95 /* gridtrimvertex.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2C15FF260800C34F95 /* gridtrimvertex.h */; };
+		FBCBDAF915FF260900C34F95 /* gridvertex.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2D15FF260800C34F95 /* gridvertex.h */; };
+		FBCBDAFA15FF260900C34F95 /* hull.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA2E15FF260800C34F95 /* hull.cc */; };
+		FBCBDAFB15FF260900C34F95 /* hull.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA2F15FF260800C34F95 /* hull.h */; };
+		FBCBDAFC15FF260900C34F95 /* intersect.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA3115FF260800C34F95 /* intersect.cc */; };
+		FBCBDAFD15FF260900C34F95 /* jarcloc.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA3215FF260800C34F95 /* jarcloc.h */; };
+		FBCBDAFE15FF260900C34F95 /* knotvector.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA3315FF260800C34F95 /* knotvector.cc */; };
+		FBCBDAFF15FF260900C34F95 /* knotvector.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA3415FF260800C34F95 /* knotvector.h */; };
+		FBCBDB0015FF260900C34F95 /* mapdesc.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA3515FF260800C34F95 /* mapdesc.cc */; };
+		FBCBDB0115FF260900C34F95 /* mapdesc.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA3615FF260800C34F95 /* mapdesc.h */; };
+		FBCBDB0215FF260900C34F95 /* mapdescv.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA3715FF260800C34F95 /* mapdescv.cc */; };
+		FBCBDB0315FF260900C34F95 /* maplist.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA3815FF260800C34F95 /* maplist.cc */; };
+		FBCBDB0415FF260900C34F95 /* maplist.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA3915FF260800C34F95 /* maplist.h */; };
+		FBCBDB0515FF260900C34F95 /* mesher.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA3A15FF260800C34F95 /* mesher.cc */; };
+		FBCBDB0615FF260900C34F95 /* mesher.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA3B15FF260800C34F95 /* mesher.h */; };
+		FBCBDB0715FF260900C34F95 /* monotonizer.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA3C15FF260800C34F95 /* monotonizer.cc */; };
+		FBCBDB0815FF260900C34F95 /* monotonizer.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA3D15FF260800C34F95 /* monotonizer.h */; };
+		FBCBDB0915FF260900C34F95 /* monoTriangulationBackend.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA3E15FF260800C34F95 /* monoTriangulationBackend.cc */; };
+		FBCBDB0A15FF260900C34F95 /* myassert.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA3F15FF260800C34F95 /* myassert.h */; };
+		FBCBDB0B15FF260900C34F95 /* mycode.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA4015FF260800C34F95 /* mycode.cc */; };
+		FBCBDB0C15FF260900C34F95 /* mymath.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4115FF260800C34F95 /* mymath.h */; };
+		FBCBDB0D15FF260900C34F95 /* mysetjmp.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4215FF260800C34F95 /* mysetjmp.h */; };
+		FBCBDB0E15FF260900C34F95 /* mystring.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4315FF260800C34F95 /* mystring.h */; };
+		FBCBDB0F15FF260900C34F95 /* nurbsconsts.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4415FF260800C34F95 /* nurbsconsts.h */; };
+		FBCBDB1015FF260900C34F95 /* nurbsinterfac.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA4515FF260800C34F95 /* nurbsinterfac.cc */; };
+		FBCBDB1115FF260900C34F95 /* nurbstess.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA4615FF260800C34F95 /* nurbstess.cc */; };
+		FBCBDB1215FF260900C34F95 /* nurbstess.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4715FF260800C34F95 /* nurbstess.h */; };
+		FBCBDB1315FF260900C34F95 /* patch.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA4815FF260800C34F95 /* patch.cc */; };
+		FBCBDB1415FF260900C34F95 /* patch.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4915FF260800C34F95 /* patch.h */; };
+		FBCBDB1515FF260900C34F95 /* patchlist.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA4A15FF260800C34F95 /* patchlist.cc */; };
+		FBCBDB1615FF260900C34F95 /* patchlist.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4B15FF260800C34F95 /* patchlist.h */; };
+		FBCBDB1715FF260900C34F95 /* pwlarc.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4C15FF260800C34F95 /* pwlarc.h */; };
+		FBCBDB1815FF260900C34F95 /* quilt.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA4D15FF260800C34F95 /* quilt.cc */; };
+		FBCBDB1915FF260900C34F95 /* quilt.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA4E15FF260800C34F95 /* quilt.h */; };
+		FBCBDB1A15FF260900C34F95 /* reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA4F15FF260800C34F95 /* reader.cc */; };
+		FBCBDB1B15FF260900C34F95 /* reader.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA5015FF260800C34F95 /* reader.h */; };
+		FBCBDB1C15FF260900C34F95 /* renderhints.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA5115FF260800C34F95 /* renderhints.cc */; };
+		FBCBDB1D15FF260900C34F95 /* renderhints.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA5215FF260800C34F95 /* renderhints.h */; };
+		FBCBDB1E15FF260900C34F95 /* simplemath.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA5315FF260800C34F95 /* simplemath.h */; };
+		FBCBDB1F15FF260900C34F95 /* slicer.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA5415FF260800C34F95 /* slicer.cc */; };
+		FBCBDB2015FF260900C34F95 /* slicer.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA5515FF260800C34F95 /* slicer.h */; };
+		FBCBDB2115FF260900C34F95 /* sorter.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA5615FF260800C34F95 /* sorter.cc */; };
+		FBCBDB2215FF260900C34F95 /* sorter.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA5715FF260800C34F95 /* sorter.h */; };
+		FBCBDB2315FF260900C34F95 /* splitarcs.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA5815FF260800C34F95 /* splitarcs.cc */; };
+		FBCBDB2415FF260900C34F95 /* subdivider.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA5915FF260800C34F95 /* subdivider.cc */; };
+		FBCBDB2515FF260900C34F95 /* subdivider.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA5A15FF260800C34F95 /* subdivider.h */; };
+		FBCBDB2615FF260900C34F95 /* tobezier.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA5B15FF260900C34F95 /* tobezier.cc */; };
+		FBCBDB2715FF260900C34F95 /* trimline.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA5C15FF260900C34F95 /* trimline.cc */; };
+		FBCBDB2815FF260900C34F95 /* trimline.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA5D15FF260900C34F95 /* trimline.h */; };
+		FBCBDB2915FF260900C34F95 /* trimregion.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA5E15FF260900C34F95 /* trimregion.cc */; };
+		FBCBDB2A15FF260900C34F95 /* trimregion.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA5F15FF260900C34F95 /* trimregion.h */; };
+		FBCBDB2B15FF260900C34F95 /* trimvertex.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6015FF260900C34F95 /* trimvertex.h */; };
+		FBCBDB2C15FF260900C34F95 /* trimvertpool.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA6115FF260900C34F95 /* trimvertpool.cc */; };
+		FBCBDB2D15FF260900C34F95 /* trimvertpool.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6215FF260900C34F95 /* trimvertpool.h */; };
+		FBCBDB2E15FF260900C34F95 /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6315FF260900C34F95 /* types.h */; };
+		FBCBDB2F15FF260900C34F95 /* uarray.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA6415FF260900C34F95 /* uarray.cc */; };
+		FBCBDB3015FF260900C34F95 /* uarray.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6515FF260900C34F95 /* uarray.h */; };
+		FBCBDB3115FF260900C34F95 /* varray.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA6615FF260900C34F95 /* varray.cc */; };
+		FBCBDB3215FF260900C34F95 /* varray.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6715FF260900C34F95 /* varray.h */; };
+		FBCBDB3315FF260900C34F95 /* definitions.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6915FF260900C34F95 /* definitions.h */; };
+		FBCBDB3415FF260900C34F95 /* directedLine.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA6A15FF260900C34F95 /* directedLine.cc */; };
+		FBCBDB3515FF260900C34F95 /* directedLine.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6B15FF260900C34F95 /* directedLine.h */; };
+		FBCBDB3615FF260900C34F95 /* glimports.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6C15FF260900C34F95 /* glimports.h */; };
+		FBCBDB3715FF260900C34F95 /* gridWrap.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA6E15FF260900C34F95 /* gridWrap.cc */; };
+		FBCBDB3815FF260900C34F95 /* gridWrap.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA6F15FF260900C34F95 /* gridWrap.h */; };
+		FBCBDB3915FF260900C34F95 /* monoChain.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA7115FF260900C34F95 /* monoChain.cc */; };
+		FBCBDB3A15FF260900C34F95 /* monoChain.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA7215FF260900C34F95 /* monoChain.h */; };
+		FBCBDB3B15FF260900C34F95 /* monoPolyPart.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA7315FF260900C34F95 /* monoPolyPart.cc */; };
+		FBCBDB3C15FF260900C34F95 /* monoPolyPart.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA7415FF260900C34F95 /* monoPolyPart.h */; };
+		FBCBDB3D15FF260900C34F95 /* monoTriangulation.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA7515FF260900C34F95 /* monoTriangulation.cc */; };
+		FBCBDB3E15FF260900C34F95 /* monoTriangulation.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA7615FF260900C34F95 /* monoTriangulation.h */; };
+		FBCBDB3F15FF260900C34F95 /* mystdio.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA7715FF260900C34F95 /* mystdio.h */; };
+		FBCBDB4015FF260900C34F95 /* mystdlib.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA7815FF260900C34F95 /* mystdlib.h */; };
+		FBCBDB4115FF260900C34F95 /* partitionX.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA7915FF260900C34F95 /* partitionX.cc */; };
+		FBCBDB4215FF260900C34F95 /* partitionX.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA7A15FF260900C34F95 /* partitionX.h */; };
+		FBCBDB4315FF260900C34F95 /* partitionY.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA7B15FF260900C34F95 /* partitionY.cc */; };
+		FBCBDB4415FF260900C34F95 /* partitionY.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA7C15FF260900C34F95 /* partitionY.h */; };
+		FBCBDB4515FF260900C34F95 /* polyDBG.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA7D15FF260900C34F95 /* polyDBG.cc */; };
+		FBCBDB4615FF260900C34F95 /* polyDBG.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA7E15FF260900C34F95 /* polyDBG.h */; };
+		FBCBDB4715FF260900C34F95 /* polyUtil.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA7F15FF260900C34F95 /* polyUtil.cc */; };
+		FBCBDB4815FF260900C34F95 /* polyUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA8015FF260900C34F95 /* polyUtil.h */; };
+		FBCBDB4915FF260900C34F95 /* primitiveStream.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA8115FF260900C34F95 /* primitiveStream.cc */; };
+		FBCBDB4A15FF260900C34F95 /* primitiveStream.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA8215FF260900C34F95 /* primitiveStream.h */; };
+		FBCBDB4B15FF260900C34F95 /* quicksort.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA8315FF260900C34F95 /* quicksort.cc */; };
+		FBCBDB4C15FF260900C34F95 /* quicksort.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA8415FF260900C34F95 /* quicksort.h */; };
+		FBCBDB4D15FF260900C34F95 /* rectBlock.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA8515FF260900C34F95 /* rectBlock.cc */; };
+		FBCBDB4E15FF260900C34F95 /* rectBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA8615FF260900C34F95 /* rectBlock.h */; };
+		FBCBDB4F15FF260900C34F95 /* sampleComp.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA8715FF260900C34F95 /* sampleComp.cc */; };
+		FBCBDB5015FF260900C34F95 /* sampleComp.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA8815FF260900C34F95 /* sampleComp.h */; };
+		FBCBDB5115FF260900C34F95 /* sampleCompBot.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA8915FF260900C34F95 /* sampleCompBot.cc */; };
+		FBCBDB5215FF260900C34F95 /* sampleCompBot.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA8A15FF260900C34F95 /* sampleCompBot.h */; };
+		FBCBDB5315FF260900C34F95 /* sampleCompRight.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA8B15FF260900C34F95 /* sampleCompRight.cc */; };
+		FBCBDB5415FF260900C34F95 /* sampleCompRight.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA8C15FF260900C34F95 /* sampleCompRight.h */; };
+		FBCBDB5515FF260900C34F95 /* sampleCompTop.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA8D15FF260900C34F95 /* sampleCompTop.cc */; };
+		FBCBDB5615FF260900C34F95 /* sampleCompTop.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA8E15FF260900C34F95 /* sampleCompTop.h */; };
+		FBCBDB5715FF260900C34F95 /* sampledLine.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA8F15FF260900C34F95 /* sampledLine.cc */; };
+		FBCBDB5815FF260900C34F95 /* sampledLine.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA9015FF260900C34F95 /* sampledLine.h */; };
+		FBCBDB5915FF260900C34F95 /* sampleMonoPoly.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA9115FF260900C34F95 /* sampleMonoPoly.cc */; };
+		FBCBDB5A15FF260900C34F95 /* sampleMonoPoly.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA9215FF260900C34F95 /* sampleMonoPoly.h */; };
+		FBCBDB5B15FF260900C34F95 /* searchTree.cc in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA9315FF260900C34F95 /* searchTree.cc */; };
+		FBCBDB5C15FF260900C34F95 /* searchTree.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA9415FF260900C34F95 /* searchTree.h */; };
+		FBCBDB5D15FF260900C34F95 /* zlassert.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA9515FF260900C34F95 /* zlassert.h */; };
+		FBCBDB5E15FF260900C34F95 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA9815FF260900C34F95 /* dict-list.h */; };
+		FBCBDB5F15FF260B00C34F95 /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA9915FF260900C34F95 /* dict.c */; };
+		FBCBDB6015FF260B00C34F95 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA9A15FF260900C34F95 /* dict.h */; };
+		FBCBDB6115FF260B00C34F95 /* geom.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA9B15FF260900C34F95 /* geom.c */; };
+		FBCBDB6215FF260B00C34F95 /* geom.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDA9C15FF260900C34F95 /* geom.h */; };
+		FBCBDB6315FF260B00C34F95 /* memalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDA9F15FF260900C34F95 /* memalloc.c */; };
+		FBCBDB6415FF260B00C34F95 /* memalloc.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAA015FF260900C34F95 /* memalloc.h */; };
+		FBCBDB6515FF260B00C34F95 /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAA115FF260900C34F95 /* mesh.c */; };
+		FBCBDB6615FF260B00C34F95 /* mesh.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAA215FF260900C34F95 /* mesh.h */; };
+		FBCBDB6715FF260B00C34F95 /* normal.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAA315FF260900C34F95 /* normal.c */; };
+		FBCBDB6815FF260B00C34F95 /* normal.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAA415FF260900C34F95 /* normal.h */; };
+		FBCBDB6915FF260B00C34F95 /* priorityq-heap.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAA515FF260900C34F95 /* priorityq-heap.c */; };
+		FBCBDB6A15FF260B00C34F95 /* priorityq-heap.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAA615FF260900C34F95 /* priorityq-heap.h */; };
+		FBCBDB6B15FF260B00C34F95 /* priorityq-sort.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAA715FF260900C34F95 /* priorityq-sort.h */; };
+		FBCBDB6C15FF260B00C34F95 /* priorityq.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAA815FF260900C34F95 /* priorityq.c */; };
+		FBCBDB6D15FF260B00C34F95 /* priorityq.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAA915FF260900C34F95 /* priorityq.h */; };
+		FBCBDB6E15FF260B00C34F95 /* render.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAAB15FF260900C34F95 /* render.c */; };
+		FBCBDB6F15FF260B00C34F95 /* render.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAAC15FF260900C34F95 /* render.h */; };
+		FBCBDB7015FF260B00C34F95 /* sweep.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAAD15FF260900C34F95 /* sweep.c */; };
+		FBCBDB7115FF260B00C34F95 /* sweep.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAAE15FF260900C34F95 /* sweep.h */; };
+		FBCBDB7215FF260B00C34F95 /* tess.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAAF15FF260900C34F95 /* tess.c */; };
+		FBCBDB7315FF260B00C34F95 /* tess.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAB015FF260900C34F95 /* tess.h */; };
+		FBCBDB7415FF260B00C34F95 /* tessmono.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAB115FF260900C34F95 /* tessmono.c */; };
+		FBCBDB7515FF260B00C34F95 /* tessmono.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAB215FF260900C34F95 /* tessmono.h */; };
+		FBCBDB7615FF260B00C34F95 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAB415FF260900C34F95 /* error.c */; };
+		FBCBDB7715FF260B00C34F95 /* glue.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAB515FF260900C34F95 /* glue.c */; };
+		FBCBDB7815FF260B00C34F95 /* gluint.h in Headers */ = {isa = PBXBuildFile; fileRef = FBCBDAB615FF260900C34F95 /* gluint.h */; };
+		FBCBDB7915FF260B00C34F95 /* mipmap.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDAB915FF260900C34F95 /* mipmap.c */; };
+		FBCBDB7A15FF260B00C34F95 /* project.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDABA15FF260900C34F95 /* project.c */; };
+		FBCBDB7B15FF260B00C34F95 /* quad.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDABB15FF260900C34F95 /* quad.c */; };
+		FBCBDB7C15FF260B00C34F95 /* registry.c in Sources */ = {isa = PBXBuildFile; fileRef = FBCBDABC15FF260900C34F95 /* registry.c */; };
+		FBE90D1316413DCB000BE5F7 /* md5.h in Headers */ = {isa = PBXBuildFile; fileRef = FBE90D1216413DCB000BE5F7 /* md5.h */; };
+		FBE90D1416413DCB000BE5F7 /* md5.h in Headers */ = {isa = PBXBuildFile; fileRef = FBE90D1216413DCB000BE5F7 /* md5.h */; };
+		FBE90D1916413E19000BE5F7 /* lookup3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FBE90D1716413E19000BE5F7 /* lookup3.cpp */; };
+		FBE90D1A16413E19000BE5F7 /* lookup3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FBE90D1716413E19000BE5F7 /* lookup3.cpp */; };
+		FBE90D1B16413E19000BE5F7 /* lookup3.h in Headers */ = {isa = PBXBuildFile; fileRef = FBE90D1816413E19000BE5F7 /* lookup3.h */; };
+		FBE90D1C16413E19000BE5F7 /* lookup3.h in Headers */ = {isa = PBXBuildFile; fileRef = FBE90D1816413E19000BE5F7 /* lookup3.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -135,6 +391,212 @@
 		BC6C912915EE3DC60056E4F7 /* RegalDispatchGlobal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RegalDispatchGlobal.cpp; path = ../../../src/regal/RegalDispatchGlobal.cpp; sourceTree = "<group>"; };
 		BC921A5C15D5624600E52C91 /* RegalDispatchMissing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RegalDispatchMissing.cpp; path = ../../../src/regal/RegalDispatchMissing.cpp; sourceTree = "<group>"; };
 		BC921A5D15D5624600E52C91 /* RegalDispatchNacl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RegalDispatchNacl.cpp; path = ../../../src/regal/RegalDispatchNacl.cpp; sourceTree = "<group>"; };
+		FBCBD9E415FF25E500C34F95 /* libRegalGLU.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRegalGLU.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FBCBD9EA15FF260800C34F95 /* glu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glu.h; sourceTree = "<group>"; };
+		FBCBD9EB15FF260800C34F95 /* gluos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gluos.h; sourceTree = "<group>"; };
+		FBCBD9F015FF260800C34F95 /* bezierEval.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bezierEval.cc; sourceTree = "<group>"; };
+		FBCBD9F115FF260800C34F95 /* bezierEval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bezierEval.h; sourceTree = "<group>"; };
+		FBCBD9F215FF260800C34F95 /* bezierPatch.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bezierPatch.cc; sourceTree = "<group>"; };
+		FBCBD9F315FF260800C34F95 /* bezierPatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bezierPatch.h; sourceTree = "<group>"; };
+		FBCBD9F415FF260800C34F95 /* bezierPatchMesh.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bezierPatchMesh.cc; sourceTree = "<group>"; };
+		FBCBD9F515FF260800C34F95 /* bezierPatchMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bezierPatchMesh.h; sourceTree = "<group>"; };
+		FBCBD9F615FF260800C34F95 /* glcurveval.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glcurveval.cc; sourceTree = "<group>"; };
+		FBCBD9F715FF260800C34F95 /* glcurveval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glcurveval.h; sourceTree = "<group>"; };
+		FBCBD9F815FF260800C34F95 /* glimports.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glimports.h; sourceTree = "<group>"; };
+		FBCBD9F915FF260800C34F95 /* glinterface.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glinterface.cc; sourceTree = "<group>"; };
+		FBCBD9FA15FF260800C34F95 /* glrenderer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glrenderer.cc; sourceTree = "<group>"; };
+		FBCBD9FB15FF260800C34F95 /* glrenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glrenderer.h; sourceTree = "<group>"; };
+		FBCBD9FC15FF260800C34F95 /* glsurfeval.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glsurfeval.cc; sourceTree = "<group>"; };
+		FBCBD9FD15FF260800C34F95 /* glsurfeval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glsurfeval.h; sourceTree = "<group>"; };
+		FBCBD9FE15FF260800C34F95 /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
+		FBCBD9FF15FF260800C34F95 /* Imakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Imakefile; sourceTree = "<group>"; };
+		FBCBDA0015FF260800C34F95 /* incurveeval.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = incurveeval.cc; sourceTree = "<group>"; };
+		FBCBDA0115FF260800C34F95 /* insurfeval.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = insurfeval.cc; sourceTree = "<group>"; };
+		FBCBDA0215FF260800C34F95 /* mystdio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mystdio.h; sourceTree = "<group>"; };
+		FBCBDA0315FF260800C34F95 /* mystdlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mystdlib.h; sourceTree = "<group>"; };
+		FBCBDA0515FF260800C34F95 /* arc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = arc.cc; sourceTree = "<group>"; };
+		FBCBDA0615FF260800C34F95 /* arc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arc.h; sourceTree = "<group>"; };
+		FBCBDA0715FF260800C34F95 /* arcsorter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = arcsorter.cc; sourceTree = "<group>"; };
+		FBCBDA0815FF260800C34F95 /* arcsorter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arcsorter.h; sourceTree = "<group>"; };
+		FBCBDA0915FF260800C34F95 /* arctess.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = arctess.cc; sourceTree = "<group>"; };
+		FBCBDA0A15FF260800C34F95 /* arctess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arctess.h; sourceTree = "<group>"; };
+		FBCBDA0B15FF260800C34F95 /* backend.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = backend.cc; sourceTree = "<group>"; };
+		FBCBDA0C15FF260800C34F95 /* backend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = backend.h; sourceTree = "<group>"; };
+		FBCBDA0D15FF260800C34F95 /* basiccrveval.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basiccrveval.cc; sourceTree = "<group>"; };
+		FBCBDA0E15FF260800C34F95 /* basiccrveval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basiccrveval.h; sourceTree = "<group>"; };
+		FBCBDA0F15FF260800C34F95 /* basicsurfeval.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basicsurfeval.cc; sourceTree = "<group>"; };
+		FBCBDA1015FF260800C34F95 /* basicsurfeval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basicsurfeval.h; sourceTree = "<group>"; };
+		FBCBDA1115FF260800C34F95 /* bezierarc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bezierarc.h; sourceTree = "<group>"; };
+		FBCBDA1215FF260800C34F95 /* bin.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bin.cc; sourceTree = "<group>"; };
+		FBCBDA1315FF260800C34F95 /* bin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bin.h; sourceTree = "<group>"; };
+		FBCBDA1415FF260800C34F95 /* bufpool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bufpool.cc; sourceTree = "<group>"; };
+		FBCBDA1515FF260800C34F95 /* bufpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bufpool.h; sourceTree = "<group>"; };
+		FBCBDA1615FF260800C34F95 /* cachingeval.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cachingeval.cc; sourceTree = "<group>"; };
+		FBCBDA1715FF260800C34F95 /* cachingeval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cachingeval.h; sourceTree = "<group>"; };
+		FBCBDA1815FF260800C34F95 /* ccw.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ccw.cc; sourceTree = "<group>"; };
+		FBCBDA1915FF260800C34F95 /* coveandtiler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = coveandtiler.cc; sourceTree = "<group>"; };
+		FBCBDA1A15FF260800C34F95 /* coveandtiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coveandtiler.h; sourceTree = "<group>"; };
+		FBCBDA1B15FF260800C34F95 /* curve.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = curve.cc; sourceTree = "<group>"; };
+		FBCBDA1C15FF260800C34F95 /* curve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curve.h; sourceTree = "<group>"; };
+		FBCBDA1D15FF260800C34F95 /* curvelist.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = curvelist.cc; sourceTree = "<group>"; };
+		FBCBDA1E15FF260800C34F95 /* curvelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curvelist.h; sourceTree = "<group>"; };
+		FBCBDA1F15FF260800C34F95 /* curvesub.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = curvesub.cc; sourceTree = "<group>"; };
+		FBCBDA2015FF260800C34F95 /* dataTransform.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dataTransform.cc; sourceTree = "<group>"; };
+		FBCBDA2115FF260800C34F95 /* dataTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dataTransform.h; sourceTree = "<group>"; };
+		FBCBDA2215FF260800C34F95 /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
+		FBCBDA2315FF260800C34F95 /* displaylist.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = displaylist.cc; sourceTree = "<group>"; };
+		FBCBDA2415FF260800C34F95 /* displaylist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = displaylist.h; sourceTree = "<group>"; };
+		FBCBDA2515FF260800C34F95 /* displaymode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = displaymode.h; sourceTree = "<group>"; };
+		FBCBDA2615FF260800C34F95 /* flist.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flist.cc; sourceTree = "<group>"; };
+		FBCBDA2715FF260800C34F95 /* flist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flist.h; sourceTree = "<group>"; };
+		FBCBDA2815FF260800C34F95 /* flistsorter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flistsorter.cc; sourceTree = "<group>"; };
+		FBCBDA2915FF260800C34F95 /* flistsorter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flistsorter.h; sourceTree = "<group>"; };
+		FBCBDA2B15FF260800C34F95 /* gridline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gridline.h; sourceTree = "<group>"; };
+		FBCBDA2C15FF260800C34F95 /* gridtrimvertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gridtrimvertex.h; sourceTree = "<group>"; };
+		FBCBDA2D15FF260800C34F95 /* gridvertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gridvertex.h; sourceTree = "<group>"; };
+		FBCBDA2E15FF260800C34F95 /* hull.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hull.cc; sourceTree = "<group>"; };
+		FBCBDA2F15FF260800C34F95 /* hull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hull.h; sourceTree = "<group>"; };
+		FBCBDA3115FF260800C34F95 /* intersect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = intersect.cc; sourceTree = "<group>"; };
+		FBCBDA3215FF260800C34F95 /* jarcloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jarcloc.h; sourceTree = "<group>"; };
+		FBCBDA3315FF260800C34F95 /* knotvector.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = knotvector.cc; sourceTree = "<group>"; };
+		FBCBDA3415FF260800C34F95 /* knotvector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = knotvector.h; sourceTree = "<group>"; };
+		FBCBDA3515FF260800C34F95 /* mapdesc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mapdesc.cc; sourceTree = "<group>"; };
+		FBCBDA3615FF260800C34F95 /* mapdesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapdesc.h; sourceTree = "<group>"; };
+		FBCBDA3715FF260800C34F95 /* mapdescv.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mapdescv.cc; sourceTree = "<group>"; };
+		FBCBDA3815FF260800C34F95 /* maplist.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = maplist.cc; sourceTree = "<group>"; };
+		FBCBDA3915FF260800C34F95 /* maplist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maplist.h; sourceTree = "<group>"; };
+		FBCBDA3A15FF260800C34F95 /* mesher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mesher.cc; sourceTree = "<group>"; };
+		FBCBDA3B15FF260800C34F95 /* mesher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesher.h; sourceTree = "<group>"; };
+		FBCBDA3C15FF260800C34F95 /* monotonizer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = monotonizer.cc; sourceTree = "<group>"; };
+		FBCBDA3D15FF260800C34F95 /* monotonizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = monotonizer.h; sourceTree = "<group>"; };
+		FBCBDA3E15FF260800C34F95 /* monoTriangulationBackend.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = monoTriangulationBackend.cc; sourceTree = "<group>"; };
+		FBCBDA3F15FF260800C34F95 /* myassert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = myassert.h; sourceTree = "<group>"; };
+		FBCBDA4015FF260800C34F95 /* mycode.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mycode.cc; sourceTree = "<group>"; };
+		FBCBDA4115FF260800C34F95 /* mymath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mymath.h; sourceTree = "<group>"; };
+		FBCBDA4215FF260800C34F95 /* mysetjmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mysetjmp.h; sourceTree = "<group>"; };
+		FBCBDA4315FF260800C34F95 /* mystring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mystring.h; sourceTree = "<group>"; };
+		FBCBDA4415FF260800C34F95 /* nurbsconsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nurbsconsts.h; sourceTree = "<group>"; };
+		FBCBDA4515FF260800C34F95 /* nurbsinterfac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nurbsinterfac.cc; sourceTree = "<group>"; };
+		FBCBDA4615FF260800C34F95 /* nurbstess.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nurbstess.cc; sourceTree = "<group>"; };
+		FBCBDA4715FF260800C34F95 /* nurbstess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nurbstess.h; sourceTree = "<group>"; };
+		FBCBDA4815FF260800C34F95 /* patch.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = patch.cc; sourceTree = "<group>"; };
+		FBCBDA4915FF260800C34F95 /* patch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patch.h; sourceTree = "<group>"; };
+		FBCBDA4A15FF260800C34F95 /* patchlist.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = patchlist.cc; sourceTree = "<group>"; };
+		FBCBDA4B15FF260800C34F95 /* patchlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchlist.h; sourceTree = "<group>"; };
+		FBCBDA4C15FF260800C34F95 /* pwlarc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pwlarc.h; sourceTree = "<group>"; };
+		FBCBDA4D15FF260800C34F95 /* quilt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = quilt.cc; sourceTree = "<group>"; };
+		FBCBDA4E15FF260800C34F95 /* quilt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quilt.h; sourceTree = "<group>"; };
+		FBCBDA4F15FF260800C34F95 /* reader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reader.cc; sourceTree = "<group>"; };
+		FBCBDA5015FF260800C34F95 /* reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = reader.h; sourceTree = "<group>"; };
+		FBCBDA5115FF260800C34F95 /* renderhints.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderhints.cc; sourceTree = "<group>"; };
+		FBCBDA5215FF260800C34F95 /* renderhints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderhints.h; sourceTree = "<group>"; };
+		FBCBDA5315FF260800C34F95 /* simplemath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simplemath.h; sourceTree = "<group>"; };
+		FBCBDA5415FF260800C34F95 /* slicer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = slicer.cc; sourceTree = "<group>"; };
+		FBCBDA5515FF260800C34F95 /* slicer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slicer.h; sourceTree = "<group>"; };
+		FBCBDA5615FF260800C34F95 /* sorter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sorter.cc; sourceTree = "<group>"; };
+		FBCBDA5715FF260800C34F95 /* sorter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sorter.h; sourceTree = "<group>"; };
+		FBCBDA5815FF260800C34F95 /* splitarcs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = splitarcs.cc; sourceTree = "<group>"; };
+		FBCBDA5915FF260800C34F95 /* subdivider.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = subdivider.cc; sourceTree = "<group>"; };
+		FBCBDA5A15FF260800C34F95 /* subdivider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = subdivider.h; sourceTree = "<group>"; };
+		FBCBDA5B15FF260900C34F95 /* tobezier.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tobezier.cc; sourceTree = "<group>"; };
+		FBCBDA5C15FF260900C34F95 /* trimline.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trimline.cc; sourceTree = "<group>"; };
+		FBCBDA5D15FF260900C34F95 /* trimline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trimline.h; sourceTree = "<group>"; };
+		FBCBDA5E15FF260900C34F95 /* trimregion.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trimregion.cc; sourceTree = "<group>"; };
+		FBCBDA5F15FF260900C34F95 /* trimregion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trimregion.h; sourceTree = "<group>"; };
+		FBCBDA6015FF260900C34F95 /* trimvertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trimvertex.h; sourceTree = "<group>"; };
+		FBCBDA6115FF260900C34F95 /* trimvertpool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trimvertpool.cc; sourceTree = "<group>"; };
+		FBCBDA6215FF260900C34F95 /* trimvertpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trimvertpool.h; sourceTree = "<group>"; };
+		FBCBDA6315FF260900C34F95 /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		FBCBDA6415FF260900C34F95 /* uarray.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = uarray.cc; sourceTree = "<group>"; };
+		FBCBDA6515FF260900C34F95 /* uarray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uarray.h; sourceTree = "<group>"; };
+		FBCBDA6615FF260900C34F95 /* varray.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = varray.cc; sourceTree = "<group>"; };
+		FBCBDA6715FF260900C34F95 /* varray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = varray.h; sourceTree = "<group>"; };
+		FBCBDA6915FF260900C34F95 /* definitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = definitions.h; sourceTree = "<group>"; };
+		FBCBDA6A15FF260900C34F95 /* directedLine.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = directedLine.cc; sourceTree = "<group>"; };
+		FBCBDA6B15FF260900C34F95 /* directedLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = directedLine.h; sourceTree = "<group>"; };
+		FBCBDA6C15FF260900C34F95 /* glimports.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glimports.h; sourceTree = "<group>"; };
+		FBCBDA6D15FF260900C34F95 /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
+		FBCBDA6E15FF260900C34F95 /* gridWrap.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gridWrap.cc; sourceTree = "<group>"; };
+		FBCBDA6F15FF260900C34F95 /* gridWrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gridWrap.h; sourceTree = "<group>"; };
+		FBCBDA7015FF260900C34F95 /* Imakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Imakefile; sourceTree = "<group>"; };
+		FBCBDA7115FF260900C34F95 /* monoChain.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = monoChain.cc; sourceTree = "<group>"; };
+		FBCBDA7215FF260900C34F95 /* monoChain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = monoChain.h; sourceTree = "<group>"; };
+		FBCBDA7315FF260900C34F95 /* monoPolyPart.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = monoPolyPart.cc; sourceTree = "<group>"; };
+		FBCBDA7415FF260900C34F95 /* monoPolyPart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = monoPolyPart.h; sourceTree = "<group>"; };
+		FBCBDA7515FF260900C34F95 /* monoTriangulation.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = monoTriangulation.cc; sourceTree = "<group>"; };
+		FBCBDA7615FF260900C34F95 /* monoTriangulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = monoTriangulation.h; sourceTree = "<group>"; };
+		FBCBDA7715FF260900C34F95 /* mystdio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mystdio.h; sourceTree = "<group>"; };
+		FBCBDA7815FF260900C34F95 /* mystdlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mystdlib.h; sourceTree = "<group>"; };
+		FBCBDA7915FF260900C34F95 /* partitionX.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = partitionX.cc; sourceTree = "<group>"; };
+		FBCBDA7A15FF260900C34F95 /* partitionX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = partitionX.h; sourceTree = "<group>"; };
+		FBCBDA7B15FF260900C34F95 /* partitionY.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = partitionY.cc; sourceTree = "<group>"; };
+		FBCBDA7C15FF260900C34F95 /* partitionY.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = partitionY.h; sourceTree = "<group>"; };
+		FBCBDA7D15FF260900C34F95 /* polyDBG.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = polyDBG.cc; sourceTree = "<group>"; };
+		FBCBDA7E15FF260900C34F95 /* polyDBG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = polyDBG.h; sourceTree = "<group>"; };
+		FBCBDA7F15FF260900C34F95 /* polyUtil.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = polyUtil.cc; sourceTree = "<group>"; };
+		FBCBDA8015FF260900C34F95 /* polyUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = polyUtil.h; sourceTree = "<group>"; };
+		FBCBDA8115FF260900C34F95 /* primitiveStream.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = primitiveStream.cc; sourceTree = "<group>"; };
+		FBCBDA8215FF260900C34F95 /* primitiveStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = primitiveStream.h; sourceTree = "<group>"; };
+		FBCBDA8315FF260900C34F95 /* quicksort.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = quicksort.cc; sourceTree = "<group>"; };
+		FBCBDA8415FF260900C34F95 /* quicksort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quicksort.h; sourceTree = "<group>"; };
+		FBCBDA8515FF260900C34F95 /* rectBlock.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rectBlock.cc; sourceTree = "<group>"; };
+		FBCBDA8615FF260900C34F95 /* rectBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rectBlock.h; sourceTree = "<group>"; };
+		FBCBDA8715FF260900C34F95 /* sampleComp.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sampleComp.cc; sourceTree = "<group>"; };
+		FBCBDA8815FF260900C34F95 /* sampleComp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sampleComp.h; sourceTree = "<group>"; };
+		FBCBDA8915FF260900C34F95 /* sampleCompBot.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sampleCompBot.cc; sourceTree = "<group>"; };
+		FBCBDA8A15FF260900C34F95 /* sampleCompBot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sampleCompBot.h; sourceTree = "<group>"; };
+		FBCBDA8B15FF260900C34F95 /* sampleCompRight.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sampleCompRight.cc; sourceTree = "<group>"; };
+		FBCBDA8C15FF260900C34F95 /* sampleCompRight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sampleCompRight.h; sourceTree = "<group>"; };
+		FBCBDA8D15FF260900C34F95 /* sampleCompTop.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sampleCompTop.cc; sourceTree = "<group>"; };
+		FBCBDA8E15FF260900C34F95 /* sampleCompTop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sampleCompTop.h; sourceTree = "<group>"; };
+		FBCBDA8F15FF260900C34F95 /* sampledLine.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sampledLine.cc; sourceTree = "<group>"; };
+		FBCBDA9015FF260900C34F95 /* sampledLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sampledLine.h; sourceTree = "<group>"; };
+		FBCBDA9115FF260900C34F95 /* sampleMonoPoly.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sampleMonoPoly.cc; sourceTree = "<group>"; };
+		FBCBDA9215FF260900C34F95 /* sampleMonoPoly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sampleMonoPoly.h; sourceTree = "<group>"; };
+		FBCBDA9315FF260900C34F95 /* searchTree.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = searchTree.cc; sourceTree = "<group>"; };
+		FBCBDA9415FF260900C34F95 /* searchTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = searchTree.h; sourceTree = "<group>"; };
+		FBCBDA9515FF260900C34F95 /* zlassert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zlassert.h; sourceTree = "<group>"; };
+		FBCBDA9715FF260900C34F95 /* alg-outline */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "alg-outline"; sourceTree = "<group>"; };
+		FBCBDA9815FF260900C34F95 /* dict-list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "dict-list.h"; sourceTree = "<group>"; };
+		FBCBDA9915FF260900C34F95 /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
+		FBCBDA9A15FF260900C34F95 /* dict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dict.h; sourceTree = "<group>"; };
+		FBCBDA9B15FF260900C34F95 /* geom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geom.c; sourceTree = "<group>"; };
+		FBCBDA9C15FF260900C34F95 /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geom.h; sourceTree = "<group>"; };
+		FBCBDA9D15FF260900C34F95 /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
+		FBCBDA9E15FF260900C34F95 /* Imakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Imakefile; sourceTree = "<group>"; };
+		FBCBDA9F15FF260900C34F95 /* memalloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memalloc.c; sourceTree = "<group>"; };
+		FBCBDAA015FF260900C34F95 /* memalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memalloc.h; sourceTree = "<group>"; };
+		FBCBDAA115FF260900C34F95 /* mesh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mesh.c; sourceTree = "<group>"; };
+		FBCBDAA215FF260900C34F95 /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh.h; sourceTree = "<group>"; };
+		FBCBDAA315FF260900C34F95 /* normal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = normal.c; sourceTree = "<group>"; };
+		FBCBDAA415FF260900C34F95 /* normal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = normal.h; sourceTree = "<group>"; };
+		FBCBDAA515FF260900C34F95 /* priorityq-heap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "priorityq-heap.c"; sourceTree = "<group>"; };
+		FBCBDAA615FF260900C34F95 /* priorityq-heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "priorityq-heap.h"; sourceTree = "<group>"; };
+		FBCBDAA715FF260900C34F95 /* priorityq-sort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "priorityq-sort.h"; sourceTree = "<group>"; };
+		FBCBDAA815FF260900C34F95 /* priorityq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = priorityq.c; sourceTree = "<group>"; };
+		FBCBDAA915FF260900C34F95 /* priorityq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = priorityq.h; sourceTree = "<group>"; };
+		FBCBDAAA15FF260900C34F95 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		FBCBDAAB15FF260900C34F95 /* render.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = render.c; sourceTree = "<group>"; };
+		FBCBDAAC15FF260900C34F95 /* render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
+		FBCBDAAD15FF260900C34F95 /* sweep.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sweep.c; sourceTree = "<group>"; };
+		FBCBDAAE15FF260900C34F95 /* sweep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sweep.h; sourceTree = "<group>"; };
+		FBCBDAAF15FF260900C34F95 /* tess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tess.c; sourceTree = "<group>"; };
+		FBCBDAB015FF260900C34F95 /* tess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tess.h; sourceTree = "<group>"; };
+		FBCBDAB115FF260900C34F95 /* tessmono.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tessmono.c; sourceTree = "<group>"; };
+		FBCBDAB215FF260900C34F95 /* tessmono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tessmono.h; sourceTree = "<group>"; };
+		FBCBDAB415FF260900C34F95 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error.c; sourceTree = "<group>"; };
+		FBCBDAB515FF260900C34F95 /* glue.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = glue.c; sourceTree = "<group>"; };
+		FBCBDAB615FF260900C34F95 /* gluint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gluint.h; sourceTree = "<group>"; };
+		FBCBDAB715FF260900C34F95 /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
+		FBCBDAB815FF260900C34F95 /* Imakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Imakefile; sourceTree = "<group>"; };
+		FBCBDAB915FF260900C34F95 /* mipmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mipmap.c; sourceTree = "<group>"; };
+		FBCBDABA15FF260900C34F95 /* project.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = project.c; sourceTree = "<group>"; };
+		FBCBDABB15FF260900C34F95 /* quad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = quad.c; sourceTree = "<group>"; };
+		FBCBDABC15FF260900C34F95 /* registry.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = registry.c; sourceTree = "<group>"; };
+		FBCBDABD15FF260900C34F95 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		FBE90D1216413DCB000BE5F7 /* md5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = md5.h; path = ../../../src/md5/include/md5.h; sourceTree = "<group>"; };
+		FBE90D1716413E19000BE5F7 /* lookup3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lookup3.cpp; sourceTree = "<group>"; };
+		FBE90D1816413E19000BE5F7 /* lookup3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lookup3.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +608,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FBCBD9C015FF25E500C34F95 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FBCBD9C115FF25E500C34F95 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -153,6 +623,7 @@
 			isa = PBXGroup;
 			children = (
 				43FC5F4A15C4617A00D0177C /* Regal */,
+				FBCBD9E615FF260800C34F95 /* GLU */,
 				43FC5EDD15C45EBB00D0177C /* Frameworks */,
 				43FC5EDC15C45EBB00D0177C /* Products */,
 			);
@@ -162,6 +633,7 @@
 			isa = PBXGroup;
 			children = (
 				43FC5EDB15C45EBB00D0177C /* libRegal.a */,
+				FBCBD9E415FF25E500C34F95 /* libRegalGLU.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -177,6 +649,7 @@
 		43FC5F4A15C4617A00D0177C /* Regal */ = {
 			isa = PBXGroup;
 			children = (
+				FBE90D1616413E19000BE5F7 /* lookup3 */,
 				BC020956160D1C65003FAB99 /* md5 */,
 				43FC5FA515C461A100D0177C /* mongoose */,
 				43EFD6F415EAADAC004080CE /* RegalDispatcher.cpp */,
@@ -253,9 +726,294 @@
 		BC020956160D1C65003FAB99 /* md5 */ = {
 			isa = PBXGroup;
 			children = (
+				FBE90D1216413DCB000BE5F7 /* md5.h */,
 				BC020957160D1C73003FAB99 /* md5.c */,
 			);
 			name = md5;
+			sourceTree = "<group>";
+		};
+		FBCBD9E615FF260800C34F95 /* GLU */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBDABD15FF260900C34F95 /* LICENSE.txt */,
+				FBCBD9E815FF260800C34F95 /* include */,
+				FBCBD9EC15FF260800C34F95 /* libnurbs */,
+				FBCBDA9615FF260900C34F95 /* libtess */,
+				FBCBDAB315FF260900C34F95 /* libutil */,
+			);
+			name = GLU;
+			path = ../../../src/glu;
+			sourceTree = "<group>";
+		};
+		FBCBD9E815FF260800C34F95 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBD9E915FF260800C34F95 /* GL */,
+				FBCBD9EB15FF260800C34F95 /* gluos.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		FBCBD9E915FF260800C34F95 /* GL */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBD9EA15FF260800C34F95 /* glu.h */,
+			);
+			path = GL;
+			sourceTree = "<group>";
+		};
+		FBCBD9EC15FF260800C34F95 /* libnurbs */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBD9EF15FF260800C34F95 /* interface */,
+				FBCBDA0415FF260800C34F95 /* internals */,
+				FBCBDA6815FF260900C34F95 /* nurbtess */,
+			);
+			path = libnurbs;
+			sourceTree = "<group>";
+		};
+		FBCBD9EF15FF260800C34F95 /* interface */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBD9F015FF260800C34F95 /* bezierEval.cc */,
+				FBCBD9F115FF260800C34F95 /* bezierEval.h */,
+				FBCBD9F215FF260800C34F95 /* bezierPatch.cc */,
+				FBCBD9F315FF260800C34F95 /* bezierPatch.h */,
+				FBCBD9F415FF260800C34F95 /* bezierPatchMesh.cc */,
+				FBCBD9F515FF260800C34F95 /* bezierPatchMesh.h */,
+				FBCBD9F615FF260800C34F95 /* glcurveval.cc */,
+				FBCBD9F715FF260800C34F95 /* glcurveval.h */,
+				FBCBD9F815FF260800C34F95 /* glimports.h */,
+				FBCBD9F915FF260800C34F95 /* glinterface.cc */,
+				FBCBD9FA15FF260800C34F95 /* glrenderer.cc */,
+				FBCBD9FB15FF260800C34F95 /* glrenderer.h */,
+				FBCBD9FC15FF260800C34F95 /* glsurfeval.cc */,
+				FBCBD9FD15FF260800C34F95 /* glsurfeval.h */,
+				FBCBD9FE15FF260800C34F95 /* GNUmakefile */,
+				FBCBD9FF15FF260800C34F95 /* Imakefile */,
+				FBCBDA0015FF260800C34F95 /* incurveeval.cc */,
+				FBCBDA0115FF260800C34F95 /* insurfeval.cc */,
+				FBCBDA0215FF260800C34F95 /* mystdio.h */,
+				FBCBDA0315FF260800C34F95 /* mystdlib.h */,
+			);
+			path = interface;
+			sourceTree = "<group>";
+		};
+		FBCBDA0415FF260800C34F95 /* internals */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBDA0515FF260800C34F95 /* arc.cc */,
+				FBCBDA0615FF260800C34F95 /* arc.h */,
+				FBCBDA0715FF260800C34F95 /* arcsorter.cc */,
+				FBCBDA0815FF260800C34F95 /* arcsorter.h */,
+				FBCBDA0915FF260800C34F95 /* arctess.cc */,
+				FBCBDA0A15FF260800C34F95 /* arctess.h */,
+				FBCBDA0B15FF260800C34F95 /* backend.cc */,
+				FBCBDA0C15FF260800C34F95 /* backend.h */,
+				FBCBDA0D15FF260800C34F95 /* basiccrveval.cc */,
+				FBCBDA0E15FF260800C34F95 /* basiccrveval.h */,
+				FBCBDA0F15FF260800C34F95 /* basicsurfeval.cc */,
+				FBCBDA1015FF260800C34F95 /* basicsurfeval.h */,
+				FBCBDA1115FF260800C34F95 /* bezierarc.h */,
+				FBCBDA1215FF260800C34F95 /* bin.cc */,
+				FBCBDA1315FF260800C34F95 /* bin.h */,
+				FBCBDA1415FF260800C34F95 /* bufpool.cc */,
+				FBCBDA1515FF260800C34F95 /* bufpool.h */,
+				FBCBDA1615FF260800C34F95 /* cachingeval.cc */,
+				FBCBDA1715FF260800C34F95 /* cachingeval.h */,
+				FBCBDA1815FF260800C34F95 /* ccw.cc */,
+				FBCBDA1915FF260800C34F95 /* coveandtiler.cc */,
+				FBCBDA1A15FF260800C34F95 /* coveandtiler.h */,
+				FBCBDA1B15FF260800C34F95 /* curve.cc */,
+				FBCBDA1C15FF260800C34F95 /* curve.h */,
+				FBCBDA1D15FF260800C34F95 /* curvelist.cc */,
+				FBCBDA1E15FF260800C34F95 /* curvelist.h */,
+				FBCBDA1F15FF260800C34F95 /* curvesub.cc */,
+				FBCBDA2015FF260800C34F95 /* dataTransform.cc */,
+				FBCBDA2115FF260800C34F95 /* dataTransform.h */,
+				FBCBDA2215FF260800C34F95 /* defines.h */,
+				FBCBDA2315FF260800C34F95 /* displaylist.cc */,
+				FBCBDA2415FF260800C34F95 /* displaylist.h */,
+				FBCBDA2515FF260800C34F95 /* displaymode.h */,
+				FBCBDA2615FF260800C34F95 /* flist.cc */,
+				FBCBDA2715FF260800C34F95 /* flist.h */,
+				FBCBDA2815FF260800C34F95 /* flistsorter.cc */,
+				FBCBDA2915FF260800C34F95 /* flistsorter.h */,
+				FBCBDA2B15FF260800C34F95 /* gridline.h */,
+				FBCBDA2C15FF260800C34F95 /* gridtrimvertex.h */,
+				FBCBDA2D15FF260800C34F95 /* gridvertex.h */,
+				FBCBDA2E15FF260800C34F95 /* hull.cc */,
+				FBCBDA2F15FF260800C34F95 /* hull.h */,
+				FBCBDA3115FF260800C34F95 /* intersect.cc */,
+				FBCBDA3215FF260800C34F95 /* jarcloc.h */,
+				FBCBDA3315FF260800C34F95 /* knotvector.cc */,
+				FBCBDA3415FF260800C34F95 /* knotvector.h */,
+				FBCBDA3515FF260800C34F95 /* mapdesc.cc */,
+				FBCBDA3615FF260800C34F95 /* mapdesc.h */,
+				FBCBDA3715FF260800C34F95 /* mapdescv.cc */,
+				FBCBDA3815FF260800C34F95 /* maplist.cc */,
+				FBCBDA3915FF260800C34F95 /* maplist.h */,
+				FBCBDA3A15FF260800C34F95 /* mesher.cc */,
+				FBCBDA3B15FF260800C34F95 /* mesher.h */,
+				FBCBDA3C15FF260800C34F95 /* monotonizer.cc */,
+				FBCBDA3D15FF260800C34F95 /* monotonizer.h */,
+				FBCBDA3E15FF260800C34F95 /* monoTriangulationBackend.cc */,
+				FBCBDA3F15FF260800C34F95 /* myassert.h */,
+				FBCBDA4015FF260800C34F95 /* mycode.cc */,
+				FBCBDA4115FF260800C34F95 /* mymath.h */,
+				FBCBDA4215FF260800C34F95 /* mysetjmp.h */,
+				FBCBDA4315FF260800C34F95 /* mystring.h */,
+				FBCBDA4415FF260800C34F95 /* nurbsconsts.h */,
+				FBCBDA4515FF260800C34F95 /* nurbsinterfac.cc */,
+				FBCBDA4615FF260800C34F95 /* nurbstess.cc */,
+				FBCBDA4715FF260800C34F95 /* nurbstess.h */,
+				FBCBDA4815FF260800C34F95 /* patch.cc */,
+				FBCBDA4915FF260800C34F95 /* patch.h */,
+				FBCBDA4A15FF260800C34F95 /* patchlist.cc */,
+				FBCBDA4B15FF260800C34F95 /* patchlist.h */,
+				FBCBDA4C15FF260800C34F95 /* pwlarc.h */,
+				FBCBDA4D15FF260800C34F95 /* quilt.cc */,
+				FBCBDA4E15FF260800C34F95 /* quilt.h */,
+				FBCBDA4F15FF260800C34F95 /* reader.cc */,
+				FBCBDA5015FF260800C34F95 /* reader.h */,
+				FBCBDA5115FF260800C34F95 /* renderhints.cc */,
+				FBCBDA5215FF260800C34F95 /* renderhints.h */,
+				FBCBDA5315FF260800C34F95 /* simplemath.h */,
+				FBCBDA5415FF260800C34F95 /* slicer.cc */,
+				FBCBDA5515FF260800C34F95 /* slicer.h */,
+				FBCBDA5615FF260800C34F95 /* sorter.cc */,
+				FBCBDA5715FF260800C34F95 /* sorter.h */,
+				FBCBDA5815FF260800C34F95 /* splitarcs.cc */,
+				FBCBDA5915FF260800C34F95 /* subdivider.cc */,
+				FBCBDA5A15FF260800C34F95 /* subdivider.h */,
+				FBCBDA5B15FF260900C34F95 /* tobezier.cc */,
+				FBCBDA5C15FF260900C34F95 /* trimline.cc */,
+				FBCBDA5D15FF260900C34F95 /* trimline.h */,
+				FBCBDA5E15FF260900C34F95 /* trimregion.cc */,
+				FBCBDA5F15FF260900C34F95 /* trimregion.h */,
+				FBCBDA6015FF260900C34F95 /* trimvertex.h */,
+				FBCBDA6115FF260900C34F95 /* trimvertpool.cc */,
+				FBCBDA6215FF260900C34F95 /* trimvertpool.h */,
+				FBCBDA6315FF260900C34F95 /* types.h */,
+				FBCBDA6415FF260900C34F95 /* uarray.cc */,
+				FBCBDA6515FF260900C34F95 /* uarray.h */,
+				FBCBDA6615FF260900C34F95 /* varray.cc */,
+				FBCBDA6715FF260900C34F95 /* varray.h */,
+			);
+			path = internals;
+			sourceTree = "<group>";
+		};
+		FBCBDA6815FF260900C34F95 /* nurbtess */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBDA6915FF260900C34F95 /* definitions.h */,
+				FBCBDA6A15FF260900C34F95 /* directedLine.cc */,
+				FBCBDA6B15FF260900C34F95 /* directedLine.h */,
+				FBCBDA6C15FF260900C34F95 /* glimports.h */,
+				FBCBDA6D15FF260900C34F95 /* GNUmakefile */,
+				FBCBDA6E15FF260900C34F95 /* gridWrap.cc */,
+				FBCBDA6F15FF260900C34F95 /* gridWrap.h */,
+				FBCBDA7015FF260900C34F95 /* Imakefile */,
+				FBCBDA7115FF260900C34F95 /* monoChain.cc */,
+				FBCBDA7215FF260900C34F95 /* monoChain.h */,
+				FBCBDA7315FF260900C34F95 /* monoPolyPart.cc */,
+				FBCBDA7415FF260900C34F95 /* monoPolyPart.h */,
+				FBCBDA7515FF260900C34F95 /* monoTriangulation.cc */,
+				FBCBDA7615FF260900C34F95 /* monoTriangulation.h */,
+				FBCBDA7715FF260900C34F95 /* mystdio.h */,
+				FBCBDA7815FF260900C34F95 /* mystdlib.h */,
+				FBCBDA7915FF260900C34F95 /* partitionX.cc */,
+				FBCBDA7A15FF260900C34F95 /* partitionX.h */,
+				FBCBDA7B15FF260900C34F95 /* partitionY.cc */,
+				FBCBDA7C15FF260900C34F95 /* partitionY.h */,
+				FBCBDA7D15FF260900C34F95 /* polyDBG.cc */,
+				FBCBDA7E15FF260900C34F95 /* polyDBG.h */,
+				FBCBDA7F15FF260900C34F95 /* polyUtil.cc */,
+				FBCBDA8015FF260900C34F95 /* polyUtil.h */,
+				FBCBDA8115FF260900C34F95 /* primitiveStream.cc */,
+				FBCBDA8215FF260900C34F95 /* primitiveStream.h */,
+				FBCBDA8315FF260900C34F95 /* quicksort.cc */,
+				FBCBDA8415FF260900C34F95 /* quicksort.h */,
+				FBCBDA8515FF260900C34F95 /* rectBlock.cc */,
+				FBCBDA8615FF260900C34F95 /* rectBlock.h */,
+				FBCBDA8715FF260900C34F95 /* sampleComp.cc */,
+				FBCBDA8815FF260900C34F95 /* sampleComp.h */,
+				FBCBDA8915FF260900C34F95 /* sampleCompBot.cc */,
+				FBCBDA8A15FF260900C34F95 /* sampleCompBot.h */,
+				FBCBDA8B15FF260900C34F95 /* sampleCompRight.cc */,
+				FBCBDA8C15FF260900C34F95 /* sampleCompRight.h */,
+				FBCBDA8D15FF260900C34F95 /* sampleCompTop.cc */,
+				FBCBDA8E15FF260900C34F95 /* sampleCompTop.h */,
+				FBCBDA8F15FF260900C34F95 /* sampledLine.cc */,
+				FBCBDA9015FF260900C34F95 /* sampledLine.h */,
+				FBCBDA9115FF260900C34F95 /* sampleMonoPoly.cc */,
+				FBCBDA9215FF260900C34F95 /* sampleMonoPoly.h */,
+				FBCBDA9315FF260900C34F95 /* searchTree.cc */,
+				FBCBDA9415FF260900C34F95 /* searchTree.h */,
+				FBCBDA9515FF260900C34F95 /* zlassert.h */,
+			);
+			path = nurbtess;
+			sourceTree = "<group>";
+		};
+		FBCBDA9615FF260900C34F95 /* libtess */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBDA9715FF260900C34F95 /* alg-outline */,
+				FBCBDA9815FF260900C34F95 /* dict-list.h */,
+				FBCBDA9915FF260900C34F95 /* dict.c */,
+				FBCBDA9A15FF260900C34F95 /* dict.h */,
+				FBCBDA9B15FF260900C34F95 /* geom.c */,
+				FBCBDA9C15FF260900C34F95 /* geom.h */,
+				FBCBDA9D15FF260900C34F95 /* GNUmakefile */,
+				FBCBDA9E15FF260900C34F95 /* Imakefile */,
+				FBCBDA9F15FF260900C34F95 /* memalloc.c */,
+				FBCBDAA015FF260900C34F95 /* memalloc.h */,
+				FBCBDAA115FF260900C34F95 /* mesh.c */,
+				FBCBDAA215FF260900C34F95 /* mesh.h */,
+				FBCBDAA315FF260900C34F95 /* normal.c */,
+				FBCBDAA415FF260900C34F95 /* normal.h */,
+				FBCBDAA515FF260900C34F95 /* priorityq-heap.c */,
+				FBCBDAA615FF260900C34F95 /* priorityq-heap.h */,
+				FBCBDAA715FF260900C34F95 /* priorityq-sort.h */,
+				FBCBDAA815FF260900C34F95 /* priorityq.c */,
+				FBCBDAA915FF260900C34F95 /* priorityq.h */,
+				FBCBDAAA15FF260900C34F95 /* README */,
+				FBCBDAAB15FF260900C34F95 /* render.c */,
+				FBCBDAAC15FF260900C34F95 /* render.h */,
+				FBCBDAAD15FF260900C34F95 /* sweep.c */,
+				FBCBDAAE15FF260900C34F95 /* sweep.h */,
+				FBCBDAAF15FF260900C34F95 /* tess.c */,
+				FBCBDAB015FF260900C34F95 /* tess.h */,
+				FBCBDAB115FF260900C34F95 /* tessmono.c */,
+				FBCBDAB215FF260900C34F95 /* tessmono.h */,
+			);
+			path = libtess;
+			sourceTree = "<group>";
+		};
+		FBCBDAB315FF260900C34F95 /* libutil */ = {
+			isa = PBXGroup;
+			children = (
+				FBCBDAB415FF260900C34F95 /* error.c */,
+				FBCBDAB515FF260900C34F95 /* glue.c */,
+				FBCBDAB615FF260900C34F95 /* gluint.h */,
+				FBCBDAB715FF260900C34F95 /* GNUmakefile */,
+				FBCBDAB815FF260900C34F95 /* Imakefile */,
+				FBCBDAB915FF260900C34F95 /* mipmap.c */,
+				FBCBDABA15FF260900C34F95 /* project.c */,
+				FBCBDABB15FF260900C34F95 /* quad.c */,
+				FBCBDABC15FF260900C34F95 /* registry.c */,
+			);
+			path = libutil;
+			sourceTree = "<group>";
+		};
+		FBE90D1616413E19000BE5F7 /* lookup3 */ = {
+			isa = PBXGroup;
+			children = (
+				FBE90D1716413E19000BE5F7 /* lookup3.cpp */,
+				FBE90D1816413E19000BE5F7 /* lookup3.h */,
+			);
+			name = lookup3;
+			path = ../../../src/lookup3;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -296,6 +1054,148 @@
 				43EFD6FA15EAADAC004080CE /* RegalDispatcher.h in Headers */,
 				43EFD6FD15EAADAC004080CE /* RegalSystem.h in Headers */,
 				BC640CA516554AA4007DEF69 /* RegalFrame.h in Headers */,
+				FBE90D1316413DCB000BE5F7 /* md5.h in Headers */,
+				FBE90D1B16413E19000BE5F7 /* lookup3.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FBCBD9C215FF25E500C34F95 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FBCBD9C315FF25E500C34F95 /* linear.h in Headers */,
+				FBCBD9C415FF25E500C34F95 /* RegalBin.h in Headers */,
+				FBCBD9C515FF25E500C34F95 /* RegalConfig.h in Headers */,
+				FBCBD9C615FF25E500C34F95 /* RegalContext.h in Headers */,
+				FBCBD9C715FF25E500C34F95 /* RegalContextInfo.h in Headers */,
+				FBCBD9C815FF25E500C34F95 /* RegalDebugInfo.h in Headers */,
+				FBCBD9C915FF25E500C34F95 /* RegalDispatch.h in Headers */,
+				FBCBD9CA15FF25E500C34F95 /* RegalDispatchError.h in Headers */,
+				FBCBD9CB15FF25E500C34F95 /* RegalDsa.h in Headers */,
+				FBCBD9CC15FF25E500C34F95 /* RegalEmu.h in Headers */,
+				FBCBD9CD15FF25E500C34F95 /* RegalHelper.h in Headers */,
+				FBCBD9CE15FF25E500C34F95 /* RegalHttp.h in Headers */,
+				FBCBD9CF15FF25E500C34F95 /* RegalIff.h in Headers */,
+				FBCBD9D015FF25E500C34F95 /* RegalInit.h in Headers */,
+				FBCBD9D115FF25E500C34F95 /* RegalLog.h in Headers */,
+				FBCBD9D215FF25E500C34F95 /* RegalLookup.h in Headers */,
+				FBCBD9D315FF25E500C34F95 /* RegalMarker.h in Headers */,
+				FBCBD9D415FF25E500C34F95 /* RegalObj.h in Headers */,
+				FBCBD9D515FF25E500C34F95 /* RegalPpa.h in Headers */,
+				FBCBD9D615FF25E500C34F95 /* RegalPpc.h in Headers */,
+				FBCBD9D715FF25E500C34F95 /* RegalPrecompile.h in Headers */,
+				FBCBD9D815FF25E500C34F95 /* RegalPrivate.h in Headers */,
+				FBCBD9D915FF25E500C34F95 /* RegalState.h in Headers */,
+				FBCBD9DA15FF25E500C34F95 /* RegalToken.h in Headers */,
+				FBCBD9DB15FF25E500C34F95 /* RegalUtil.h in Headers */,
+				FBCBD9DC15FF25E500C34F95 /* RegalVao.h in Headers */,
+				FBCBD9DD15FF25E500C34F95 /* RegalEnum.h in Headers */,
+				FBCBD9DE15FF25E500C34F95 /* RegalFavicon.h in Headers */,
+				FBCBD9DF15FF25E500C34F95 /* RegalDispatcher.h in Headers */,
+				FBCBD9E015FF25E500C34F95 /* RegalSystem.h in Headers */,
+				FBCBDABE15FF260900C34F95 /* glu.h in Headers */,
+				FBCBDABF15FF260900C34F95 /* gluos.h in Headers */,
+				FBCBDAC115FF260900C34F95 /* bezierEval.h in Headers */,
+				FBCBDAC315FF260900C34F95 /* bezierPatch.h in Headers */,
+				FBCBDAC515FF260900C34F95 /* bezierPatchMesh.h in Headers */,
+				FBCBDAC715FF260900C34F95 /* glcurveval.h in Headers */,
+				FBCBDAC815FF260900C34F95 /* glimports.h in Headers */,
+				FBCBDACB15FF260900C34F95 /* glrenderer.h in Headers */,
+				FBCBDACD15FF260900C34F95 /* glsurfeval.h in Headers */,
+				FBCBDAD015FF260900C34F95 /* mystdio.h in Headers */,
+				FBCBDAD115FF260900C34F95 /* mystdlib.h in Headers */,
+				FBCBDAD315FF260900C34F95 /* arc.h in Headers */,
+				FBCBDAD515FF260900C34F95 /* arcsorter.h in Headers */,
+				FBCBDAD715FF260900C34F95 /* arctess.h in Headers */,
+				FBCBDAD915FF260900C34F95 /* backend.h in Headers */,
+				FBCBDADB15FF260900C34F95 /* basiccrveval.h in Headers */,
+				FBCBDADD15FF260900C34F95 /* basicsurfeval.h in Headers */,
+				FBCBDADE15FF260900C34F95 /* bezierarc.h in Headers */,
+				FBCBDAE015FF260900C34F95 /* bin.h in Headers */,
+				FBCBDAE215FF260900C34F95 /* bufpool.h in Headers */,
+				FBCBDAE415FF260900C34F95 /* cachingeval.h in Headers */,
+				FBCBDAE715FF260900C34F95 /* coveandtiler.h in Headers */,
+				FBCBDAE915FF260900C34F95 /* curve.h in Headers */,
+				FBCBDAEB15FF260900C34F95 /* curvelist.h in Headers */,
+				FBCBDAEE15FF260900C34F95 /* dataTransform.h in Headers */,
+				FBCBDAEF15FF260900C34F95 /* defines.h in Headers */,
+				FBCBDAF115FF260900C34F95 /* displaylist.h in Headers */,
+				FBCBDAF215FF260900C34F95 /* displaymode.h in Headers */,
+				FBCBDAF415FF260900C34F95 /* flist.h in Headers */,
+				FBCBDAF615FF260900C34F95 /* flistsorter.h in Headers */,
+				FBCBDAF715FF260900C34F95 /* gridline.h in Headers */,
+				FBCBDAF815FF260900C34F95 /* gridtrimvertex.h in Headers */,
+				FBCBDAF915FF260900C34F95 /* gridvertex.h in Headers */,
+				FBCBDAFB15FF260900C34F95 /* hull.h in Headers */,
+				FBCBDAFD15FF260900C34F95 /* jarcloc.h in Headers */,
+				FBCBDAFF15FF260900C34F95 /* knotvector.h in Headers */,
+				FBCBDB0115FF260900C34F95 /* mapdesc.h in Headers */,
+				FBCBDB0415FF260900C34F95 /* maplist.h in Headers */,
+				FBCBDB0615FF260900C34F95 /* mesher.h in Headers */,
+				FBCBDB0815FF260900C34F95 /* monotonizer.h in Headers */,
+				FBCBDB0A15FF260900C34F95 /* myassert.h in Headers */,
+				FBCBDB0C15FF260900C34F95 /* mymath.h in Headers */,
+				FBCBDB0D15FF260900C34F95 /* mysetjmp.h in Headers */,
+				FBCBDB0E15FF260900C34F95 /* mystring.h in Headers */,
+				FBCBDB0F15FF260900C34F95 /* nurbsconsts.h in Headers */,
+				FBCBDB1215FF260900C34F95 /* nurbstess.h in Headers */,
+				FBCBDB1415FF260900C34F95 /* patch.h in Headers */,
+				FBCBDB1615FF260900C34F95 /* patchlist.h in Headers */,
+				FBCBDB1715FF260900C34F95 /* pwlarc.h in Headers */,
+				FBCBDB1915FF260900C34F95 /* quilt.h in Headers */,
+				FBCBDB1B15FF260900C34F95 /* reader.h in Headers */,
+				FBCBDB1D15FF260900C34F95 /* renderhints.h in Headers */,
+				FBCBDB1E15FF260900C34F95 /* simplemath.h in Headers */,
+				FBCBDB2015FF260900C34F95 /* slicer.h in Headers */,
+				FBCBDB2215FF260900C34F95 /* sorter.h in Headers */,
+				FBCBDB2515FF260900C34F95 /* subdivider.h in Headers */,
+				FBCBDB2815FF260900C34F95 /* trimline.h in Headers */,
+				FBCBDB2A15FF260900C34F95 /* trimregion.h in Headers */,
+				FBCBDB2B15FF260900C34F95 /* trimvertex.h in Headers */,
+				FBCBDB2D15FF260900C34F95 /* trimvertpool.h in Headers */,
+				FBCBDB2E15FF260900C34F95 /* types.h in Headers */,
+				FBCBDB3015FF260900C34F95 /* uarray.h in Headers */,
+				FBCBDB3215FF260900C34F95 /* varray.h in Headers */,
+				FBCBDB3315FF260900C34F95 /* definitions.h in Headers */,
+				FBCBDB3515FF260900C34F95 /* directedLine.h in Headers */,
+				FBCBDB3615FF260900C34F95 /* glimports.h in Headers */,
+				FBCBDB3815FF260900C34F95 /* gridWrap.h in Headers */,
+				FBCBDB3A15FF260900C34F95 /* monoChain.h in Headers */,
+				FBCBDB3C15FF260900C34F95 /* monoPolyPart.h in Headers */,
+				FBCBDB3E15FF260900C34F95 /* monoTriangulation.h in Headers */,
+				FBCBDB3F15FF260900C34F95 /* mystdio.h in Headers */,
+				FBCBDB4015FF260900C34F95 /* mystdlib.h in Headers */,
+				FBCBDB4215FF260900C34F95 /* partitionX.h in Headers */,
+				FBCBDB4415FF260900C34F95 /* partitionY.h in Headers */,
+				FBCBDB4615FF260900C34F95 /* polyDBG.h in Headers */,
+				FBCBDB4815FF260900C34F95 /* polyUtil.h in Headers */,
+				FBCBDB4A15FF260900C34F95 /* primitiveStream.h in Headers */,
+				FBCBDB4C15FF260900C34F95 /* quicksort.h in Headers */,
+				FBCBDB4E15FF260900C34F95 /* rectBlock.h in Headers */,
+				FBCBDB5015FF260900C34F95 /* sampleComp.h in Headers */,
+				FBCBDB5215FF260900C34F95 /* sampleCompBot.h in Headers */,
+				FBCBDB5415FF260900C34F95 /* sampleCompRight.h in Headers */,
+				FBCBDB5615FF260900C34F95 /* sampleCompTop.h in Headers */,
+				FBCBDB5815FF260900C34F95 /* sampledLine.h in Headers */,
+				FBCBDB5A15FF260900C34F95 /* sampleMonoPoly.h in Headers */,
+				FBCBDB5C15FF260900C34F95 /* searchTree.h in Headers */,
+				FBCBDB5D15FF260900C34F95 /* zlassert.h in Headers */,
+				FBCBDB5E15FF260900C34F95 /* dict-list.h in Headers */,
+				FBCBDB6015FF260B00C34F95 /* dict.h in Headers */,
+				FBCBDB6215FF260B00C34F95 /* geom.h in Headers */,
+				FBCBDB6415FF260B00C34F95 /* memalloc.h in Headers */,
+				FBCBDB6615FF260B00C34F95 /* mesh.h in Headers */,
+				FBCBDB6815FF260B00C34F95 /* normal.h in Headers */,
+				FBCBDB6A15FF260B00C34F95 /* priorityq-heap.h in Headers */,
+				FBCBDB6B15FF260B00C34F95 /* priorityq-sort.h in Headers */,
+				FBCBDB6D15FF260B00C34F95 /* priorityq.h in Headers */,
+				FBCBDB6F15FF260B00C34F95 /* render.h in Headers */,
+				FBCBDB7115FF260B00C34F95 /* sweep.h in Headers */,
+				FBCBDB7315FF260B00C34F95 /* tess.h in Headers */,
+				FBCBDB7515FF260B00C34F95 /* tessmono.h in Headers */,
+				FBCBDB7815FF260B00C34F95 /* gluint.h in Headers */,
+				FBE90D1416413DCB000BE5F7 /* md5.h in Headers */,
+				FBE90D1C16413E19000BE5F7 /* lookup3.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +1217,23 @@
 			name = Regal;
 			productName = Regal;
 			productReference = 43FC5EDB15C45EBB00D0177C /* libRegal.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		FBCBD9A315FF25E500C34F95 /* Regal+GLU */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FBCBD9E115FF25E500C34F95 /* Build configuration list for PBXNativeTarget "Regal+GLU" */;
+			buildPhases = (
+				FBCBD9A415FF25E500C34F95 /* Sources */,
+				FBCBD9C015FF25E500C34F95 /* Frameworks */,
+				FBCBD9C215FF25E500C34F95 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Regal+GLU";
+			productName = Regal;
+			productReference = FBCBD9E415FF25E500C34F95 /* libRegalGLU.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -341,6 +1258,7 @@
 			projectRoot = "";
 			targets = (
 				43FC5EDA15C45EBB00D0177C /* Regal */,
+				FBCBD9A315FF25E500C34F95 /* Regal+GLU */,
 			);
 		};
 /* End PBXProject section */
@@ -380,6 +1298,133 @@
 				BC020947160D1919003FAB99 /* RegalMarker.cpp in Sources */,
 				BC020958160D1C73003FAB99 /* md5.c in Sources */,
 				BC640CA416554AA4007DEF69 /* RegalFrame.cpp in Sources */,
+				FBE90D1916413E19000BE5F7 /* lookup3.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FBCBD9A415FF25E500C34F95 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FBCBD9A515FF25E500C34F95 /* Regal.cpp in Sources */,
+				FBCBD9A615FF25E500C34F95 /* RegalConfig.cpp in Sources */,
+				FBCBD9A715FF25E500C34F95 /* RegalContext.cpp in Sources */,
+				FBCBD9A815FF25E500C34F95 /* RegalContextInfo.cpp in Sources */,
+				FBCBD9A915FF25E500C34F95 /* RegalDispatchDebug.cpp in Sources */,
+				FBCBD9AA15FF25E500C34F95 /* RegalDispatchEmu.cpp in Sources */,
+				FBCBD9AB15FF25E500C34F95 /* RegalDispatchError.cpp in Sources */,
+				FBCBD9AC15FF25E500C34F95 /* RegalDispatchLoader.cpp in Sources */,
+				FBCBD9AD15FF25E500C34F95 /* RegalDispatchLog.cpp in Sources */,
+				FBCBD9AE15FF25E500C34F95 /* RegalDllMain.cpp in Sources */,
+				FBCBD9AF15FF25E500C34F95 /* RegalHelper.cpp in Sources */,
+				FBCBD9B015FF25E500C34F95 /* RegalHttp.cpp in Sources */,
+				FBCBD9B115FF25E500C34F95 /* RegalIff.cpp in Sources */,
+				FBCBD9B215FF25E500C34F95 /* RegalInit.cpp in Sources */,
+				FBCBD9B315FF25E500C34F95 /* RegalLog.cpp in Sources */,
+				FBCBD9B415FF25E500C34F95 /* RegalLookup.cpp in Sources */,
+				FBCBD9B515FF25E500C34F95 /* RegalToken.cpp in Sources */,
+				FBCBD9B615FF25E500C34F95 /* RegalUtil.cpp in Sources */,
+				FBCBD9B715FF25E500C34F95 /* mongoose.c in Sources */,
+				FBCBD9B815FF25E500C34F95 /* RegalFavicon.cpp in Sources */,
+				FBCBD9B915FF25E500C34F95 /* RegalMac.cpp in Sources */,
+				FBCBD9BA15FF25E500C34F95 /* RegalDispatchMissing.cpp in Sources */,
+				FBCBD9BB15FF25E500C34F95 /* RegalDispatchNacl.cpp in Sources */,
+				FBCBD9BC15FF25E500C34F95 /* RegalDispatcher.cpp in Sources */,
+				FBCBD9BD15FF25E500C34F95 /* RegalDispatchStaticEGL.cpp in Sources */,
+				FBCBD9BE15FF25E500C34F95 /* RegalDispatchStaticES2.cpp in Sources */,
+				FBCBD9BF15FF25E500C34F95 /* RegalDispatchGlobal.cpp in Sources */,
+				FBCBDAC015FF260900C34F95 /* bezierEval.cc in Sources */,
+				FBCBDAC215FF260900C34F95 /* bezierPatch.cc in Sources */,
+				FBCBDAC415FF260900C34F95 /* bezierPatchMesh.cc in Sources */,
+				FBCBDAC615FF260900C34F95 /* glcurveval.cc in Sources */,
+				FBCBDAC915FF260900C34F95 /* glinterface.cc in Sources */,
+				FBCBDACA15FF260900C34F95 /* glrenderer.cc in Sources */,
+				FBCBDACC15FF260900C34F95 /* glsurfeval.cc in Sources */,
+				FBCBDACE15FF260900C34F95 /* incurveeval.cc in Sources */,
+				FBCBDACF15FF260900C34F95 /* insurfeval.cc in Sources */,
+				FBCBDAD215FF260900C34F95 /* arc.cc in Sources */,
+				FBCBDAD415FF260900C34F95 /* arcsorter.cc in Sources */,
+				FBCBDAD615FF260900C34F95 /* arctess.cc in Sources */,
+				FBCBDAD815FF260900C34F95 /* backend.cc in Sources */,
+				FBCBDADA15FF260900C34F95 /* basiccrveval.cc in Sources */,
+				FBCBDADC15FF260900C34F95 /* basicsurfeval.cc in Sources */,
+				FBCBDADF15FF260900C34F95 /* bin.cc in Sources */,
+				FBCBDAE115FF260900C34F95 /* bufpool.cc in Sources */,
+				FBCBDAE315FF260900C34F95 /* cachingeval.cc in Sources */,
+				FBCBDAE515FF260900C34F95 /* ccw.cc in Sources */,
+				FBCBDAE615FF260900C34F95 /* coveandtiler.cc in Sources */,
+				FBCBDAE815FF260900C34F95 /* curve.cc in Sources */,
+				FBCBDAEA15FF260900C34F95 /* curvelist.cc in Sources */,
+				FBCBDAEC15FF260900C34F95 /* curvesub.cc in Sources */,
+				FBCBDAED15FF260900C34F95 /* dataTransform.cc in Sources */,
+				FBCBDAF015FF260900C34F95 /* displaylist.cc in Sources */,
+				FBCBDAF315FF260900C34F95 /* flist.cc in Sources */,
+				FBCBDAF515FF260900C34F95 /* flistsorter.cc in Sources */,
+				FBCBDAFA15FF260900C34F95 /* hull.cc in Sources */,
+				FBCBDAFC15FF260900C34F95 /* intersect.cc in Sources */,
+				FBCBDAFE15FF260900C34F95 /* knotvector.cc in Sources */,
+				FBCBDB0015FF260900C34F95 /* mapdesc.cc in Sources */,
+				FBCBDB0215FF260900C34F95 /* mapdescv.cc in Sources */,
+				FBCBDB0315FF260900C34F95 /* maplist.cc in Sources */,
+				FBCBDB0515FF260900C34F95 /* mesher.cc in Sources */,
+				FBCBDB0715FF260900C34F95 /* monotonizer.cc in Sources */,
+				FBCBDB0915FF260900C34F95 /* monoTriangulationBackend.cc in Sources */,
+				FBCBDB0B15FF260900C34F95 /* mycode.cc in Sources */,
+				FBCBDB1015FF260900C34F95 /* nurbsinterfac.cc in Sources */,
+				FBCBDB1115FF260900C34F95 /* nurbstess.cc in Sources */,
+				FBCBDB1315FF260900C34F95 /* patch.cc in Sources */,
+				FBCBDB1515FF260900C34F95 /* patchlist.cc in Sources */,
+				FBCBDB1815FF260900C34F95 /* quilt.cc in Sources */,
+				FBCBDB1A15FF260900C34F95 /* reader.cc in Sources */,
+				FBCBDB1C15FF260900C34F95 /* renderhints.cc in Sources */,
+				FBCBDB1F15FF260900C34F95 /* slicer.cc in Sources */,
+				FBCBDB2115FF260900C34F95 /* sorter.cc in Sources */,
+				FBCBDB2315FF260900C34F95 /* splitarcs.cc in Sources */,
+				FBCBDB2415FF260900C34F95 /* subdivider.cc in Sources */,
+				FBCBDB2615FF260900C34F95 /* tobezier.cc in Sources */,
+				FBCBDB2715FF260900C34F95 /* trimline.cc in Sources */,
+				FBCBDB2915FF260900C34F95 /* trimregion.cc in Sources */,
+				FBCBDB2C15FF260900C34F95 /* trimvertpool.cc in Sources */,
+				FBCBDB2F15FF260900C34F95 /* uarray.cc in Sources */,
+				FBCBDB3115FF260900C34F95 /* varray.cc in Sources */,
+				FBCBDB3415FF260900C34F95 /* directedLine.cc in Sources */,
+				FBCBDB3715FF260900C34F95 /* gridWrap.cc in Sources */,
+				FBCBDB3915FF260900C34F95 /* monoChain.cc in Sources */,
+				FBCBDB3B15FF260900C34F95 /* monoPolyPart.cc in Sources */,
+				FBCBDB3D15FF260900C34F95 /* monoTriangulation.cc in Sources */,
+				FBCBDB4115FF260900C34F95 /* partitionX.cc in Sources */,
+				FBCBDB4315FF260900C34F95 /* partitionY.cc in Sources */,
+				FBCBDB4515FF260900C34F95 /* polyDBG.cc in Sources */,
+				FBCBDB4715FF260900C34F95 /* polyUtil.cc in Sources */,
+				FBCBDB4915FF260900C34F95 /* primitiveStream.cc in Sources */,
+				FBCBDB4B15FF260900C34F95 /* quicksort.cc in Sources */,
+				FBCBDB4D15FF260900C34F95 /* rectBlock.cc in Sources */,
+				FBCBDB4F15FF260900C34F95 /* sampleComp.cc in Sources */,
+				FBCBDB5115FF260900C34F95 /* sampleCompBot.cc in Sources */,
+				FBCBDB5315FF260900C34F95 /* sampleCompRight.cc in Sources */,
+				FBCBDB5515FF260900C34F95 /* sampleCompTop.cc in Sources */,
+				FBCBDB5715FF260900C34F95 /* sampledLine.cc in Sources */,
+				FBCBDB5915FF260900C34F95 /* sampleMonoPoly.cc in Sources */,
+				FBCBDB5B15FF260900C34F95 /* searchTree.cc in Sources */,
+				FBCBDB5F15FF260B00C34F95 /* dict.c in Sources */,
+				FBCBDB6115FF260B00C34F95 /* geom.c in Sources */,
+				FBCBDB6315FF260B00C34F95 /* memalloc.c in Sources */,
+				FBCBDB6515FF260B00C34F95 /* mesh.c in Sources */,
+				FBCBDB6715FF260B00C34F95 /* normal.c in Sources */,
+				FBCBDB6915FF260B00C34F95 /* priorityq-heap.c in Sources */,
+				FBCBDB6C15FF260B00C34F95 /* priorityq.c in Sources */,
+				FBCBDB6E15FF260B00C34F95 /* render.c in Sources */,
+				FBCBDB7015FF260B00C34F95 /* sweep.c in Sources */,
+				FBCBDB7215FF260B00C34F95 /* tess.c in Sources */,
+				FBCBDB7415FF260B00C34F95 /* tessmono.c in Sources */,
+				FBCBDB7615FF260B00C34F95 /* error.c in Sources */,
+				FBCBDB7715FF260B00C34F95 /* glue.c in Sources */,
+				FBCBDB7915FF260B00C34F95 /* mipmap.c in Sources */,
+				FBCBDB7A15FF260B00C34F95 /* project.c in Sources */,
+				FBCBDB7B15FF260B00C34F95 /* quad.c in Sources */,
+				FBCBDB7C15FF260B00C34F95 /* registry.c in Sources */,
+				FB839AD4162FAE5A00F06C0E /* md5.c in Sources */,
+				FBE90D1A16413E19000BE5F7 /* lookup3.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -472,6 +1517,49 @@
 			};
 			name = Release;
 		};
+		FBCBD9E215FF25E500C34F95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/Regal.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					LIBRARYBUILD,
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					../../../include,
+					../../../src/boost,
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = RegalGLU;
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = ../../../src/mongoose;
+			};
+			name = Debug;
+		};
+		FBCBD9E315FF25E500C34F95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/Regal.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					LIBRARYBUILD,
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					../../../include,
+					../../../src/boost,
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = RegalGLU;
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = ../../../src/mongoose;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -489,6 +1577,15 @@
 			buildConfigurations = (
 				43FC5EE915C45EBB00D0177C /* Debug */,
 				43FC5EEA15C45EBB00D0177C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FBCBD9E115FF25E500C34F95 /* Build configuration list for PBXNativeTarget "Regal+GLU" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FBCBD9E215FF25E500C34F95 /* Debug */,
+				FBCBD9E315FF25E500C34F95 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

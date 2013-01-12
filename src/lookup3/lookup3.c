@@ -8,6 +8,10 @@ lookup3.c, by Bob Jenkins, May 2006, Public Domain.
 
 #include "lookup3.h"
 
+#ifdef __cplusplus
+using namespace Lookup3;
+#endif
+
 #ifdef SELF_TEST
 
 /* used for timings */
@@ -25,7 +29,7 @@ void driver1()
     h = hashlittle(&buf[0],1,h);
   }
   time(&z);
-  if (z-a > 0) printf("time %d %.8x\n", z-a, h);
+  if (z-a > 0) printf("time %ld %.8x\n", z-a, h);
 }
 
 /* check that every input bit changes every output bit half the time */
