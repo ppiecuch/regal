@@ -9,7 +9,7 @@ dsaFormulae = {
         'entries' : [ 'glGet(Float|Double)(Indexed|i_)v(EXT|)' ],
         'impl' : [
             'if ( ! _context->dsa->GetIndexedv( _context, ${arg0}, ${arg1}, ${arg2} ) ) {',
-            '    _context->dispatcher.emulation.glGet${m1}${m2}v${m3}( ${arg0}, ${arg1}, ${arg2} );',
+            '  _dispatch.call(&_dispatch.glGet${m1}${m2}v${m3})(${arg0}, ${arg1}, ${arg2});',
             '}',
         ],
     },
@@ -17,7 +17,7 @@ dsaFormulae = {
         'entries' : [ 'glGetPointerIndexedvEXT' ],
         'impl' : [
             '// if ( ! _context->dsa->GetIndexedv( _context, ${arg0}, ${arg1}, ${arg2} ) ) {',
-            '//     _context->dispatcher.emulation.glGetPointerIndexedvEXT( ${arg0}, ${arg1}, ${arg2} );',
+            '//     _dispatch.call(&_dispatch.glGetPointerIndexedvEXT)(${arg0}, ${arg1}, ${arg2});',
             '// }',
         ],
     },
@@ -25,7 +25,7 @@ dsaFormulae = {
         'entries' : [ 'glGetFramebufferParameterivEXT' ],
         'impl' : [
             '_context->dsa->DsaFramebuffer( _context, GL_FRAMEBUFFER, ${arg0} );',
-            '_context->dispatcher.emulation.glGetIntegerv( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.glGetIntegerv)(${arg1plus});',
         ],
     },
     'SelectorIsEnabled' : {
@@ -52,8 +52,8 @@ dsaFormulae = {
     'MatrixMode' : {
         'entries' : [ 'glMatrixMode' ],
         'impl' : [
-            'if( false == _context->dsa->ShadowMatrixMode( ${arg0} ) ) {',
-            '    _context->dispatcher.emulation.glMatrixMode( ${arg0} );',
+            'if (!_context->dsa->ShadowMatrixMode(${arg0})) {',
+            '  _dispatch.call(&_dispatch.glMatrixMode)(${arg0});',
             '}',
         ],
     },
@@ -64,7 +64,7 @@ dsaFormulae = {
         ],
         'impl' : [
             '_context->dsa->DsaMatrixMode( _context, ${arg0} );',
-            '_context->dispatcher.emulation.gl${m1}${m2}Matrix${m3}( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.gl${m1}${m2}Matrix${m3})(${arg1plus});',
         ],
     },
     'MatrixTransform' : {
@@ -74,15 +74,15 @@ dsaFormulae = {
         ],
         'impl' : [
             '_context->dsa->DsaMatrixMode( _context, ${arg0} );',
-            '_context->dispatcher.emulation.gl${m1}${m2}( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.gl${m1}${m2})(${arg1plus});',
         ],
     },
 
     'ClientActiveTexture' : {
         'entries' : [ 'glClientActiveTexture' ],
         'impl' : [
-            'if( false == _context->dsa->ShadowClientActiveTexture( ${arg0} ) ) {',
-            '    _context->dispatcher.emulation.glClientActiveTexture( ${arg0} );',
+            'if (!_context->dsa->ShadowClientActiveTexture( ${arg0} )) {',
+            '  _dispatch.call(&_dispatch.glClientActiveTexture)( ${arg0} );',
             '}',
         ],
     },
@@ -100,28 +100,28 @@ dsaFormulae = {
         'entries' : [ 'gl(Enable|Disable)ClientState(Indexed|i)EXT' ],
         'impl' : [
             '_context->dsa->DsaClientActiveTexture( _context, ${arg1} + GL_TEXTURE0 );',
-            '_context->dispatcher.emulation.gl${m1}ClientState( ${arg0} );',
+            '_dispatch.call(&_dispatch.gl${m1}ClientState)( ${arg0} );',
         ],
     },
     'ClientTexCoords' : {
         'entries' : [ 'glMultiTexCoordPointerEXT' ],
         'impl' : [
             '_context->dsa->DsaClientActiveTexture( _context, ${arg0} );',
-            '_context->dispatcher.emulation.glTexCoordPointer( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.glTexCoordPointer)( ${arg1plus} );',
         ],
     },
     'EnableIndexed' : {
         'entries' : [ 'gl(Enable|Disable)IndexedEXT'],
         'impl' : [
             '_context->dsa->DsaActiveTexture( _context, ${arg1} + GL_TEXTURE0 );',
-            '_context->dispatcher.emulation.gl${m1}( ${arg0} );',
+            '_dispatch.call(&_dispatch.gl${m1})( ${arg0} );',
         ],
     },
     'ActiveTexture' : {
         'entries' : [ 'glActiveTexture' ],
         'impl' : [
             'if( false == _context->dsa->ShadowActiveTexture( ${arg0} ) ) {',
-            '    _context->dispatcher.emulation.glActiveTexture( ${arg0} );',
+            '    _dispatch.call(&_dispatch.glActiveTexture)( ${arg0} );',
             '}',
         ],
     },
@@ -131,7 +131,7 @@ dsaFormulae = {
             'gl(Get|)TexParameter(Iiv|Iuiv)'
             'gl(Copy|Compressed|Get|)Tex(Sub|)Image(1|2|3)D',
             'glTex(Buffer|Renderbuffer)(NV|)',
-            'glGenerateMipmap(ARB|EXT|)'
+            'glGenerateMipmap(ARB|EXT|)',
         ],
         'prefix' : [
             '_context->dsa->RestoreTexture( _context );',
@@ -164,14 +164,14 @@ dsaFormulae = {
         },
         'impl' : [
             '_context->dsa->DsaActiveTexture( _context, ${arg0} );',
-            '_context->dispatcher.emulation.${nondsa}( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.${nondsa})( ${arg1plus} );',
         ],
     },
     'BindTexture' : {
-        'entries' : [ 'glBindTexture' ],
+        'entries' : [ 'glBindTexture(EXT|)' ],
         'impl' : [
-            'if( false == _context->dsa->ShadowTexture( ${arg0}, ${arg1} ) ) {',
-            '    _context->dispatcher.emulation.glBindTexture( ${arg0}, ${arg1} );',
+            'if (!_context->dsa->ShadowTexture( ${arg0}, ${arg1} )) {',
+            '    _dispatch.call(&_dispatch.glBindTexture)( ${arg0}, ${arg1} );',
             '}',
         ],
     },
@@ -180,7 +180,7 @@ dsaFormulae = {
         'impl' : [
             '_context->dsa->DsaActiveTexture( _context, ${arg0} );',
             '_context->dsa->ShadowDsaTexture( ${arg1plus} );',
-            '_context->dispatcher.emulation.glBindTexture( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.glBindTexture)( ${arg1plus} );',
         ],
     },
     'BoundTextureCommands' : {
@@ -191,6 +191,7 @@ dsaFormulae = {
             'gl(Copy|Compressed|)Texture(Image|SubImage)(1D|2D|3D)EXT',
             'gl()Texture(Buffer|Renderbuffer)()EXT',
             'gl(Generate)Texture(Mipmap)()EXT',
+            'gl()Texture(Storage)(1D|2D|3D)EXT',
         ],
         'subst' : {
             'nondsa' : {
@@ -201,7 +202,7 @@ dsaFormulae = {
         },
         'impl' : [
             '_context->dsa->DsaTexture( _context, ${arg1}, ${arg0} );',
-            '_context->dispatcher.emulation.${nondsa}( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.${nondsa})( ${arg1plus} );',
         ],
     },
 
@@ -209,7 +210,7 @@ dsaFormulae = {
         'entries' : [ 'glUseProgram' ],
         'impl' : [
             'if( false == _context->dsa->ShadowGlslProgram( ${arg0} ) ) {',
-            '    _context->dispatcher.emulation.glUseProgram( ${arg0} );',
+            '  _dispatch.call(&_dispatch.glUseProgram)(${arg0});',
             '}',
         ],
     },
@@ -227,15 +228,15 @@ dsaFormulae = {
         ],
         'impl' : [
             '_context->dsa->DsaGlslProgram( _context, ${arg0});',
-            '_context->dispatcher.emulation.glUniform${m1}${m2}${m3}${m4}( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.glUniform${m1}${m2}${m3}${m4})( ${arg1plus} );',
         ],
     },
 
     'BindAsmProgram' : {
         'entries' : [ 'glBindProgramARB' ],
         'impl' : [
-            'if( false == _context->dsa->ShadowAsmProgram( ${arg0}, ${arg1} ) ) {',
-            '    _context->dispatcher.emulation.glBindProgramARB( ${arg0}, ${arg1} );',
+            'if (!_context->dsa->ShadowAsmProgram( ${arg0}, ${arg1} ) ) {',
+            '    _dispatch.call(&_dispatch.glBindProgramARB)( ${arg0}, ${arg1} );',
             '}',
         ],
     },
@@ -262,61 +263,94 @@ dsaFormulae = {
         },
         'impl' : [
             '_context->dsa->DsaAsmProgram( _context, ${arg1}, ${arg0});',
-            '_context->dispatcher.emulation.${nondsa}( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.${nondsa})( ${arg1plus} );',
         ],
     },
 
     'BindFramebuffer' : {
-        'entries' : [ 'glBindFramebuffer' ],
+        'entries' : [ 'glBindFramebuffer(EXT|)' ],
         'impl' : [
-            'if( false == _context->dsa->ShadowFramebuffer( ${arg0}, ${arg1} ) ) {',
-            '    _context->dispatcher.emulation.glBindFramebuffer( ${arg0}, ${arg1} );',
+            'if (!_context->dsa->ShadowFramebuffer( ${arg0}, ${arg1} ) ) {',
+            '    _dispatch.call(&_dispatch.glBindFramebuffer)( ${arg0}, ${arg1} );',
             '}',
         ],
     },
     'SelectorFramebufferCommands' : {
         'entries' : [
-            'glRenderbufferStorage(Multisample|MultisampleCoverage|)(ARB|EXT|NV|)',
             'glFramebufferTexture(1D|2D|3D|Layer|Face|)(ARB|EXT|)',
             'glFramebufferRenderbuffer(ARB|EXT|)',
             'glDrawBuffer(s|)(ARB|EXT|NV|)'
-            'glGet(Renderbuffer|FramebufferAttachment)Parameteriv(ARB|EXT|)',
+            'glGet(FramebufferAttachment)Parameteriv(ARB|EXT|)',
         ],
         'prefix' : [ '_context->dsa->RestoreFramebuffer( _context );' ],
     },
     'SelectorFramebufferCommands2' : {
         'entries' : [
-            'gl()Named(RenderbufferStorage)(Multisample|MultisampleCoverage|)EXT',
             'gl()Named(FramebufferTexture)(1D|2D|3D|Layer|Face|)EXT',
             'gl()Named(FramebufferRenderbuffer)()EXT',
-            'gl(Get)Named(Renderbuffer|FramebufferAttachment)(Parameteriv)EXT',
+            'gl(Get)Named(FramebufferAttachment)(Parameteriv)EXT',
         ],
         'subst' : {
             'nondsa' : {
                 '.*CoverageEXT' : 'gl${m1}${m2}${m3}NV',
                 '.*MultisampleEXT' : 'gl${m1}${m2}${m3}EXT',
+                '.*FaceEXT' : 'gl${m1}${m2}${m3}ARB',
                 'default' : 'gl${m1}${m2}${m3}',
             },
         },
         'impl' : [
             '_context->dsa->DsaFramebuffer( _context, GL_FRAMEBUFFER, ${arg0});',
-            '_context->dispatcher.emulation.${nondsa}( GL_FRAMEBUFFER, ${arg1plus} );',
+            '_dispatch.call(&_dispatch.${nondsa})( GL_FRAMEBUFFER, ${arg1plus} );',
         ],
     },
     'SelectorFramebufferCommands3' : {
         'entries' : [ 'glFramebuffer(DrawBuffer|ReadBuffer)(s|)EXT' ],
         'impl' : [
             '_context->dsa->DsaFramebuffer( _context, GL_FRAMEBUFFER, ${arg0});',
-            '_context->dispatcher.emulation.gl${m1}${m2}( ${arg1plus} );',
+            '_dispatch.call(&_dispatch.gl${m1}${m2})( ${arg1plus} );',
         ],
     },
     'SelectorFramebufferCommands4' : {
         'entries' : [ 'glCheckNamedFramebufferStatusEXT' ],
         'impl' : [
             '_context->dsa->DsaFramebuffer( _context, GL_FRAMEBUFFER, ${arg0});',
-            'return _context->dispatcher.emulation.glCheckFramebufferStatus( ${arg1plus} );',
+            'return _dispatch.call(&_dispatch.glCheckFramebufferStatus)( ${arg1plus} );',
         ],
     },
+
+    'BindRenderbuffer' : {
+        'entries' : [ 'glBindRenderbuffer(EXT|)' ],
+        'impl' : [
+            'if (!_context->dsa->ShadowRenderbuffer( ${arg0}, ${arg1} ) ) {',
+            '    _dispatch.call(&_dispatch.glBindRenderbuffer)( ${arg0}, ${arg1} );',
+            '}',
+        ],
+    },
+    'SelectorRenderbufferCommands' : {
+        'entries' : [
+            'glRenderbufferStorage(Multisample|MultisampleCoverage|)(ARB|EXT|NV|)',
+            'glGetRenderbufferParameteriv(ARB|EXT|)',
+        ],
+        'prefix' : [ '_context->dsa->RestoreRenderbuffer( _context );' ],
+    },
+    'SelectorRenderbufferCommands2' : {
+        'entries' : [
+            'gl()Named(RenderbufferStorage)(Multisample|MultisampleCoverage|)EXT',
+            'gl(Get)Named(Renderbuffer)(Parameteriv)EXT',
+        ],
+        'subst' : {
+            'nondsa' : {
+                '.*CoverageEXT' : 'gl${m1}${m2}${m3}NV',
+                '.*MultisampleEXT' : 'gl${m1}${m2}${m3}',
+                'default' : 'gl${m1}${m2}${m3}',
+            },
+        },
+        'impl' : [
+            '_context->dsa->DsaRenderbuffer( _context, GL_RENDERBUFFER, ${arg0});',
+            '_dispatch.call(&_dispatch.${nondsa})( GL_RENDERBUFFER, ${arg1plus} );',
+        ],
+    },
+
     'ClientAttribDefault' : {
         'entries' : ['glClientAttribDefaultEXT'],
         'impl' : [ '_context->dsa->ClientAttribDefault( _context, ${arg0} );' ],
@@ -324,15 +358,16 @@ dsaFormulae = {
     'PushClientAttribDefault' : {
         'entries' : ['glPushClientAttribDefaultEXT'],
         'impl' : [
-            '_context->dispatcher.emulation.glPushClientAttrib( ${arg0} );',
-            '_context->dsa->ClientAttribDefault( _context, ${arg0} );',
+            'DispatchTableGL &tbl = _context->dispatcher.emulation;',
+            'tbl.call(&tbl.glPushClientAttrib)(${arg0});',
+            '_context->dsa->ClientAttribDefault(_context, ${arg0});',
         ],
     },
     'BindVertexArray' : {
         'entries' : [ 'glBindVertexArray' ],
         'impl' : [
-            'if( false == _context->dsa->ShadowVao( ${arg0} ) ) {',
-            '    _context->dispatcher.emulation.glBindVertexArray( ${arg0} );',
+            'if (!_context->dsa->ShadowVao( ${arg0} )) {',
+            '    _dispatch.call(&_dispatch.glBindVertexArray)( ${arg0} );',
             '}',
         ],
     },
@@ -342,10 +377,10 @@ dsaFormulae = {
         'prefix' : [  '_context->dsa->Restore( _context );' ],
     },
     'BindBuffer' : {
-        'entries' : [ 'glBindBuffer' ],
+        'entries' : [ 'glBindBuffer(ARB|)' ],
         'impl' : [
-            'if( false == _context->dsa->ShadowBuffer( ${arg0}, ${arg1} ) ) {',
-            '    _context->dispatcher.emulation.glBindBuffer( ${arg0}, ${arg1} );',
+            'if (!_context->dsa->ShadowBuffer( ${arg0}, ${arg1} ) ) {',
+            '    _dispatch.call(&_dispatch.glBindBuffer)(${arg0}, ${arg1});',
             '}',
         ],
     },
@@ -354,7 +389,7 @@ dsaFormulae = {
             'gl(Get|Copy|)Buffer(Sub|)Data',
             'gl(FlushMapped|Map|Unmap)Buffer(Range|)(ARB|EXT|)',
             'glGetBuffer(Parameteriv|Pointerv)',
-            'gl(Vertex|Normal|Color|SecondaryColor)Pointer'
+            'gl(Vertex|Normal|Color|SecondaryColor)Pointer',
         ],
         'prefix' : [ '_context->dsa->RestoreBuffer( _context );' ],
     },
@@ -366,31 +401,109 @@ dsaFormulae = {
         ],
         'impl' : [
             '_context->dsa->DsaBuffer( _context, ${arg0});',
-            '_context->dispatcher.emulation.gl${m1}${m2}Buffer${m3}( GL_ARRAY_BUFFER, ${arg1plus} );',
+            '_dispatch.call(&_dispatch.gl${m1}${m2}Buffer${m3})( GL_ARRAY_BUFFER, ${arg1plus} );',
         ],
     },
     'DsaBufferCommands2' : {
         'entries' : [ 'gl(Map)NamedBuffer(Range|)EXT' ],
         'impl' : [
             '_context->dsa->DsaBuffer( _context, ${arg0});',
-            'return _context->dispatcher.emulation.gl${m1}Buffer${m2}( GL_ARRAY_BUFFER, ${arg1plus} );',
+            'return _dispatch.call(&_dispatch.gl${m1}Buffer${m2})( GL_ARRAY_BUFFER, ${arg1plus} );',
         ],
     },
     'DsaBufferCommands3' : {
         'entries' : [ 'glUnmapNamedBufferEXT' ],
         'impl' : [
             '_context->dsa->DsaBuffer( _context, ${arg0});',
-            'return _context->dispatcher.emulation.glUnmapBuffer( GL_ARRAY_BUFFER );',
+            'return _dispatch.call(&_dispatch.glUnmapBuffer)( GL_ARRAY_BUFFER );',
         ],
     },
-    'DsaBufferPointerCommands' : {
-        'entries' : [ ],
-#       'entries' : [ 'glVertexArray(Vertex|Color|EdgeFlag|Index|Normal|TexCoord|MultiTexCoord|FogCoord|SecondaryColor|VertexAttrib|VertexAttribI)OffsetEXT' ],
+    'DsaVertexArrayOffsetCommands3' : {
+        'entries' : [ 'glVertexArray(EdgeFlag)OffsetEXT' ],
         'impl' : [
             '_context->dsa->DsaVao( _context, ${arg0} );'
             '_context->dsa->DsaBuffer( _context, ${arg1} );',
-            '_context->dispatcher.emulation.gl${m1}Pointer( ${arg2plus} );',
+            '_dispatch.call(&_dispatch.gl${m1}Pointer)( ${arg2}, reinterpret_cast<const GLvoid *>(${arg3}) );',
         ],
-    }
+    },
+    'DsaVertexArrayPointerOffsets4' : {
+        'entries' : [ 'glVertexArray(Index|Normal|FogCoord)OffsetEXT' ],
+        'impl' : [
+            '_context->dsa->DsaVao( _context, ${arg0} );'
+            '_context->dsa->DsaBuffer( _context, ${arg1} );',
+            '_dispatch.call(&_dispatch.gl${m1}Pointer)( ${arg2}, ${arg3}, reinterpret_cast<const GLvoid *>(${arg4}) );',
+        ],
+    },
+    'DsaVertexArrayOffsetCommands5' : {
+        'entries' : [ 'glVertexArray(Vertex|Color|TexCoord|SecondaryColor)OffsetEXT' ],
+        'impl' : [
+            '_context->dsa->DsaVao( _context, ${arg0} );'
+            '_context->dsa->DsaBuffer( _context, ${arg1} );',
+            '_dispatch.call(&_dispatch.gl${m1}Pointer)( ${arg2}, ${arg3}, ${arg4}, reinterpret_cast<const GLvoid *>(${arg5}) );',
+        ],
+    },
+    'DsaVertexArrayOffsetCommands6' : {
+        'entries' : [ 'glVertexArray(VertexAttribI)OffsetEXT' ],
+        'impl' : [
+            '_context->dsa->DsaVao( _context, ${arg0} );'
+            '_context->dsa->DsaBuffer( _context, ${arg1} );',
+            '_dispatch.call(&_dispatch.gl${m1}Pointer)( ${arg2}, ${arg3}, ${arg4}, ${arg5}, reinterpret_cast<const GLvoid *>(${arg6}) );',
+        ],
+    },
+    'DsaVertexArrayOffsetCommands6EXT' : {
+        'entries' : [ 'glVertexArray(MultiTexCoord)OffsetEXT' ],
+        'impl' : [
+            '_context->dsa->DsaVao( _context, ${arg0} );'
+            '_context->dsa->DsaBuffer( _context, ${arg1} );',
+            '_dispatch.call(&_dispatch.gl${m1}PointerEXT)( ${arg2}, ${arg3}, ${arg4}, ${arg5}, reinterpret_cast<const GLvoid *>(${arg6}) );',
+        ],
+    },
+    'DsaVertexArrayOffsetCommands7' : {
+        'entries' : [ 'glVertexArray(VertexAttrib)OffsetEXT' ],
+        'impl' : [
+            '_context->dsa->DsaVao( _context, ${arg0} );'
+            '_context->dsa->DsaBuffer( _context, ${arg1} );',
+            '_dispatch.call(&_dispatch.gl${m1}Pointer)( ${arg2}, ${arg3}, ${arg4}, ${arg5}, ${arg6}, reinterpret_cast<const GLvoid *>(${arg7}) );',
+        ],
+    },
+    'Delete' : {
+        'entries' : [
+          'glDelete(Buffers)(ARB|)',
+          'glDelete(Framebuffers)(EXT|OES|)',
+          'glDelete(Renderbuffers)(EXT|OES|)',
+          'glDelete(Program)',
+          'glDelete(Programs)(ARB|NV)',
+          'glDelete(Textures)(EXT|)',
+          'glDelete(VertexArrays)(APPLE|OES|)',
+        ],
+        'subst' : {
+            'method' : {
+                '.*Program$'                 : 'GlslProgram',
+                '.*Programs(ARB|NV)'         : 'AsmPrograms',
+                '.*VertexArrays(APPLE|OES|)' : 'Vaos',
+                'default'                    : '${m1}',
+            },
+        },
+        'prefix' : [ '_context->dsa->Delete${method}( _context, ${arg0plus} );', ],
+    },
+    'VertexArrayEnable' : {
+        'entries' : [ 'gl(Enable|Disable)VertexArrayEXT' ],
+        'impl' : [
+            '_context->dsa->DsaVao( _context, ${arg0} );',
+            'if ( ${arg1} >= GL_TEXTURE0 && ${arg1} <= GL_TEXTURE31) {',
+            '  _context->dsa->DsaClientActiveTexture( _context, ${arg1} );',
+            '  _dispatch.call(&_dispatch.gl${m1}ClientState)( GL_TEXTURE_COORD_ARRAY );',
+            '} else {',
+            '  _dispatch.call(&_dispatch.gl${m1}ClientState)( ${arg1} );',
+            '}'
+        ],
+    },
+    'VertexArrayAttribEnable' : {
+        'entries' : [ 'gl(Enable|Disable)VertexArrayAttribEXT' ],
+        'impl' : [
+            '_context->dsa->DsaVao( _context, ${arg0} );',
+            '_dispatch.call(&_dispatch.gl${m1}VertexAttribArray)( ${arg1} );'
+        ],
+    },
 }
 

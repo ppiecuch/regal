@@ -42,12 +42,29 @@ REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
+namespace Json { struct Output; }
+
 namespace Config
 {
   void Init();
 
-  extern bool forceCoreProfile;
+  extern void writeJSON(Json::Output &jo);
+
+  //
+
+  extern ::std::string configFile;
+
+  //
+
+  extern bool forceES1Profile;
   extern bool forceES2Profile;
+  extern bool forceCoreProfile;
+
+  //
+
+  extern bool sysES1;
+  extern bool sysES2;
+  extern bool sysGL;
 
   // Use GLX or EGL, but not both
 
@@ -58,23 +75,51 @@ namespace Config
 
   extern bool forceEmulation;
   extern bool enableEmulation;
+  extern bool enableTrace;
   extern bool enableDebug;
   extern bool enableError;
   extern bool enableCode;
+  extern bool enableStatistics;
   extern bool enableLog;
   extern bool enableDriver;
 
   // Initial emulation layer enable/disable
 
+  extern bool enableEmuHint;
   extern bool enableEmuPpa;
+  extern bool enableEmuPpca;
   extern bool enableEmuObj;
   extern bool enableEmuBin;
+  extern bool enableEmuTexSto;
+  extern bool enableEmuXfer;
   extern bool enableEmuDsa;
+  extern bool enableEmuPath;
+  extern bool enableEmuRect;
+  extern bool enableEmuBaseVertex;
   extern bool enableEmuIff;
   extern bool enableEmuSo;
   extern bool enableEmuVao;
   extern bool enableEmuFilter;
   extern bool enableEmuTexC;
+
+  // Force emulation layer enable/disable
+
+  extern bool forceEmuHint;
+  extern bool forceEmuPpa;
+  extern bool forceEmuPpca;
+  extern bool forceEmuObj;
+  extern bool forceEmuBin;
+  extern bool forceEmuTexSto;
+  extern bool forceEmuXfer;
+  extern bool forceEmuDsa;
+  extern bool forceEmuPath;
+  extern bool forceEmuRect;
+  extern bool forceEmuBaseVertex;
+  extern bool forceEmuIff;
+  extern bool forceEmuSo;
+  extern bool forceEmuVao;
+  extern bool forceEmuFilter;
+  extern bool forceEmuTexC;
 
   // Initial context configuration
 
@@ -92,13 +137,33 @@ namespace Config
   extern bool frameSaveStencil;
   extern bool frameSaveDepth;
 
+  extern ::std::string frameSaveColorPrefix;	// Filename prefix for saved PNGs
+  extern ::std::string frameSaveStencilPrefix;
+  extern ::std::string frameSaveDepthPrefix;
+
   // Caching
 
-  extern bool        cache;
-  extern bool        cacheShader;
-  extern bool        cacheShaderRead;
-  extern bool        cacheShaderWrite;
-  extern std::string cacheDirectory;
+  extern bool          cache;
+  extern bool          cacheShader;
+  extern bool          cacheShaderRead;
+  extern bool          cacheShaderWrite;
+  extern bool          cacheTexture;
+  extern bool          cacheTextureRead;
+  extern bool          cacheTextureWrite;
+  extern ::std::string cacheDirectory;
+
+  // Code dispatch
+
+  extern ::std::string codeSourceFile;
+  extern ::std::string codeHeaderFile;
+
+  // Trace
+
+  extern ::std::string traceFile;
+
+  // Thread locking
+
+  extern bool          enableThreadLocking;
 };
 
 REGAL_NAMESPACE_END

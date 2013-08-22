@@ -1,0 +1,27 @@
+NACL_ARCH := arm
+
+include config/nacl.inc
+
+NACL_TOOLCHAIN := $(NACL_SDK_ROOT)/toolchain/$(NACL_OS)_arm_$(NACL_LIBC)
+
+CC     := $(NACL_TOOLCHAIN)/bin/arm-nacl-gcc
+CXX    := $(NACL_TOOLCHAIN)/bin/arm-nacl-g++
+LD     := $(NACL_TOOLCHAIN)/bin/arm-nacl-g++
+AR     := $(NACL_TOOLCHAIN)/bin/arm-nacl-ar
+OBJDUMP:= $(NACL_TOOLCHAIN)/bin/arm-nacl-objdump
+RANLIB :=
+STRIP  ?=
+
+#WARN += -Wno-unused-but-set-variable -Wno-maybe-uninitialized
+BIN_EXTENSION = _arm.nexe
+EXT.DYNAMIC = so
+LIBDIR =
+LDFLAGS.GL =
+LDFLAGS.GLU = -lRegalGLU
+LDFLAGS.GLUT = -lRegalGLUT
+LDFLAGS.STATIC =
+BIN.SUFFIX =
+LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+LIB.DEVLNK = lib$(NAME).so
+LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+LIB.STATIC = lib$(NAME).a

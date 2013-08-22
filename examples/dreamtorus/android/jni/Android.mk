@@ -26,7 +26,8 @@ SHARED_DIR      := $(LOCAL_PATH)/../../src
 LOCAL_C_INCLUDES += $(SHARED_DIR)
 MY_SRC_FILES := gl_code.cpp $(SHARED_DIR)/render.cpp
 LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(MY_SRC_FILES))
-LOCAL_STATIC_LIBRARIES += Regal_static
+LOCAL_STATIC_LIBRARIES       := zlib snappy
+LOCAL_WHOLE_STATIC_LIBRARIES := Regal_static apitrace
 LOCAL_CFLAGS    := -DANDROID=1
 LOCAL_LDLIBS    := -llog 
 
@@ -34,6 +35,6 @@ LOCAL_LDLIBS    := -llog
 
 include $(BUILD_SHARED_LIBRARY)
 
-$(call import-add-path, $(LOCAL_PATH)/../../../../build/android)
-$(call import-module, Regal)
+$(call import-add-path, $(LOCAL_PATH)/../../../../build/android/Regal)
+$(call import-module, jni)
 

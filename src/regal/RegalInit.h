@@ -52,47 +52,51 @@ public:
 
   static void init();
   static void atExit();
-  
+
   //
   // Internal methods
   //
 
 private:
-  
+
   // Factory method for RegalContext lookup and/or construction.
   // Initialization of Regal contexts is deferred.
 
   static inline RegalContext *getContext(RegalSystemContext sysCtx);
-  
+
   // Set the per-thread Regal context
-  
+
   static inline void setContext(RegalContext *context);
-  
+
   // Set current TLS Regal context
-  
+
   static inline void setContextTLS(RegalContext *context);
-  
+
   // Check for OpenGL errors
 
   static void checkForGLErrors(RegalContext *context);
-  
+
+public:
+
   //
   // API methods
   //
 
-public:
-
   static RegalErrorCallback setErrorCallback(RegalErrorCallback callback);
 
+  static void               configure(const char *json);
+
   static void               shareContext(RegalSystemContext a, RegalSystemContext b);
-  
+
   #if REGAL_SYS_PPAPI
-  static void              makeCurrent(RegalSystemContext sysCtx, PPB_OpenGLES2 *interface);
+  static void              makeCurrent(RegalSystemContext sysCtx, PPB_OpenGLES2 *ppb_interface);
   #else
   static void              makeCurrent(RegalSystemContext sysCtx);
   #endif
 
   static void              destroyContext(RegalSystemContext sysCtx);
+
+  static void              getContextListingHTML(std::string &text);
 };
 
 REGAL_NAMESPACE_END

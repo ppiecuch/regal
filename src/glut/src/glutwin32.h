@@ -3,8 +3,8 @@
 
 /* Copyright (c) Nate Robins, 1997. */
 
-/* This program is freely distributable without licensing fees 
-   and is provided without guarantee or warrantee expressed or 
+/* This program is freely distributable without licensing fees
+   and is provided without guarantee or warrantee expressed or
    implied. This program is -not- in the public domain. */
 
 #include "win32_x11.h"
@@ -47,7 +47,7 @@ extern int gettimeofday(struct timeval* tp, void* tzp);
 extern void *__glutFont(void *font);
 extern int __glutGetTransparentPixel(Display *dpy, XVisualInfo *vinfo);
 extern void __glutAdjustCoords(Window parent, int *x, int *y, int *width, int *height);
-
+extern void __glutSetWindowText(HWND hWnd, const char *str);
 
 /* Cygwin B20.1 misses the following definitions */
 #ifdef __CYGWIN32__

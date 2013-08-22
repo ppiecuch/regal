@@ -1,0 +1,55 @@
+ifndef MAKEFILE_GTEST_INCLUDED
+MAKEFILE_GTEST_INCLUDED := 1
+
+.PHONY: gtest.lib snappy.clean
+
+include build/common.inc
+
+ifeq ($(filter emscripten%,$(SYSTEM)),)
+
+#
+# googletest + googlemock
+#
+
+all:: gtest.lib
+
+clean:: gtest.clean
+
+GTEST.SRCS       += src/googletest/src/gtest-all.cc
+GTEST.SRCS       += src/googlemock/src/gmock-all.cc
+GTEST.SRCS.NAMES := $(notdir $(GTEST.SRCS))
+GTEST.OBJS       := $(addprefix tmp/$(SYSTEM)/gtest/static/,$(GTEST.SRCS.NAMES))
+GTEST.OBJS       := $(GTEST.OBJS:.cc=.o)
+GTEST.DEPS       := $(GTEST.OBJS:.o=.d)
+GTEST.CFLAGS     := -Isrc/googletest/include -Isrc/googletest -Isrc/googlemock/include -Isrc/googlemock
+GTEST.STATIC     := libgtestlib.a
+
+-include $(GTEST.DEPS)
+
+gtest.lib: lib/$(SYSTEM)/$(GTEST.STATIC)
+
+gtest.clean:
+	$(RM) -r tmp/$(SYSTEM)/gtest/static
+	$(RM) -r lib/$(SYSTEM)/$(GTEST.STATIC)
+
+tmp/$(SYSTEM)/gtest/static/gtest-all.o: src/googletest/src/gtest-all.cc
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CC) $(GTEST.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+tmp/$(SYSTEM)/gtest/static/gmock-all.o: src/googlemock/src/gmock-all.cc
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CC) $(GTEST.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+lib/$(SYSTEM)/$(GTEST.STATIC): $(GTEST.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(GTEST.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif
+

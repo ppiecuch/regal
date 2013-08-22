@@ -69,13 +69,17 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\x64\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\Win32\Regalglewlib\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\x64\Regalglewlib\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rglewlib</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rglewlib</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">rglewlib</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">rglewlib</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../../../src/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;GLEW_BUILD;GLEWAPIENTRY=__stdcall;GLEW_REGAL;REGALGLU_DECL=;GLEW_NO_GLU;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEWAPIENTRY=__stdcall;GLEW_BUILD;GLEW_NO_GLU;GLEW_REGAL;GLEW_STATIC;REGALGLU_DECL=;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -83,22 +87,23 @@
       </PrecompiledHeader>
       <AssemblerListingLocation>Release\Win32\Regalglewlib\</AssemblerListingLocation>
       <ObjectFileName>Release\Win32\Regalglewlib\</ObjectFileName>
-      <ProgramDataBaseFileName>Release\Win32\regalglewlib.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>Release\Win32\rglewlib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\Win32\regalglewlib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Release\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
-      <ProgramDatabaseFile>Release\Win32\regalglewlib.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>Release\Win32\rglewlib.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <ImportLibrary>Release\Win32\regalglewlib.lib</ImportLibrary>
+      <ImportLibrary>Release\Win32\rglewlib.lib</ImportLibrary>
     </Link>
     <Midl>
       <HeaderFileName>
@@ -114,7 +119,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../../../src/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;GLEW_BUILD;GLEWAPIENTRY=__stdcall;GLEW_REGAL;REGALGLU_DECL=;GLEW_NO_GLU;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEWAPIENTRY=__stdcall;GLEW_BUILD;GLEW_NO_GLU;GLEW_REGAL;GLEW_STATIC;REGALGLU_DECL=;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -122,22 +127,23 @@
       </PrecompiledHeader>
       <AssemblerListingLocation>Release\x64\Regalglewlib\</AssemblerListingLocation>
       <ObjectFileName>Release\x64\Regalglewlib\</ObjectFileName>
-      <ProgramDataBaseFileName>Release\x64\regalglewlib.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>Release\x64\rglewlib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\x64\regalglewlib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Release\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
-      <ProgramDatabaseFile>Release\x64\regalglewlib.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>Release\x64\rglewlib.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
-      <ImportLibrary>Release\x64\regalglewlib.lib</ImportLibrary>
+      <ImportLibrary>Release\x64\rglewlib.lib</ImportLibrary>
     </Link>
     <Midl>
       <HeaderFileName>
@@ -152,31 +158,32 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../../src/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;GLEW_BUILD;GLEWAPIENTRY=__stdcall;GLEW_REGAL;REGALGLU_DECL=;GLEW_NO_GLU;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEWAPIENTRY=__stdcall;GLEW_BUILD;GLEW_NO_GLU;GLEW_REGAL;GLEW_STATIC;REGALGLU_DECL=;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <AssemblerListingLocation>Debug\Win32\Regalglewlib\</AssemblerListingLocation>
       <ObjectFileName>Debug\Win32\Regalglewlib\</ObjectFileName>
-      <ProgramDataBaseFileName>Debug\Win32\regalglewlib.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>Debug\Win32\rglewlib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\Win32\regalglewlib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Debug\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>Debug\Win32\regalglewlib.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>Debug\Win32\rglewlib.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <ImportLibrary>Debug\Win32\regalglewlib.lib</ImportLibrary>
+      <ImportLibrary>Debug\Win32\rglewlib.lib</ImportLibrary>
     </Link>
     <Midl>
       <HeaderFileName>
@@ -191,30 +198,31 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../../src/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC;GLEW_BUILD;GLEWAPIENTRY=__stdcall;GLEW_REGAL;REGALGLU_DECL=;GLEW_NO_GLU;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEWAPIENTRY=__stdcall;GLEW_BUILD;GLEW_NO_GLU;GLEW_REGAL;GLEW_STATIC;REGALGLU_DECL=;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <AssemblerListingLocation>Debug\x64\Regalglewlib\</AssemblerListingLocation>
       <ObjectFileName>Debug\x64\Regalglewlib\</ObjectFileName>
-      <ProgramDataBaseFileName>Debug\x64\regalglewlib.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>Debug\x64\rglewlib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\x64\regalglewlib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Debug\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>Debug\x64\regalglewlib.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>Debug\x64\rglewlib.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
-      <ImportLibrary>Debug\x64\regalglewlib.lib</ImportLibrary>
+      <ImportLibrary>Debug\x64\rglewlib.lib</ImportLibrary>
     </Link>
     <Midl>
       <HeaderFileName>

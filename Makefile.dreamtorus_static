@@ -1,0 +1,88 @@
+ifndef MAKEFILE_DREAMTORUS_STATIC_INCLUDED
+MAKEFILE_DREAMTORUS_STATIC_INCLUDED := 1
+
+.PHONY: dreamtorus_static.bin dreamtorus_static.clean
+
+include build/common.inc
+
+DREAMTORUS_STATIC.EXE := dreamtorus_static
+
+ifneq ($(filter emscripten%,$(SYSTEM)),)
+DREAMTORUS_STATIC.EXE := dreamtorus_static.html
+endif
+
+ifneq ($(filter nacl%,$(SYSTEM)),)
+DREAMTORUS_STATIC.EXE :=
+endif
+
+ifdef DREAMTORUS_STATIC.EXE
+
+#
+# dreamtorus
+#
+
+include Makefile.regal
+include Makefile.glut
+
+ifndef REGAL.STATIC
+$(error dreamtorus needs Regal.)
+endif
+
+all:: dreamtorus_static.bin
+
+clean:: dreamtorus_static.clean
+
+dreamtorus_static.bin: bin/$(SYSTEM)/$(DREAMTORUS_STATIC.EXE)
+
+dreamtorus_static.clean:
+	$(RM) -r tmp/$(SYSTEM)/dreamtorus_static/static
+	$(RM) -r bin/$(SYSTEM)/$(DREAMTORUS_STATIC.EXE)
+
+DREAMTORUS_STATIC.SRCS       += examples/dreamtorus/src/render.cpp
+DREAMTORUS_STATIC.SRCS       += examples/dreamtorus/glut/code/main.cpp
+DREAMTORUS_STATIC.SRCS.NAMES := $(notdir $(DREAMTORUS_STATIC.SRCS))
+DREAMTORUS_STATIC.OBJS       := $(addprefix tmp/$(SYSTEM)/dreamtorus_static/static/,$(DREAMTORUS_STATIC.SRCS.NAMES))
+DREAMTORUS_STATIC.OBJS       := $(DREAMTORUS_STATIC.OBJS:.cpp=.o)
+DREAMTORUS_STATIC.DEPS       := $(DREAMTORUS_STATIC.DEPS:.o=.d)
+DREAMTORUS_STATIC.CFLAGS     := -Iinclude -Iexamples/dreamtorus/src
+
+DREAMTORUS_STATIC.LIBS       += -Llib/$(SYSTEM)
+
+ifndef GLUT.STATIC
+DREAMTORUS_STATIC.LIBS       += $(LDFLAGS.GLUT) $(LDFLAGS.GLU) 
+endif
+
+DREAMTORUS_STATIC.LIBS       += $(LDFLAGS.X11)
+DREAMTORUS_STATIC.LIBS       += -lm -pthread
+
+
+-include $(DREAMTORUS_STATIC.DEPS)
+
+tmp/$(SYSTEM)/dreamtorus_static/static/%.o: examples/dreamtorus/src/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(DREAMTORUS_STATIC.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+tmp/$(SYSTEM)/dreamtorus_static/static/%.o: examples/dreamtorus/glut/code/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(DREAMTORUS_STATIC.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+DREAMTORUS_STATIC.DEPEND :=  
+DREAMTORUS_STATIC.DEPEND += lib/$(SYSTEM)/$(REGAL.STATIC) 
+
+ifdef GLUT.STATIC
+DREAMTORUS_STATIC.DEPEND += lib/$(SYSTEM)/$(GLUT.STATIC) lib/$(SYSTEM)/$(GLU.STATIC)
+endif
+
+bin/$(SYSTEM)/$(DREAMTORUS_STATIC.EXE): $(DREAMTORUS_STATIC.OBJS) $(DREAMTORUS_STATIC.DEPEND)
+	@mkdir -p $(dir $@)
+ifdef APITRACE.STATIC
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) -o $@ $(DREAMTORUS_STATIC.OBJS) $(LDFLAGS.STARTGROUP) lib/$(SYSTEM)/$(REGAL.STATIC) lib/$(SYSTEM)/$(APITRACE.STATIC) $(LDFLAGS.ENDGROUP) $(REGAL.SHARED.DEPEND) $(DREAMTORUS_STATIC.DEPEND) $(REGAL.LIBS) $(REGAL.LDFLAGS) $(DREAMTORUS_STATIC.LIBS) 
+else
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) -o $@ $(DREAMTORUS_STATIC.OBJS) lib/$(SYSTEM)/$(REGAL.STATIC) $(REGAL.SHARED.DEPEND) $(DREAMTORUS_STATIC.DEPEND) $(REGAL.LDFLAGS) $(DREAMTORUS_STATIC.LIBS) 
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif

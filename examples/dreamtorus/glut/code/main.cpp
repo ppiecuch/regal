@@ -120,8 +120,10 @@ static void myError(GLenum error)
 
 int main(int argc, const char *argv[])
 {
+  #ifndef EMSCRIPTEN
   glutInitDisplayString("rgba>=8 depth double");
   glutInitWindowSize(500, 500);
+  #endif
   glutInit( &argc, (char **) argv);
   glutCreateWindow("dreamtorus");
 
@@ -131,6 +133,12 @@ int main(int argc, const char *argv[])
 
   #ifdef __APPLE__
   RegalMakeCurrent(CGLGetCurrentContext());
+  #endif
+
+  // Regal workaround for Emscripten GLUT emulation
+
+  #ifdef EMSCRIPTEN
+  RegalMakeCurrent((RegalSystemContext)1);
   #endif
 
   RegalSetErrorCallback(myError);

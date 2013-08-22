@@ -53,8 +53,6 @@ struct ContextInfo
   std::string regalVersion;
   std::string regalExtensions;
 
-  bool        regal_ext_direct_state_access;
-
   std::set<std::string> regalExtensionsSet;
 
   // As supported by the OpenGL implementation
@@ -101,9 +99,10 @@ using namespace ::REGAL_NAMESPACE_INTERNAL::Logging;
 using namespace ::REGAL_NAMESPACE_INTERNAL::Token;
 
 ContextInfo::ContextInfo()
-: regal_ext_direct_state_access(false),
+:
 ${VERSION_INIT}
-  maxVertexAttribs(0)
+  maxVertexAttribs(0),
+  maxVaryings(0)
 {
    Internal("ContextInfo::ContextInfo","()");
 }
@@ -142,15 +141,74 @@ ContextInfo::init(const RegalContext &context)
 
   // Detect GL context version
 
-  gles = starts_with(version,"OpenGL ES ");
-  if (gles)
-    sscanf(version.c_str(), "OpenGL ES %d.%d", &gles_version_major, &gles_version_minor);
+  #if REGAL_SYS_ES1
+  es1 = starts_with(version, "OpenGL ES-CM");
+  if (es1)
+  {
+    sscanf(version.c_str(), "OpenGL ES-CM %d.%d", &gles_version_major, &gles_version_minor);
+  }
   else
-    sscanf(version.c_str(), "%d.%d", &gl_version_major, &gl_version_minor);
+  #endif
+  {
+    #if REGAL_SYS_ES2
+    es2 = starts_with(version,"OpenGL ES ");
+    if (es2)
+    {
+      sscanf(version.c_str(), "OpenGL ES %d.%d", &gles_version_major, &gles_version_minor);
+    }
+    else
+    #endif
+    {
+      sscanf(version.c_str(), "%d.%d", &gl_version_major, &gl_version_minor);
+    }
+  }
+
+  // We could get either form of the OpenGL ES string, so confirm version
+
+  #if REGAL_SYS_ES1 || REGAL_SYS_ES2
+  if (!es1 && (gles_version_major == 1))
+  {
+    es1 = GL_TRUE;
+    es2 = GL_FALSE;
+  }
+  else if (!es2 && (gles_version_major == 2))
+  {
+    es1 = GL_FALSE;
+    es2 = GL_TRUE;
+  }
+  #endif
+
+  #if REGAL_SYS_EMSCRIPTEN
+  webgl = starts_with(version, "WebGL");
+  #endif
+
+  // For Mesa3D EGL/ES 2.0 on desktop Linux the version string doesn't start with
+  // "OpenGL ES" Is that a Mesa3D bug? Perhaps...
+
+  #if REGAL_SYS_ES2 && REGAL_SYS_EGL && !REGAL_SYS_ANDROID && !REGAL_SYS_EMSCRIPTEN
+  if (Regal::Config::sysEGL)
+  {
+    es1 = false;
+    es2 = true;
+    webgl = false;
+    gles_version_major = 2;
+    gles_version_minor = 0;
+  }
+  #endif
+
+  #if REGAL_SYS_ES2 && REGAL_SYS_EGL && REGAL_SYS_EMSCRIPTEN
+  {
+    es1 = false;
+    es2 = true;
+    webgl = true;
+    gles_version_major = 2;
+    gles_version_minor = 0;
+  }
+  #endif
 
   // Detect core context
 
-  if (!gles && gl_version_major>=3)
+  if (!es1 && !es2 && gl_version_major>=3)
   {
     GLint flags = 0;
     RegalAssert(context.dispatcher.driver.glGetIntegerv);
@@ -158,21 +216,35 @@ ContextInfo::init(const RegalContext &context)
     core = flags & GL_CONTEXT_CORE_PROFILE_BIT ? GL_TRUE : GL_FALSE;
   }
 
-  compat = !core && !gles;
+  compat = !core && !es1 && !es2 && !webgl;
 
   if (REGAL_FORCE_CORE_PROFILE || Config::forceCoreProfile)
   {
     compat = false;
     core   = true;
-    gles   = false;
+    es1    = false;
+    es2    = false;
   }
 
+  #if REGAL_SYS_ES1
+  if (REGAL_FORCE_ES1_PROFILE || Config::forceES1Profile)
+  {
+    compat = false;
+    core   = false;
+    es1    = true;
+    es2    = false;
+  }
+  #endif
+
+  #if REGAL_SYS_ES2
   if (REGAL_FORCE_ES2_PROFILE || Config::forceES2Profile)
   {
     compat = false;
     core   = false;
-    gles   = true;
+    es1    = false;
+    es2    = true;
   }
+  #endif
 
   // Detect driver extensions
 
@@ -244,16 +316,11 @@ ContextInfo::init(const RegalContext &context)
 
 #ifndef REGAL_NO_GETENV
   {
-    const char *vendorEnv = GetEnv("REGAL_GL_VENDOR");
-    if (vendorEnv) regalVendor = vendorEnv;
+    getEnv("REGAL_GL_VENDOR",   regalVendor);
+    getEnv("REGAL_GL_RENDERER", regalRenderer);
+    getEnv("REGAL_GL_VERSION",  regalVersion);
 
-    const char *rendererEnv = GetEnv("REGAL_GL_RENDERER");
-    if (rendererEnv) regalRenderer = rendererEnv;
-
-    const char *versionEnv = GetEnv("REGAL_GL_VERSION");
-    if (versionEnv) regalVersion = versionEnv;
-
-    const char *extensionsEnv = GetEnv("REGAL_GL_EXTENSIONS");
+    const char *extensionsEnv = getEnv("REGAL_GL_EXTENSIONS");
     if (extensionsEnv)
     {
       string_list<string> extList;
@@ -283,8 +350,16 @@ ${VERSION_DETECT}
 ${EXT_INIT}
 
   RegalAssert(context.dispatcher.driver.glGetIntegerv);
-  context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&maxVertexAttribs));
-  context.dispatcher.driver.glGetIntegerv( gles ? GL_MAX_VARYING_VECTORS : GL_MAX_VARYING_FLOATS, reinterpret_cast<GLint *>(&maxVaryings));
+  if (es1)
+  {
+    maxVertexAttribs = 8;
+    maxVaryings = 0;
+  }
+  else
+  {
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&maxVertexAttribs));
+    context.dispatcher.driver.glGetIntegerv( es2 ? GL_MAX_VARYING_VECTORS : GL_MAX_VARYING_FLOATS, reinterpret_cast<GLint *>(&maxVaryings));
+  }
 
   Info("OpenGL v attribs : ",maxVertexAttribs);
   Info("OpenGL varyings  : ",maxVaryings);
@@ -292,8 +367,10 @@ ${EXT_INIT}
   if (maxVertexAttribs > REGAL_EMU_IFF_VERTEX_ATTRIBS)
       maxVertexAttribs = REGAL_EMU_IFF_VERTEX_ATTRIBS;
 
-  // Qualcomm fails with float4 attribs with 256 byte stride, so artificially limit to 8 attribs
-  if (vendor == "Qualcomm" || vendor == "Chromium")
+  // Qualcomm fails with float4 attribs with 256 byte stride, so artificially limit to 8 attribs (n*16 is used
+  // as the stride in RegalIFF).  WebGL (and Pepper) explicitly disallows stride > 255 as well.
+
+  if (vendor == "Qualcomm" || vendor == "Chromium" || webgl)
     maxVertexAttribs = 8;
 
   Info("Regal  v attribs : ",maxVertexAttribs);
@@ -322,6 +399,7 @@ def traverseContextInfo(apis, args):
     c.update([i.category for i in api.functions])
     c.update([i.category for i in api.typedefs])
     c.update([i.category for i in api.enums])
+    c.update([i.category for i in api.extensions])
 
     for i in api.enums:
       c.update([j.category for j in i.enumerants])
@@ -340,7 +418,9 @@ def versionDeclareCode(apis, args):
     if name == 'gl':
       code += '  GLboolean compat : 1;\n'
       code += '  GLboolean core   : 1;\n'
-      code += '  GLboolean gles   : 1;\n\n'
+      code += '  GLboolean es1    : 1;\n'
+      code += '  GLboolean es2    : 1;\n'
+      code += '  GLboolean webgl  : 1;\n\n'
 
     if name in ['gl', 'glx', 'egl']:
       code += '  GLint     %s_version_major;\n' % name
@@ -368,6 +448,9 @@ def versionDeclareCode(apis, args):
       code += '  GLboolean %s : 1;\n' % (c.lower())
     if name in cond:
       code += '#endif\n'
+    for ext in api.extensions:
+      if len(ext.emulatedBy):
+        code += '  GLboolean regal_%s : 1;\n' % (ext.name.lower()[3:])
     code += '\n'
 
   return code
@@ -381,7 +464,9 @@ def versionInitCode(apis, args):
     if name == 'gl':
       code += '  compat(false),\n'
       code += '  core(false),\n'
-      code += '  gles(false),\n'
+      code += '  es1(false),\n'
+      code += '  es2(false),\n'
+      code += '  webgl(false),\n'
 
     if name in ['gl', 'glx', 'egl']:
       code += '  %s_version_major(-1),\n' % name
@@ -405,6 +490,9 @@ def versionInitCode(apis, args):
       code += '  %s(false),\n' % (c.lower())
     if name in cond:
       code += '#endif\n'
+    for ext in api.extensions:
+      if len(ext.emulatedBy):
+        code += '  regal_%s(false),\n' % (ext.name.lower()[3:])
 
   return code
 
@@ -420,7 +508,7 @@ def versionDetectCode(apis, args):
     indent = ''
     if api.name=='gl':
       indent = '  '
-      code += '  if (!gles)\n  {\n'
+      code += '  if (!es1 && !es2)\n  {\n'
 
     for i in range(len(api.versions)):
       version = api.versions[i]
@@ -478,14 +566,20 @@ def getExtensionCode(apis, args):
   code += '\n'
 
   for api in apis:
+    emulatedExtensions = []
+
+    for extension in api.extensions:
+      if len(extension.emulatedBy):
+        emulatedExtensions.append(extension.name)
+
     name = api.name.lower()
     if name in cond:
       code += '#if %s\n'%cond[name]
     for c in sorted(api.categories):
       if c.startswith('GL_REGAL_') or c=='GL_EXT_debug_marker':
         code += '  if (!strcmp(ext,"%s")) return true;\n' % (c)
-      elif c=='GL_EXT_direct_state_access':
-        code += '  if (!strcmp(ext,"%s")) return regal_ext_direct_state_access || %s;\n' % (c,c.lower())
+      elif c in emulatedExtensions:
+        code += '  if (!strcmp(ext,"%s")) return regal_%s || %s;\n' % (c,c.lower()[3:],c.lower())
       else:
         code += '  if (!strcmp(ext,"%s")) return %s;\n' % (c,c.lower())
     if name in cond:

@@ -1,0 +1,65 @@
+ifndef MAKEFILE_SNAPPY_INCLUDED
+MAKEFILE_SNAPPY_INCLUDED := 1
+
+.PHONY: snappy.lib snappy.clean
+
+include build/common.inc
+
+ifeq ($(filter nacl%,$(SYSTEM)),)
+
+include build/snappy.inc
+
+#
+# snappy
+#
+
+ifneq ($(SNAPPY.STATIC),)
+
+all:: snappy.lib
+
+clean:: snappy.clean
+
+SNAPPY.SRCS       := $(SNAPPY.CXX)
+SNAPPY.SRCS.NAMES := $(notdir $(SNAPPY.SRCS))
+SNAPPY.OBJS       := $(addprefix tmp/$(SYSTEM)/snappy/static/,$(SNAPPY.SRCS.NAMES))
+SNAPPY.OBJS       := $(SNAPPY.OBJS:.c=.o)
+SNAPPY.OBJS       := $(SNAPPY.OBJS:.cc=.o)
+SNAPPY.DEPS       := $(SNAPPY.DEPS:.o=.d)
+
+-include $(SNAPPY.DEPS)
+
+ifeq ($(filter-out linux% darwin% nacl%,$(SYSTEM)),)
+SNAPPY.CFLAGS     += -DHAVE_UNISTD_H
+endif
+
+ifeq ($(MODE),release)
+SNAPPY.CFLAGS     += -DNDEBUG
+endif
+
+snappy.lib: lib/$(SYSTEM)/$(SNAPPY.STATIC)
+
+snappy.clean:
+	$(RM) -r tmp/$(SYSTEM)/snappy/static
+	$(RM) -r lib/$(SYSTEM)/$(SNAPPY.STATIC)
+
+tmp/$(SYSTEM)/snappy/static/%.o: src/snappy/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(SNAPPY.CFLAGS) $(CFLAGS) $(PICFLAG) -o $@ -c $<
+
+tmp/$(SYSTEM)/snappy/static/%.o: src/snappy/%.cc
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CXX) $(SNAPPY.CFLAGS) $(CFLAGS) $(CXXFLAGS) $(PICFLAG) -o $@ -c $<
+
+lib/$(SYSTEM)/$(SNAPPY.STATIC): $(SNAPPY.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(SNAPPY.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif
+endif

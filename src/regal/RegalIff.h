@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011-2012 NVIDIA Corporation
+  Copyright (c) 2011-2013 NVIDIA Corporation
   Copyright (c) 2011-2012 Cass Everitt
   Copyright (c) 2012 Scott Nations
   Copyright (c) 2012 Mathias Schott
@@ -82,6 +82,7 @@ REGAL_GLOBAL_BEGIN
 #include "RegalContext.h"
 #include "RegalContextInfo.h"
 #include "RegalSharedMap.h"
+#include "RegalFloat4.h"
 #include "linear.h"
 
 REGAL_GLOBAL_END
@@ -90,6 +91,8 @@ REGAL_NAMESPACE_BEGIN
 
 namespace Emu {
 
+
+// lookup array, Must Be kept in sync with enum TexenvMode; TEM_* values
 const GLenum texenvModeGL[] = {
   GL_FALSE,
   GL_REPLACE,
@@ -98,6 +101,41 @@ const GLenum texenvModeGL[] = {
   GL_DECAL,
   GL_BLEND,
   GL_COMBINE
+};
+
+// lookup array, Must Be kept in sync with enum TexenvCombine; TEC_* values
+const GLenum texenvCombineGL[] = {
+  GL_FALSE,
+  GL_REPLACE,
+  GL_MODULATE,
+  GL_ADD,
+  GL_ADD_SIGNED,
+  GL_INTERPOLATE,
+  GL_SUBTRACT,
+  GL_DOT3_RGB,
+  GL_DOT3_RGBA
+};
+
+// lookup array, Must Be kept in sync with enum TexenvCombineSrc; TCS_* values
+const GLenum texenvCombineSrcGL[] = {
+  GL_FALSE,
+  GL_CONSTANT,
+  GL_PRIMARY_COLOR,
+  GL_PREVIOUS,
+  GL_TEXTURE,
+  GL_TEXTURE0,
+  GL_TEXTURE1,
+  GL_TEXTURE2,
+  GL_TEXTURE3
+};
+
+// lookup array, Must Be kept in sync with enum TexenvCombineOp; TCO_* values
+const GLenum texenvCombineOpGL[] = {
+  GL_FALSE,
+  GL_SRC_COLOR,
+  GL_ONE_MINUS_SRC_COLOR,
+  GL_SRC_ALPHA,
+  GL_ONE_MINUS_SRC_ALPHA
 };
 
 enum RegalFFUniformEnum {
@@ -316,10 +354,12 @@ template <> inline GLfloat RFFToFloatN( int i, const int * p ) { return GLfloat(
 struct Iff
 {
   Iff()
+  : progcount(0)
   {
   }
 
   Iff(const Iff &other)
+  : progcount(0)
   {
     UNUSED_PARAMETER(other);
   }
@@ -337,6 +377,11 @@ struct Iff
   {
   }
 
+  void Cleanup( RegalContext &ctx );
+
+  // Info
+  int progcount;
+
   // Vertex arrays
   GLuint catIndex;
   GLuint ffAttrMap[ REGAL_EMU_IFF_VERTEX_ATTRIBS ];
@@ -346,9 +391,9 @@ struct Iff
   GLuint ffAttrNumTex;
   GLuint maxVertexAttribs;
 
-  void InitVertexArray( RegalContext * ctx )
+  void InitVertexArray(RegalContext &ctx)
   {
-    maxVertexAttribs = ctx->info->maxVertexAttribs;
+    maxVertexAttribs = ctx.info->maxVertexAttribs;
 
     if( maxVertexAttribs >= 16 ) {
       RegalAssert( REGAL_EMU_IFF_VERTEX_ATTRIBS == 16);
@@ -683,7 +728,7 @@ struct Iff
   GLuint immQuadsVbo;
   GLuint immShadowVao;
 
-  void InitImmediate( RegalContext * ctx )
+  void InitImmediate(RegalContext &ctx)
   {
     immActive = false;
     immProvoking = 0;
@@ -699,15 +744,20 @@ struct Iff
 
     immShadowVao = 0;
 
-    DispatchTable &tbl = ctx->dispatcher.emulation;
+    DispatchTableGL &tbl = ctx.dispatcher.emulation;
     tbl.glGenVertexArrays( 1, & immVao );
     tbl.glBindVertexArray( immVao );
-    BindVertexArray( ctx, immVao ); // to keep ffn current
+    BindVertexArray( &ctx, immVao ); // to keep ffn current
     tbl.glGenBuffers( 1, & immVbo );
     tbl.glGenBuffers( 1, & immQuadsVbo );
     tbl.glBindBuffer( GL_ARRAY_BUFFER, immVbo );
+#if REGAL_SYS_EMSCRIPTEN
+    // We need this to be an allocated buffer for WebGL, because a dangling VertexAttribPointer
+    // doesn't work.  XXX -- this might be a Firefox bug, check?
+    tbl.glBufferData( GL_ARRAY_BUFFER, sizeof( immArray ), NULL, GL_STATIC_DRAW );
+#endif
     for( GLuint i = 0; i < maxVertexAttribs; i++ ) {
-      EnableArray( ctx, i ); // to keep ffn current
+      EnableArray( &ctx, i ); // to keep ffn current
       tbl.glEnableVertexAttribArray( i );
       tbl.glVertexAttribPointer( i, 4, GL_FLOAT, GL_FALSE, maxVertexAttribs * 16, (GLubyte *)NULL + i * 16 );
     }
@@ -723,25 +773,25 @@ struct Iff
     }
     tbl.glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( quadIndexes ), quadIndexes, GL_STATIC_DRAW );
     tbl.glBindVertexArray( 0 );
-    BindVertexArray( ctx, 0 ); // to keep ffn current
+    BindVertexArray( &ctx, 0 ); // to keep ffn current
 
     // The initial texture coordinates are (s; t; r; q) = (0; 0; 0; 1)
     // for each texture coordinate set.
 
     for( catIndex = 0; catIndex < REGAL_EMU_MAX_TEXTURE_UNITS; catIndex++ ) {
-      Attr<4>( ctx, AttrIndex( RFF2A_TexCoord ), 0, 0, 0, 1 );
+      Attr<4>( &ctx, AttrIndex( RFF2A_TexCoord ), 0, 0, 0, 1 );
     }
     catIndex = 0;
 
     // The initial current normal has coordinates (0; 0; 1).
 
-    Attr<3>( ctx, AttrIndex( RFF2A_Normal ), 0, 0, 1 );
+    Attr<3>( &ctx, AttrIndex( RFF2A_Normal ), 0, 0, 1 );
 
     // The initial RGBA color is (R;G;B;A) = (1; 1; 1; 1) and
     // the initial RGBA secondary color is (0; 0; 0; 1).
 
-    Attr<4>( ctx, AttrIndex( RFF2A_Color ), 1, 1, 1, 1 );
-    Attr<4>( ctx, AttrIndex( RFF2A_SecondaryColor ), 0, 0, 0, 1 );
+    Attr<4>( &ctx, AttrIndex( RFF2A_Color ), 1, 1, 1, 1 );
+    Attr<4>( &ctx, AttrIndex( RFF2A_SecondaryColor ), 0, 0, 0, 1 );
 
     // The initial fog coordinate is zero.
 
@@ -808,12 +858,27 @@ struct Iff
   void Flush( RegalContext * ctx )
   {
     if (immCurrent>0) {  // Do nothing for empty buffer
-      DispatchTable &tbl = ctx->dispatcher.emulation;
+      DispatchTableGL &tbl = ctx->dispatcher.emulation;
       tbl.glBufferData( GL_ARRAY_BUFFER, immCurrent * sizeof( Attributes ), immArray, GL_DYNAMIC_DRAW );
-      if( ( ctx->info->core == true || ctx->info->gles ) && immPrim == GL_QUADS ) {
-        tbl.glDrawElements( GL_TRIANGLES, immCurrent * 3 / 2, GL_UNSIGNED_SHORT, 0 );
+      if( ( ctx->info->core == true || ctx->info->es2 ) && immPrim == GL_QUADS ) {
+        tbl.glDrawElements( GL_TRIANGLES, ( immCurrent / 4 ) * 6, GL_UNSIGNED_SHORT, 0 );
       } else {
-        tbl.glDrawArrays( immPrim, 0, immCurrent );
+        GLenum derivedPrim = immPrim;
+        GLsizei derivedCount = immCurrent;
+        if( ( ctx->info->core == true || ctx->info->es2 ) ) {
+          switch( immPrim ) {
+            case GL_POLYGON:
+              derivedPrim = GL_TRIANGLE_FAN;
+              break;
+            case GL_QUAD_STRIP:
+              derivedPrim = GL_TRIANGLE_STRIP;
+              derivedCount = derivedCount & ~GLsizei(1);
+              break;
+            default:
+              break;
+          }
+        }
+        tbl.glDrawArrays( derivedPrim, 0, derivedCount );
       }
     }
   }
@@ -865,17 +930,17 @@ struct Iff
     }
   }
 
-  template <int N, typename T> void Attribute( RegalContext * ctx, GLuint idx, const bool normalize, const T * v ) {
+  template <int N, bool Norm, typename T> void Attribute( RegalContext * ctx, GLuint idx, const T * v ) {
     if( idx >= maxVertexAttribs ) {
       // FIXME: set an error
       return;
     }
     Float4 & a = immVab.attr[ idx ];
-    a.x = ToFloat( normalize, v[0] );
-    a.y = N > 1 ? ToFloat( normalize, v[1] ) : 0.0f;
-    a.z = N > 2 ? ToFloat( normalize, v[2] ) : 0.0f;
-    a.w = N > 3 ? ToFloat( normalize, v[3] ) : 1.0f;
-    ffstate.uniform.vabVer = ver.Update();
+    a.x = ToFloat<Norm>( v[0] );
+    a.y = N > 1 ? ToFloat<Norm>( v[1] ) : 0.0f;
+    a.z = N > 2 ? ToFloat<Norm>( v[2] ) : 0.0f;
+    a.w = N > 3 ? ToFloat<Norm>( v[3] ) : 1.0f;
+    ffstate.uniform.ver = ffstate.uniform.vabVer = ver.Update();
     if( idx == immProvoking ) {
       Provoke( ctx );
     }
@@ -884,19 +949,19 @@ struct Iff
 
   template <int N, typename T> void Attr( RegalContext *ctx, GLuint idx, T x, T y = 0, T z = 0, T w = 1 ) {
     T v[4] = { x, y, z, w };
-    Attribute<N>( ctx, idx, false, v );
+    Attribute<N,false>( ctx, idx,v );
   }
 
   template <int N, typename T> void AttrN( RegalContext *ctx, GLuint idx, T x, T y = 0, T z = 0, T w = 1 ) {
     T v[4] = { x, y, z, w };
-    Attribute<N>( ctx, idx, true, v );
+    Attribute<N,true>( ctx, idx, v );
   }
   template <int N, typename T> void Attr( RegalContext *ctx, GLuint idx, const T * v ) {
-    Attribute<N>( ctx, idx, false, v );
+    Attribute<N,false>( ctx, idx, v );
   }
 
   template <int N, typename T> void AttrN( RegalContext *ctx, GLuint idx, const T * v ) {
-    Attribute<N>( ctx, idx, true, v );
+    Attribute<N,true>( ctx, idx, v );
   }
 
   GLuint AttrIndex( RegalFixedFunctionAttrib attr, int cat = -1 ) const {
@@ -967,6 +1032,7 @@ struct Iff
     CM_AmbientAndDiffuse = 5
   };
 
+  // enums must be in sync with look up array texenvModeGL
   enum TexenvMode {
     TEM_Invalid,
     TEM_Replace,
@@ -978,6 +1044,7 @@ struct Iff
   };
 
 
+  // enums must be in sync with look up array texenvCombineGL
   enum TexenvCombine {
     TEC_Invalid,
     TEC_Replace,
@@ -990,6 +1057,7 @@ struct Iff
     TEC_Dot3Rgba
   };
 
+  // enums must be in sync with look up array texenvCombineSrcGL
   enum TexenvCombineSrc {
     TCS_Invalid,
     TCS_Constant,
@@ -1002,6 +1070,7 @@ struct Iff
     TCS_Texture3,
   };
 
+  // enums must be in sync with look up array texenvCombineOpGL
   enum TexenvCombineOp {
     TCO_Invalid,
     TCO_Color,
@@ -1012,12 +1081,16 @@ struct Iff
 
   struct TexenvCombineState
   {
-    TexenvCombineState()
+    TexenvCombineState(bool isRgb)
     {
       memset( this, 0, sizeof(TexenvCombineState) );
-      mode = TEC_Invalid;
-      src0 = src1 = src2 = TCS_Invalid;
-      op0 = op1 = op2 = TCO_Invalid;
+      mode = TEC_Modulate;
+      src0 = TCS_Texture;
+      src1 = TCS_Previous;
+      src2 = TCS_Constant;
+      op0 = op1 = (isRgb ? TCO_Color : TCO_Alpha);
+      op2 = TCO_Alpha;
+      scale = 1.0f;
     }
 
     TexenvCombineState( const TexenvCombineState &other )
@@ -1039,12 +1112,13 @@ struct Iff
     TexenvCombineOp op0;
     TexenvCombineOp op1;
     TexenvCombineOp op2;
+    GLfloat scale;
   };
 
   struct TextureEnv
   {
     TextureEnv()
-    : mode(TEM_Modulate)
+    : mode(TEM_Modulate), rgb(true), a(false)
     {
     }
 
@@ -1504,7 +1578,8 @@ struct Iff
    // Iff::Program
 
     Program()
-    : uniforms(),
+    : pg(0),
+      uniforms(),
       store()
     {
       // Clear plain-old-data (POD) memory
@@ -1512,7 +1587,8 @@ struct Iff
     }
 
     Program(const Program &other)
-    : uniforms(other.uniforms),
+    : pg(0),
+      uniforms(other.uniforms),
       store(other.store)
     {
       // Copy plain-old-data (POD) memory
@@ -1544,11 +1620,11 @@ struct Iff
     State::Store store;
 
     void Init( RegalContext * ctx, const State::Store & sstore, const GLchar *vsSrc, const GLchar *fsSrc );
-    void Init( RegalContext * ctx, const State::Store & sstore );
-    void Shader( RegalContext * ctx, DispatchTable & tbl, GLenum type, GLuint & shader, const GLchar *src );
+    void Shader( RegalContext * ctx, DispatchTableGL & tbl, GLenum type, GLuint & shader, const GLchar *src );
     void Attribs( RegalContext * ctx );
-    void Samplers( RegalContext * ctx, DispatchTable & tbl );
-    void Uniforms( RegalContext * ctx, DispatchTable & tbl );
+    void UserShaderModeAttribs( RegalContext * ctx );
+    void Samplers( RegalContext * ctx, DispatchTableGL & tbl );
+    void Uniforms( RegalContext * ctx, DispatchTableGL & tbl );
   };
 
   MatrixStack modelview;
@@ -1562,6 +1638,7 @@ struct Iff
   GLuint textureBinding[ REGAL_EMU_MAX_TEXTURE_UNITS];
   GLuint shadowActiveTextureIndex;
   GLuint activeTextureIndex;
+  GLuint programPipeline;
   GLuint program;
   Program * currprog;
 
@@ -1583,12 +1660,16 @@ struct Iff
   GLuint currVao;
   std::map<GLuint, GLuint> vaoAttrMap;
 
-  bool gles;
+  bool gles;   // what about ES1?
   bool legacy; // 2.x mac
 
-  void InitFixedFunction( RegalContext * ctx );
+  void InitFixedFunction(RegalContext &ctx);
 
   void PreDraw( RegalContext * ctx ) {
+    if( programPipeline != 0 ) {
+      // FIXME: Eventually will need to handle empty or partially populated PPO
+      return;
+    }
     ver.Reset();
     if( program != 0 ) {
       UseShaderProgram( ctx );
@@ -1659,6 +1740,11 @@ struct Iff
     return prog == 0;  // pass the call along only if it's non-zero
   }
 
+  bool ShadowBindProgramPipeline( GLuint progPipeline ) {
+    programPipeline = progPipeline;
+    return false;  // always pass this through since we're not emulating it
+  }
+
   void ShadowMultiTexBinding( GLenum texunit, GLenum target, GLuint obj );
   void ShadowTexBinding( GLenum target, GLuint obj ) {
     ShadowMultiTexBinding( GL_TEXTURE0 + shadowActiveTextureIndex, target, obj );
@@ -1677,9 +1763,9 @@ struct Iff
   void TexEnv( GLenum target, GLenum pname, T v ) { TexEnv( GL_TEXTURE0 + shadowActiveTextureIndex, target, pname, v ); }
 
   template <typename T>
-  void GetTexEnv( GLenum target, GLenum pname, T * params ) {
+  bool GetTexEnv( GLenum target, GLenum pname, T * params ) {
     if( target != GL_TEXTURE_ENV ) {
-      return;
+      return false;
     }
     switch( pname ) {
       case GL_TEXTURE_ENV_MODE: {
@@ -1696,10 +1782,82 @@ struct Iff
         params[3] = T( c.w );
         break;
       }
-
-      default:
+      case GL_COMBINE_RGB:
+      case GL_COMBINE_ALPHA: {
+        RegalAssert(activeTextureIndex<REGAL_EMU_IFF_TEXTURE_UNITS);
+        TexenvCombineState & c = (pname == GL_COMBINE_RGB ?
+                                 textureUnit[ activeTextureIndex ].env.rgb :
+                                 textureUnit[ activeTextureIndex ].env.a);
+        *params = static_cast<T>(texenvCombineGL[ c.mode ]);
         break;
+      }
+      case GL_SOURCE0_RGB:
+      case GL_SOURCE1_RGB:
+      case GL_SOURCE2_RGB:
+      case GL_SOURCE0_ALPHA:
+      case GL_SOURCE1_ALPHA:
+      case GL_SOURCE2_ALPHA: {
+        RegalAssert(activeTextureIndex<REGAL_EMU_IFF_TEXTURE_UNITS);
+        int idx = pname - GL_SOURCE0_RGB;
+        bool isRgb = true;
+        if ( idx > 3 ) {
+          isRgb = false;
+          idx = pname - GL_SOURCE0_ALPHA;
+        }
+        TexenvCombineState & c = (isRgb ?
+                                 textureUnit[ activeTextureIndex ].env.rgb :
+                                 textureUnit[ activeTextureIndex ].env.a);
+        TexenvCombineSrc src = c.src0;
+        switch ( idx )
+        {
+          case 0: src = c.src0; break;
+          case 1: src = c.src1; break;
+          case 2: src = c.src2; break;
+          default: break;
+        }
+        *params = static_cast<T>(texenvCombineSrcGL[ src ]);
+        break;
+      }
+      case GL_OPERAND0_RGB:
+      case GL_OPERAND1_RGB:
+      case GL_OPERAND2_RGB:
+      case GL_OPERAND0_ALPHA:
+      case GL_OPERAND1_ALPHA:
+      case GL_OPERAND2_ALPHA: {
+        RegalAssert(activeTextureIndex<REGAL_EMU_IFF_TEXTURE_UNITS);
+        int idx = pname - GL_OPERAND0_RGB;
+        bool isRgb = true;
+        if( idx > 3 ) {
+          isRgb = false;
+          idx = pname - GL_OPERAND0_ALPHA;
+        }
+        TexenvCombineState & c = (isRgb ?
+                                 textureUnit[ activeTextureIndex ].env.rgb :
+                                 textureUnit[ activeTextureIndex ].env.a);
+        TexenvCombineOp op = c.op0;
+        switch ( idx )
+        {
+          case 0: op = c.op0; break;
+          case 1: op = c.op1; break;
+          case 2: op = c.op2; break;
+          default: break;
+        }
+        *params = static_cast<T>(texenvCombineOpGL[ op ]);
+        break;
+      }
+      case GL_RGB_SCALE:
+      case GL_ALPHA_SCALE: {
+        RegalAssert(activeTextureIndex<REGAL_EMU_IFF_TEXTURE_UNITS);
+        TexenvCombineState & c = (pname == GL_RGB_SCALE ?
+                                 textureUnit[ activeTextureIndex ].env.rgb :
+                                 textureUnit[ activeTextureIndex ].env.a);
+        *params = static_cast<T>(c.scale);
+        break;
+      }
+      default:
+        return false;
     }
+    return true;
   }
 
   void ShadeModel( GLenum mode ) {
@@ -2004,6 +2162,9 @@ struct Iff
 
   template <typename T> bool Get( RegalContext * ctx, GLenum pname, T * params )
   {
+    State::Store & r = ffstate.raw;
+    State::StoreUniform & u = ffstate.uniform;
+
     // FIXME: implement all FF gets!
     if( VaGet( ctx, pname, params ) )
       return true;
@@ -2071,6 +2232,28 @@ struct Iff
         *params = static_cast<T>(REGAL_FIXED_FUNCTION_MAX_CLIP_PLANES);
         break;
       }
+      case GL_FOG_MODE: {
+        *params = static_cast<T>(r.fog.mode);
+        break;
+      }
+      case GL_FOG_DENSITY: {
+        *params = static_cast<T>(u.fog.params[0].x);
+        break;
+      }
+      case GL_FOG_START: {
+        *params = static_cast<T>(u.fog.params[0].y);
+        break;
+      }
+      case GL_FOG_END: {
+        *params = static_cast<T>(u.fog.params[0].z);
+        break;
+      }
+      case GL_FOG_COLOR: {
+        const GLfloat * p = &u.fog.params[1].x;
+        for( int i = 0; i < 4; i++ )
+          params[i] = static_cast<T>(p[i]);
+        break;
+      }
       default:
         return false;
     }
@@ -2085,6 +2268,7 @@ struct Iff
   void MatrixPop( GLenum mode ) {
     SetCurrentMatrixStack( mode );
     currMatrixStack->Pop();
+    UpdateMatrixVer();
   }
 
   void UpdateMatrixVer() {
@@ -2168,6 +2352,61 @@ struct Iff
   template <typename T> void Ortho( T left, T right, T bottom, T top, T zNear, T zFar ) { MatrixOrtho( shadowMatrixMode, left, right, bottom, top, zNear, zFar ); }
 
 
+  // cache viewport
+  struct Viewport {
+    Viewport() : zn( 0.0f ), zf( 1.0f ) {}
+    GLint x, y;
+    GLsizei w, h;
+    GLfloat zn, zf;
+  };
+  Viewport viewport;
+
+  void Viewport( GLint x, GLint y, GLsizei w, GLsizei h ) {
+    viewport.x = x;
+    viewport.y = y;
+    viewport.w = w;
+    viewport.h = h;
+  }
+
+  void DepthRange( GLfloat znear, GLfloat zfar ) {
+    viewport.zn = znear;
+    viewport.zf = zfar;
+  }
+
+  template <typename T> void RasterPosition( RegalContext * ctx, T x, T y, T z = 0 ) {
+    const GLdouble xd = ToDouble<true>(x);
+    const GLdouble yd = ToDouble<true>(y);
+    const GLdouble zd = ToDouble<true>(z);
+    RasterPos( ctx, xd, yd, zd );
+  }
+
+  template <typename T> void WindowPosition( RegalContext * ctx, T x, T y, T z = 0 ) {
+    const GLdouble xd = ToDouble<true>(x);
+    const GLdouble yd = ToDouble<true>(y);
+    const GLdouble zd = ToDouble<true>(z);
+    WindowPos( ctx, xd, yd, zd );
+  }
+
+  void RasterPos( RegalContext * ctx, GLdouble x, GLdouble y, GLdouble z ) {
+    r3::Vec3f pos( x, y, z );
+    r3::Vec3f s( 0.5f * GLfloat(viewport.w), 0.5f * GLfloat(viewport.h), 0.5f * GLfloat( viewport.zf - viewport.zn ) );
+    r3::Vec3f b( GLfloat(viewport.x), GLfloat(viewport.y), 0.5f + GLfloat(viewport.zn) );
+    r3::Matrix4f sb;
+    sb.SetScale( s );
+    sb.SetTranslate( s + b );
+    r3::Matrix4f m = sb * projection.Top() * modelview.Top();
+    m.MultMatrixVec( pos );
+    WindowPos( ctx, pos.x, pos.y, pos.z );
+  }
+
+  void WindowPos( RegalContext * ctx, GLdouble x, GLdouble y, GLdouble z ) {
+    if( ctx->isCore() || ctx->isCompat() ) {
+      // todo - cache rasterpos and implement glDrawPixels and glBitmap
+      return;
+    }
+    ctx->dispatcher.emulation.glWindowPos3d( x, y, z );
+  }
+
   void BindVertexArray( RegalContext * ctx, GLuint vao ) {
     UNUSED_PARAMETER(ctx);
     vaoAttrMap[ currVao ] = ffstate.raw.attrArrayFlags;
@@ -2192,7 +2431,7 @@ struct Iff
   void UseFixedFunctionProgram( RegalContext * ctx );
   void UseShaderProgram( RegalContext * ctx );
 
-  void ShaderSource( RegalContext *ctx, GLuint shader, GLsizei count, const GLchar **string, const GLint *length);
+  void ShaderSource( RegalContext *ctx, GLuint shader, GLsizei count, const GLchar * const * string, const GLint *length);
   void LinkProgram( RegalContext *ctx, GLuint program );
 
   GLuint CreateShader( RegalContext *ctx, GLenum shaderType ) {
@@ -2208,6 +2447,7 @@ struct Iff
     shadowActiveTextureIndex = 0;
     activeTextureIndex = 0;
     program = 0;
+    programPipeline = 0;
     currprog = NULL;
     currVao = 0;
     gles = false;
@@ -2217,9 +2457,9 @@ struct Iff
     if (sharingWith)
       textureObjToFmt = sharingWith->iff->textureObjToFmt;
 
-    InitVertexArray( &ctx );
-    InitFixedFunction( &ctx );
-    InitImmediate( &ctx );
+    InitVertexArray(ctx);
+    InitFixedFunction(ctx);
+    InitImmediate(ctx);
   }
 };
 

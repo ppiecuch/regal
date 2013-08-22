@@ -1,0 +1,85 @@
+ifndef MAKEFILE_GLUT_INCLUDED
+MAKEFILE_GLUT_INCLUDED := 1
+
+.PHONY: glut.lib glut.clean
+
+include build/common.inc
+
+include build/glut.inc
+
+# Not supported for Mac or emscripten
+
+ifneq ($(filter darwin% emscripten%,$(SYSTEM)),)
+GLUT.STATIC :=
+GLUT.SHARED :=
+endif
+
+#
+# RegalGLUT
+#
+
+ifdef GLUT.STATIC
+
+include Makefile.regal
+
+ifndef REGAL.STATIC
+$(error RegalGLUT needs Regal.)
+endif
+
+all:: glut.lib
+
+clean:: glut.clean
+
+GLUT.SRCS       := $(GLUT.C)
+GLUT.SRCS.NAMES := $(notdir $(GLUT.SRCS))
+GLUT.OBJS       := $(addprefix tmp/$(SYSTEM)/glut/static/,$(GLUT.SRCS.NAMES))
+GLUT.OBJS       := $(GLUT.OBJS:.c=.o)
+GLUT.DEPS       := $(GLUT.OBJS:.o=.d)
+GLUT.LIBS       := -Llib/$(SYSTEM) -lRegal -lRegalGLU
+GLUT.LIBS       += -lX11 -lXmu -lXi
+GLUT.LIBS       += -pthread -lm
+
+-include $(GLUT.DEPS)
+
+ifdef GLUT.STATIC
+glut.lib: lib/$(SYSTEM)/$(GLUT.STATIC)
+endif
+
+ifdef GLUT.SHARED
+glut.lib: lib/$(SYSTEM)/$(GLUT.SHARED)
+endif
+
+glut.clean:
+	$(RM) -r tmp/$(SYSTEM)/glut/static
+ifdef GLU.STATIC
+	$(RM) -r lib/$(SYSTEM)/$(GLUT.STATIC)
+endif
+ifdef GLU.SHARED
+	$(RM) -r lib/$(SYSTEM)/$(GLUT.SHARED)
+endif
+
+tmp/$(SYSTEM)/glut/static/%.o: src/glut/src/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(GLUT.CFLAGS) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) -o $@ -c $<
+
+lib/$(SYSTEM)/$(GLUT.STATIC): $(GLUT.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(GLUT.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+lib/$(SYSTEM)/$(GLUT.SHARED): $(GLUT.OBJS) lib/$(SYSTEM)/$(GLU.SHARED) lib/$(SYSTEM)/$(REGAL.SHARED)
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) $(LDFLAGS.DYNAMIC) -o $@ $(GLUT.OBJS) $(GLUT.LIBS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif

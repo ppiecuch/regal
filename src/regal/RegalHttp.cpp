@@ -50,8 +50,9 @@ REGAL_NAMESPACE_END
 
 REGAL_GLOBAL_BEGIN
 
-#include "RegalPpa.h"
 #include "RegalLog.h"
+#include "RegalInit.h"
+#include "RegalConfig.h"
 #include "RegalThread.h"
 #include "RegalFavicon.h"
 #include "RegalContextInfo.h"
@@ -72,13 +73,13 @@ REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
-extern map<Thread::Thread, RegalContext *> th2rc;
-
 namespace Http
 {
   bool enabled = !REGAL_NO_HTTP;  // Enabled by default
   int  port    = REGAL_HTTP_PORT; // HTTP listening port - 8080 by default
-  mg_context *ctx = NULL;         // Mongoose context
+
+  mg_callbacks callbacks;         // Callbacks
+  mg_context   *ctx = NULL;       // Mongoose context
 
   void Init()
   {
@@ -87,11 +88,8 @@ namespace Http
     // Environment variable HTTP configuration
 
     #ifndef REGAL_NO_GETENV
-    const char *n = GetEnv("REGAL_NO_HTTP");
-    if (n) enabled = !atoi(n);
-
-    const char *p = GetEnv("REGAL_HTTP_PORT");
-    if (p) port = atoi(p);
+    getEnv("REGAL_NO_HTTP", enabled);
+    getEnv("REGAL_HTTP_PORT", port);
     #endif
 
     // Compile-time HTTP configuration
@@ -103,145 +101,104 @@ namespace Http
 
   const char * const br = "<br/>\n";
 
-  static void *callback(enum mg_event event, struct mg_connection *conn)
+  static int log_message(const struct mg_connection *conn, const char *message)
+  {
+    UNUSED_PARAMETER(conn);
+    HTrace(message ? message : "");
+    return 1;
+  }
+
+  static int begin_request(struct mg_connection *conn)
   {
     const struct mg_request_info *request_info = mg_get_request_info(conn);
 
-    switch (event)
+    HTrace(request_info->request_method ? request_info->request_method : "", " ",
+           request_info->uri            ? request_info->uri            : "",
+           request_info->query_string   ?                        "?"   : "",
+           request_info->query_string   ? request_info->query_string   : "");
+
+    if (!strcmp("/favicon.ico",request_info->uri))
     {
-      case MG_EVENT_LOG:
-      {
-        HTrace(request_info->ev_data ? static_cast<const char *>(request_info->ev_data) : "");
-        break;
-      }
+      string http = print_string(
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: image/x-icon\r\n"
+                "Content-Length: ", sizeof(favicon), "\r\n"
+                "\r\n");
 
-      case MG_NEW_REQUEST:
-      {
-        HTrace(request_info->request_method ? request_info->request_method : "", " ",
-               request_info->uri            ? request_info->uri            : "",
-               request_info->query_string   ?                        "?"   : "",
-               request_info->query_string   ? request_info->query_string   : "");
-
-        if (!strcmp("/favicon.ico",request_info->uri))
-        {
-          string http = print_string(
-                    "HTTP/1.1 200 OK\r\n"
-                    "Content-Type: image/x-icon\r\n"
-                    "Content-Length: ", sizeof(favicon), "\r\n"
-                    "\r\n");
-
-          mg_write(conn,http.c_str(),http.length());
-          mg_write(conn,favicon,sizeof(favicon));
-          return (void *) true;
-        }
-
-        string body;
-
-        if (!strcmp("/log",request_info->uri))
-        {
-          if (Logging::buffer)
-            for (list<string>::const_iterator i = Logging::buffer->begin(); i!=Logging::buffer->end(); ++i)
-              body += print_string(*i,br);
-        }
-        else if (!strcmp("/glEnable",request_info->uri))
-        {
-               if (!strcmp("GL_LOG_INFO_REGAL",    request_info->query_string)) Logging::enableError    = true;
-          else if (!strcmp("GL_LOG_WARNING_REGAL", request_info->query_string)) Logging::enableWarning  = true;
-          else if (!strcmp("GL_LOG_ERROR_REGAL",   request_info->query_string)) Logging::enableInfo     = true;
-          else if (!strcmp("GL_LOG_APP_REGAL",     request_info->query_string)) Logging::enableApp      = true;
-          else if (!strcmp("GL_LOG_DRIVER_REGAL",  request_info->query_string)) Logging::enableDriver   = true;
-          else if (!strcmp("GL_LOG_INTERNAL_REGAL",request_info->query_string)) Logging::enableInternal = true;
-          else if (!strcmp("GL_LOG_HTTP_REGAL",    request_info->query_string)) Logging::enableHttp     = true;
-
-          else if (!strcmp("REGAL_FRAME_TIME",     request_info->query_string)) Logging::frameTime      = true;
-
-          else if (!strcmp("REGAL_MD5_COLOR",      request_info->query_string)) Config::frameMd5Color    = true;
-          else if (!strcmp("REGAL_MD5_STENCIL",    request_info->query_string)) Config::frameMd5Stencil  = true;
-          else if (!strcmp("REGAL_MD5_DEPTH",      request_info->query_string)) Config::frameMd5Depth    = true;
-          else if (!strcmp("REGAL_SAVE_COLOR",     request_info->query_string)) Config::frameSaveColor   = true;
-          else if (!strcmp("REGAL_SAVE_STENCIL",   request_info->query_string)) Config::frameSaveStencil = true;
-          else if (!strcmp("REGAL_SAVE_DEPTH",     request_info->query_string)) Config::frameSaveDepth   = true;
-
-          body += print_string("glEnable(", request_info->query_string, ");",br,br);
-          body += print_string("<a href=\"/glDisable?",request_info->query_string,"\">toggle</a>");
-        }
-        else if (!strcmp("/glDisable",request_info->uri))
-        {
-               if (!strcmp("GL_LOG_INFO_REGAL",    request_info->query_string)) Logging::enableError    = false;
-          else if (!strcmp("GL_LOG_WARNING_REGAL", request_info->query_string)) Logging::enableWarning  = false;
-          else if (!strcmp("GL_LOG_ERROR_REGAL",   request_info->query_string)) Logging::enableInfo     = false;
-          else if (!strcmp("GL_LOG_APP_REGAL",     request_info->query_string)) Logging::enableApp      = false;
-          else if (!strcmp("GL_LOG_DRIVER_REGAL",  request_info->query_string)) Logging::enableDriver   = false;
-          else if (!strcmp("GL_LOG_INTERNAL_REGAL",request_info->query_string)) Logging::enableInternal = false;
-          else if (!strcmp("GL_LOG_HTTP_REGAL",    request_info->query_string)) Logging::enableHttp     = false;
-
-          else if (!strcmp("REGAL_FRAME_TIME",     request_info->query_string)) Logging::frameTime      = false;
-
-          else if (!strcmp("REGAL_MD5_COLOR",      request_info->query_string)) Config::frameMd5Color    = false;
-          else if (!strcmp("REGAL_MD5_STENCIL",    request_info->query_string)) Config::frameMd5Stencil  = false;
-          else if (!strcmp("REGAL_MD5_DEPTH",      request_info->query_string)) Config::frameMd5Depth    = false;
-          else if (!strcmp("REGAL_SAVE_COLOR",     request_info->query_string)) Config::frameSaveColor   = false;
-          else if (!strcmp("REGAL_SAVE_STENCIL",   request_info->query_string)) Config::frameSaveStencil = false;
-          else if (!strcmp("REGAL_SAVE_DEPTH",     request_info->query_string)) Config::frameSaveDepth   = false;
-
-          body += print_string("glDisable(", request_info->query_string, ");",br,br);
-          body += print_string("<a href=\"/glEnable?",request_info->query_string,"\">toggle</a>");
-        }
-        else
-        {
-          for (map<Thread::Thread, RegalContext *>::const_iterator i = th2rc.begin(); i!=th2rc.end(); ++i)
-          {
-            RegalContext *ctx = i->second;
-
-            // Need a per-context read-lock?
-
-            body += print_string("ctx = ",ctx,br);
-            body += br;
-            if (ctx)
-            {
-              if (ctx->info)
-              {
-                body += print_string("<b>Vendor     </b>:",ctx->info->regalVendor,br);
-                body += print_string("<b>Renderer   </b>:",ctx->info->regalRenderer,br);
-                body += print_string("<b>Version    </b>:",ctx->info->regalVersion,br);
-                body += print_string("<b>Extensions </b>:",ctx->info->regalExtensions,br);
-                body += br;
-              }
-
-#if REGAL_EMULATION
-              if (ctx->ppa)
-              {
-                body += print_string("<b>GL_STENCIL_BIT</b><br/>",ctx->ppa->State::Stencil::toString(br),br);
-                body += print_string("<b>GL_DEPTH_BIT</b><br/>",  ctx->ppa->State::Depth::toString(br),br);
-                body += print_string("<b>GL_POLYGON_BIT</b><br/>",ctx->ppa->State::Polygon::toString(br),br);
-                body += br;
-              }
-#endif
-            }
-          }
-        }
-
-        string html = print_string(
-          "<html><body>\n",
-          body,
-          "</body></html>\n");
-
-        string http = print_string(
-                  "HTTP/1.1 200 OK\r\n"
-                  "Content-Type: text/html\r\n"
-                  "Content-Length: ", html.length(), "\r\n"
-                  "\r\n",
-                  html);
-
-        mg_write(conn,http.c_str(),http.length());
-        break;
-      }
-
-      default:
-        return NULL;
+      mg_write(conn,http.c_str(),http.length());
+      mg_write(conn,favicon,sizeof(favicon));
+      return 1;
     }
 
-    return (void *) true;  // Mark as handled for Mongoose
+    string body;
+
+    if (!strcmp("/log",request_info->uri))
+    {
+      Logging::getLogMessagesHTML(body);
+    }
+    else if (!strcmp("/glEnable",request_info->uri))
+    {
+           if (!strcmp("GL_LOG_INFO_REGAL",    request_info->query_string)) Logging::enableError    = true;
+      else if (!strcmp("GL_LOG_WARNING_REGAL", request_info->query_string)) Logging::enableWarning  = true;
+      else if (!strcmp("GL_LOG_ERROR_REGAL",   request_info->query_string)) Logging::enableInfo     = true;
+      else if (!strcmp("GL_LOG_APP_REGAL",     request_info->query_string)) Logging::enableApp      = true;
+      else if (!strcmp("GL_LOG_DRIVER_REGAL",  request_info->query_string)) Logging::enableDriver   = true;
+      else if (!strcmp("GL_LOG_INTERNAL_REGAL",request_info->query_string)) Logging::enableInternal = true;
+      else if (!strcmp("GL_LOG_HTTP_REGAL",    request_info->query_string)) Logging::enableHttp     = true;
+
+      else if (!strcmp("REGAL_FRAME_TIME",     request_info->query_string)) Logging::frameTime      = true;
+
+      else if (!strcmp("REGAL_MD5_COLOR",      request_info->query_string)) Config::frameMd5Color    = true;
+      else if (!strcmp("REGAL_MD5_STENCIL",    request_info->query_string)) Config::frameMd5Stencil  = true;
+      else if (!strcmp("REGAL_MD5_DEPTH",      request_info->query_string)) Config::frameMd5Depth    = true;
+      else if (!strcmp("REGAL_SAVE_COLOR",     request_info->query_string)) Config::frameSaveColor   = true;
+      else if (!strcmp("REGAL_SAVE_STENCIL",   request_info->query_string)) Config::frameSaveStencil = true;
+      else if (!strcmp("REGAL_SAVE_DEPTH",     request_info->query_string)) Config::frameSaveDepth   = true;
+
+      body += print_string("glEnable(", request_info->query_string, ");",br,br);
+      body += print_string("<a href=\"/glDisable?",request_info->query_string,"\">toggle</a>");
+    }
+    else if (!strcmp("/glDisable",request_info->uri))
+    {
+           if (!strcmp("GL_LOG_INFO_REGAL",    request_info->query_string)) Logging::enableError    = false;
+      else if (!strcmp("GL_LOG_WARNING_REGAL", request_info->query_string)) Logging::enableWarning  = false;
+      else if (!strcmp("GL_LOG_ERROR_REGAL",   request_info->query_string)) Logging::enableInfo     = false;
+      else if (!strcmp("GL_LOG_APP_REGAL",     request_info->query_string)) Logging::enableApp      = false;
+      else if (!strcmp("GL_LOG_DRIVER_REGAL",  request_info->query_string)) Logging::enableDriver   = false;
+      else if (!strcmp("GL_LOG_INTERNAL_REGAL",request_info->query_string)) Logging::enableInternal = false;
+      else if (!strcmp("GL_LOG_HTTP_REGAL",    request_info->query_string)) Logging::enableHttp     = false;
+
+      else if (!strcmp("REGAL_FRAME_TIME",     request_info->query_string)) Logging::frameTime      = false;
+
+      else if (!strcmp("REGAL_MD5_COLOR",      request_info->query_string)) Config::frameMd5Color    = false;
+      else if (!strcmp("REGAL_MD5_STENCIL",    request_info->query_string)) Config::frameMd5Stencil  = false;
+      else if (!strcmp("REGAL_MD5_DEPTH",      request_info->query_string)) Config::frameMd5Depth    = false;
+      else if (!strcmp("REGAL_SAVE_COLOR",     request_info->query_string)) Config::frameSaveColor   = false;
+      else if (!strcmp("REGAL_SAVE_STENCIL",   request_info->query_string)) Config::frameSaveStencil = false;
+      else if (!strcmp("REGAL_SAVE_DEPTH",     request_info->query_string)) Config::frameSaveDepth   = false;
+
+      body += print_string("glDisable(", request_info->query_string, ");",br,br);
+      body += print_string("<a href=\"/glEnable?",request_info->query_string,"\">toggle</a>");
+    }
+    else
+    {
+      ::REGAL_NAMESPACE_INTERNAL::Init::getContextListingHTML(body);
+    }
+
+    string html = print_string(
+      "<html><body>\n",
+      body,
+      "</body></html>\n");
+
+    string http = print_string(
+              "HTTP/1.1 200 OK\r\n"
+              "Content-Type: text/html\r\n"
+              "Content-Length: ", html.length(), "\r\n"
+              "\r\n",
+              html);
+
+    mg_write(conn,http.c_str(),http.length());
+    return 1;  // Mark as handled for Mongoose
   }
 
   void Start()
@@ -250,6 +207,10 @@ namespace Http
 
     if (enabled && !ctx)
     {
+      memset(&callbacks,0,sizeof(callbacks));
+      callbacks.log_message   = log_message;
+      callbacks.begin_request = begin_request;
+
       // Try listening on the configured port number (8080 by default)
       // and advance foward until one is available
 
@@ -257,7 +218,7 @@ namespace Http
       {
         string j = print_string(port+i);
         const char *options[3] = { "listening_ports", j.c_str(), NULL};
-        ctx = mg_start(&callback, NULL, options);
+        ctx = mg_start(&callbacks, NULL, options);
         if (ctx)
           break;
       }

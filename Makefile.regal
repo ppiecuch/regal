@@ -1,0 +1,277 @@
+ifndef MAKEFILE_REGAL_INCLUDED
+MAKEFILE_REGAL_INCLUDED := 1
+
+.PHONY: regal.lib regal.clean
+
+include build/common.inc
+
+include build/regal.inc
+
+#
+# regal
+#
+
+#
+# Regenerate Regal sources
+#
+
+export:
+	python scripts/Export.py --api gl 4.4 --api wgl 4.4 --api glx 4.4 --api cgl 1.4 --api egl 1.0 --outdir .
+
+# Shared library target not currently supported for NaCL or emscripten
+
+ifneq ($(filter nacl% emscripten%,$(SYSTEM)),)
+REGAL.SHARED :=
+endif
+
+ifdef REGAL.STATIC
+
+include Makefile.apitrace
+include Makefile.libpng
+
+all:: regal.lib
+
+clean:: regal.clean
+
+REGAL.LDFLAGS        := -lstdc++ -pthread -lm
+REGAL.LIBS           :=
+
+ifeq ($(filter nacl%,$(SYSTEM)),)
+REGAL.LDFLAGS        += -ldl
+endif
+
+REGAL.SRCS           := $(REGAL.CXX)
+
+# Disable mongoose and Regal HTTP for NaCl build
+
+ifeq ($(filter nacl% emscripten%,$(SYSTEM)),)
+REGAL.SRCS           += src/mongoose/mongoose.c
+endif
+
+ifeq ($(filter -DREGAL_NO_MD5%,$(CFLAGS)),)
+REGAL.SRCS           += src/md5/src/md5.c
+endif
+
+REGAL.SRCS           += src/jsonsl/jsonsl.c
+
+
+# Optional flags
+
+# REGAL_SYS_ES1 for ES1 back-end support, disabled by default
+# REGAL.CFLAGS     += -DREGAL_SYS_ES1=1
+
+#
+# Add debug-specific flags
+#
+
+ifeq ($(MODE),debug)
+endif
+
+#
+# In release mode we're aggressive about leaving out functionality
+# in order to minimize the footprint of libRegal.so.1
+#
+
+ifeq ($(MODE),release)
+REGAL.CFLAGS       += -DNDEBUG
+REGAL.CFLAGS       += -DREGAL_DECL_EXPORT=1
+REGAL.CFLAGS       += -DREGAL_LOG_ALL=0
+REGAL.CFLAGS       += -DREGAL_LOG_ONCE=0
+REGAL.CFLAGS       += -DREGAL_LOG_JSON=0
+REGAL.CFLAGS       += -DREGAL_NO_HTTP=1
+REGAL.CFLAGS       += -DREGAL_NO_ASSERT=1
+REGAL.CFLAGS       += -DREGAL_NO_PNG=1
+REGAL.CFLAGS       += -DREGAL_STATISTICS=0
+REGAL.CFLAGS       += -DREGAL_CODE=0
+REGAL.CFLAGS       += -fomit-frame-pointer
+REGAL_LOG          ?= 0
+REGAL_ERROR        ?= 0
+REGAL_CACHE        ?= 0
+REGAL_DEBUG        ?= 0
+REGAL_EMULATION    ?= 1                      # 0 for "loader only"
+REGAL.CFLAGS       += -DREGAL_NO_TLS=0       # 1 for single threaded
+endif
+
+#
+# Flags for custom mode
+#
+
+ifeq ($(MODE),custom)
+endif
+
+#
+# Emscripten-specific
+#
+
+ifneq ($(filter emscripten%,$(SYSTEM)),)
+REGAL.CFLAGS  += -DREGAL_SYS_EMSCRIPTEN=1 -DREGAL_SYS_EGL=1 -DREGAL_SYS_ES2=1
+REGAL.CFLAGS  += -DREGAL_NO_HTTP=1
+REGAL.CFLAGS  += -Wno-constant-logical-operand
+REGAL.CFLAGS  += -DREGAL_PLUGIN=0
+REGAL.CFLAGS  += -DREGAL_TRACE=0
+REGAL_LOG     := 0
+REGAL_ERROR   := 0
+REGAL_CACHE   := 0
+REGAL_DEBUG   := 0
+REGAL_NO_TLS  := 1
+endif
+
+#
+
+ifneq ($(REGAL_LOG),)
+REGAL.CFLAGS         += -DREGAL_LOG=$(REGAL_LOG)
+endif
+
+ifneq ($(REGAL_ERROR),)
+REGAL.CFLAGS         += -DREGAL_ERROR=$(REGAL_ERROR)
+endif
+
+ifneq ($(REGAL_CACHE),)
+REGAL.CFLAGS         += -DREGAL_CACHE=$(REGAL_CACHE)
+endif
+
+ifneq ($(REGAL_DEBUG),)
+REGAL.CFLAGS         += -DREGAL_DEBUG=$(REGAL_DEBUG)
+endif
+
+ifneq ($(REGAL_EMULATION),)
+REGAL.CFLAGS         += -DREGAL_EMULATION=$(REGAL_EMULATION)
+endif
+
+REGAL.CFLAGS         += -fvisibility=hidden
+
+REGAL.SRCS.NAMES     := $(notdir $(REGAL.SRCS))
+
+REGAL.HEADERS        :=
+REGAL.HEADERS        += include/GL/Regal.h
+REGAL.HEADERS        += src/regal/RegalPrivate.h
+
+REGAL.OBJS           := $(addprefix tmp/$(SYSTEM)/regal/static/,$(REGAL.SRCS.NAMES))
+REGAL.OBJS           := $(REGAL.OBJS:.c=.o)
+REGAL.OBJS           := $(REGAL.OBJS:.cpp=.o)
+REGAL.DEPS           := $(REGAL.OBJS:.o=.d)
+
+REGAL.SOBJS          := $(addprefix tmp/$(SYSTEM)/regal/shared/,$(REGAL.SRCS.NAMES))
+REGAL.SOBJS          := $(REGAL.SOBJS:.c=.o)
+REGAL.SOBJS          := $(REGAL.SOBJS:.cpp=.o)
+REGAL.SDEPS          := $(LIBS.SOBJS:.o=.d)
+
+-include $(REGAL.DEPS) $(REGAL.SDEPS)
+
+REGAL.LIBS           += $(LDFLAGS.X11)
+
+ifneq ($(filter linux%,$(SYSTEM)),)
+REGAL.SONAME := lib$(NAME).so.$(SO_MAJOR)
+REGAL.DEVLNK := lib$(NAME).so
+REGAL.SHARED := lib$(NAME).so.$(SO_VERSION)
+LDFLAGS.SO   := $(LDFLAGS.DYNAMIC) -Wl,-soname=$(REGAL.SONAME)
+endif
+
+ifneq ($(filter darwin%,$(SYSTEM)),)
+REGAL.SONAME    := lib$(NAME).$(SO_MAJOR).dylib
+REGAL.DEVLNK    := lib$(NAME).dylib
+REGAL.SHARED    := lib$(NAME).$(SO_VERSION).dylib
+REGAL.FRAMEWORK := $(NAME)
+LDFLAGS.SO      := $(LDFLAGS.DYNAMIC) -current_version $(SO_VERSION) -compatibility_version $(SO_MAJOR)
+#LDFLAGS.SO     += -install_name $(REGAL_DEST)/lib/$(REGAL.SHARED) 
+REGAL.LDFLAGS   += -Wl,-reexport-lGLU -L/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries
+endif
+
+ifdef REGAL.STATIC
+regal.lib: lib/$(SYSTEM)/$(REGAL.STATIC)
+endif
+
+ifdef REGAL.SHARED
+regal.lib: lib/$(SYSTEM)/$(REGAL.SHARED)
+endif
+
+regal.clean:
+	$(RM) -r tmp/$(SYSTEM)/regal/static
+	$(RM) -r tmp/$(SYSTEM)/regal/shared
+ifdef REGAL.STATIC
+	$(RM) -r lib/$(SYSTEM)/$(REGAL.STATIC)
+endif
+ifdef REGAL.SHARED
+	$(RM) -r bin/$(SYSTEM)/$(REGAL.SHARED)
+endif
+
+ifdef APITRACE.STATIC
+lib/$(SYSTEM)/$(REGAL.STATIC): lib/$(SYSTEM)/$(APITRACE.STATIC) lib/$(SYSTEM)/$(SNAPPY.STATIC)
+endif
+
+ifneq ($(filter nacl%,$(SYSTEM)),)
+ifeq ($(NACL_LIBC),glibc)
+regal.lib: lib/$(SYSTEM)/$(REGAL.SHARED)
+endif
+endif
+
+lib/$(SYSTEM)/$(REGAL.STATIC): lib/$(SYSTEM)/$(LIBPNG.STATIC) lib/$(SYSTEM)/$(ZLIB.STATIC) $(REGAL.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(REGAL.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+REGAL.SHARED.DEPEND :=  
+REGAL.SHARED.DEPEND += lib/$(SYSTEM)/$(LIBPNG.STATIC) lib/$(SYSTEM)/$(ZLIB.STATIC) 
+
+ifdef APITRACE.STATIC
+REGAL.SHARED.DEPEND += lib/$(SYSTEM)/$(APITRACE.STATIC) lib/$(SYSTEM)/$(SNAPPY.STATIC)
+endif
+
+ifdef REGAL.SHARED
+lib/$(SYSTEM)/$(REGAL.SHARED): $(REGAL.SHARED.DEPEND) $(REGAL.SOBJS)
+ifdef APITRACE.STATIC
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) $(LDFLAGS.SO) -o $@ $(LDFLAGS.STARTGROUP) $(REGAL.SOBJS) lib/$(SYSTEM)/$(APITRACE.STATIC) $(LDFLAGS.ENDGROUP) $(REGAL.SHARED.DEPEND) $(REGAL.LIBS) $(REGAL.LDFLAGS)
+else
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) $(LDFLAGS.SO) -o $@ $(REGAL.SOBJS) $(REGAL.SHARED.DEPEND) $(REGAL.LIBS) $(REGAL.LDFLAGS)
+endif
+ifneq ($(LN),)
+	$(LN) $(REGAL.SHARED) lib/$(SYSTEM)/$(REGAL.SONAME)
+	$(LN) $(REGAL.SHARED) lib/$(SYSTEM)/$(REGAL.DEVLNK)
+ifneq ($(REGAL.FRAMEWORK),)
+	$(LN) $(REGAL.SHARED) lib/$(SYSTEM)/$(REGAL.FRAMEWORK)
+endif
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+endif
+
+tmp/$(SYSTEM)/regal/static/%.o: src/regal/%.cpp $(REGAL.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(REGAL.CFLAGS) $(CFLAGS) $(CFLAGS.SO) $(REGAL.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regal/shared/%.o: src/regal/%.cpp $(REGAL.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(REGAL.CFLAGS) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) $(REGAL.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regal/static/%.o: src/mongoose/%.c $(REGAL.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGAL.CFLAGS) $(CFLAGS) $(CFLAGS.SO) $(REGAL.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regal/shared/%.o: src/mongoose/%.c $(REGAL.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGAL.CFLAGS) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) $(REGAL.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regal/static/%.o: src/md5/src/%.c $(REGAL.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGAL.CFLAGS) $(CFLAGS) $(CFLAGS.SO) $(REGAL.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regal/shared/%.o: src/md5/src/%.c $(REGAL.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGAL.CFLAGS) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) $(REGAL.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regal/static/%.o: src/jsonsl/%.c $(REGAL.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGAL.CFLAGS) $(CFLAGS) $(CFLAGS.SO) $(REGAL.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regal/shared/%.o: src/jsonsl/%.c $(REGAL.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGAL.CFLAGS) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) $(REGAL.INCLUDE) -o $@ -c $<
+
+endif
+endif

@@ -7,9 +7,9 @@ from ApiUtil import typeIsVoid
 
 from ApiCodeGen import *
 
-from RegalDispatchLog import apiDispatchFuncInitCode
-from RegalDispatchEmu import dispatchSourceTemplate
 from RegalContextInfo import cond
+
+from RegalDispatchShared import dispatchSourceTemplate, apiDispatchFuncInitCode
 
 ##############################################################################################
 
@@ -73,6 +73,7 @@ def generateStaticES2Source(apis, args):
   substitute['LOCAL_CODE']    = ''
   substitute['API_DISPATCH_FUNC_DEFINE'] = ''
   substitute['API_DISPATCH_FUNC_INIT'] = apiStaticES2FuncInitCode( apis, args )
+  substitute['API_DISPATCH_GLOBAL_FUNC_INIT'] = ''
   substitute['IFDEF'] = '#if REGAL_DRIVER && REGAL_STATIC_ES2\n\n'
   substitute['ENDIF'] = '#endif\n'
 

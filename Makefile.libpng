@@ -1,0 +1,59 @@
+ifndef MAKEFILE_LIBPNG_INCLUDED
+MAKEFILE_LIBPNG_INCLUDED := 1
+
+include build/common.inc
+
+include build/libpng.inc
+
+#
+# libpng
+#
+
+ifdef LIBPNG.STATIC
+
+include Makefile.zlib
+
+ifndef ZLIB.STATIC
+$(error libpng needs zlib.)
+endif
+
+all:: libpng.lib
+
+clean:: libpng.clean
+
+LIBPNG.SRCS       := $(LIBPNG.C)
+LIBPNG.SRCS.NAMES := $(notdir $(LIBPNG.SRCS))
+LIBPNG.OBJS       := $(addprefix tmp/$(SYSTEM)/libpng/static/,$(LIBPNG.SRCS.NAMES))
+LIBPNG.OBJS       := $(LIBPNG.OBJS:.c=.o)
+LIBPNG.DEPS       := $(LIBPNG.DEPS:.o=.d)
+
+-include $(LIBPNG.DEPS)
+
+ifeq ($(filter-out linux% darwin% nacl%,$(SYSTEM)),)
+LIBPNG.CFLAGS     += -DHAVE_UNISTD_H
+endif
+
+libpng.lib: lib/$(SYSTEM)/$(LIBPNG.STATIC)
+
+libpng.clean:
+	$(RM) -r tmp/$(SYSTEM)/libpng/static
+	$(RM) -r lib/$(SYSTEM)/$(LIBPNG.STATIC)
+
+libpng.lib: zlib.lib lib/$(SYSTEM)/$(LIBPNG.STATIC)
+
+tmp/$(SYSTEM)/libpng/static/%.o: src/libpng/src/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(LIBPNG.CFLAGS) $(CFLAGS) $(PICFLAG) -o $@ -c $<
+
+lib/$(SYSTEM)/$(LIBPNG.STATIC): $(LIBPNG.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(LIBPNG.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif

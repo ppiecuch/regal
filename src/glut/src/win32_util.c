@@ -3,8 +3,8 @@
 
 /* portions Copyright (c) Mark Kilgard, 1997, 1998. */
 
-/* This program is freely distributable without licensing fees 
-   and is provided without guarantee or warrantee expressed or 
+/* This program is freely distributable without licensing fees
+   and is provided without guarantee or warrantee expressed or
    implied. This program is -not- in the public domain. */
 
 
@@ -108,7 +108,7 @@ __glutAdjustCoords(Window parent, int* x, int* y, int* width, int* height)
   } else {
     *x = rect.left;
   }
-  
+
   if(rect.top < 0) {
     *y = 0;
   } else {
@@ -119,3 +119,23 @@ __glutAdjustCoords(Window parent, int* x, int* y, int* width, int* height)
   *height = rect.bottom - rect.top;	/* adjusted height */
 }
 
+void
+__glutSetWindowText(HWND hWnd, const char *str)
+{
+#if defined(UNICODE) || defined(__UNICODE)
+  size_t i,len;
+  wchar_t *unicode;
+  len = strlen(str);
+  unicode = (wchar_t *) malloc(sizeof(wchar_t)*(len+1));
+  if (unicode)
+  {
+    for (i=0; i<len; ++i)
+      unicode[i] = str[i];
+    unicode[i] = 0;
+    SetWindowTextW(hWnd,unicode);
+    free(unicode);
+  }
+#else
+  SetWindowText(hWnd,str);
+#endif
+}

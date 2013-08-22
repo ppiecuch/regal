@@ -334,9 +334,9 @@ setMenuItem(GLUTmenuItem * item, const char *label,
   item->value = value;
   item->unique = uniqueMenuHandler++;
   if (isTrigger) {
-    AppendMenu((HMENU) menu->win, MF_POPUP, (UINT)item->win, label);
+    AppendMenuA((HMENU) menu->win, MF_POPUP, (UINT)item->win, label);
   } else {
-    AppendMenu((HMENU) menu->win, MF_STRING, item->unique, label);
+    AppendMenuA((HMENU) menu->win, MF_STRING, item->unique, label);
   }
 }
 
@@ -413,7 +413,7 @@ glutChangeToMenuEntry(int num, const char *label, int value)
       item->len = (int) strlen(label);
       item->value = value;
       item->unique = uniqueMenuHandler++;
-      ModifyMenu((HMENU) __glutCurrentMenu->win, (UINT) i - 1,
+      ModifyMenuA((HMENU) __glutCurrentMenu->win, (UINT) i - 1,
         MF_BYPOSITION | MFT_STRING, item->unique, label);
 
       return;
@@ -456,7 +456,7 @@ glutChangeToSubMenu(int num, const char *label, int menu)
       popupmenu = __glutGetMenuByNum(menu);
       if (popupmenu)
 	item->win = popupmenu->win;
-      ModifyMenu((HMENU) __glutCurrentMenu->win, (UINT) i - 1,
+      ModifyMenuA((HMENU) __glutCurrentMenu->win, (UINT) i - 1,
         MF_BYPOSITION | MF_POPUP, (UINT) item->win, label);
       return;
     }

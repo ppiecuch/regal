@@ -59,13 +59,13 @@ namespace helper {
     std::size_t drawElements(GLenum, GLsizei, GLenum);
     std::size_t namedString(const GLint, const GLchar *);
     std::size_t namedStringParams(const GLenum);
-    
+
     inline std::size_t bytesPerComponent(const GLenum type)
     {
       switch (type)
       {
         /* Each value is one component per element. */
-    
+
         case GL_UNSIGNED_BYTE:               return sizeof(GLubyte);
         case GL_BYTE:                        return sizeof(GLbyte);
         case GL_BITMAP:                      return sizeof(GLubyte);
@@ -77,32 +77,33 @@ namespace helper {
         case GL_FLOAT:                       return sizeof(GLfloat);
 
         /* Each unsigned value contains all the components per element. */
-    
+
         case GL_UNSIGNED_BYTE_3_3_2:
-        case GL_UNSIGNED_BYTE_2_3_3_REV:     return sizeof(GLbyte);
-    
+        case GL_UNSIGNED_BYTE_2_3_3_REV:     return sizeof(GLubyte);
+
         case GL_UNSIGNED_SHORT_5_6_5:
         case GL_UNSIGNED_SHORT_5_6_5_REV:
         case GL_UNSIGNED_SHORT_4_4_4_4:
         case GL_UNSIGNED_SHORT_4_4_4_4_REV:
         case GL_UNSIGNED_SHORT_5_5_5_1:
         case GL_UNSIGNED_SHORT_1_5_5_5_REV:  return sizeof(GLushort);
-    
+
         case GL_UNSIGNED_INT_8_8_8_8:
         case GL_UNSIGNED_INT_8_8_8_8_REV:
         case GL_UNSIGNED_INT_10_10_10_2:
         case GL_UNSIGNED_INT_2_10_10_10_REV: return sizeof(GLuint);
-    
+
         default:                             return 0;
       }
     }
-    
+
     inline std::size_t componentsPerPixel(const GLenum format)
     {
       switch (format)
       {
         case GL_COLOR_INDEX:
         case GL_STENCIL_INDEX:
+        case GL_R:
         case GL_DEPTH_COMPONENT:
         case GL_DEPTH_COMPONENT16:
         case GL_RED:
@@ -116,7 +117,7 @@ namespace helper {
         case GL_RGBA:
         case GL_BGRA:            return 4;
         case GL_LUMINANCE:       return 1;
-        case GL_LUMINANCE_ALPHA:    
+        case GL_LUMINANCE_ALPHA:
         case GL_DEPTH_STENCIL:   return 2;
         default:                 return 1;
       }
@@ -124,6 +125,14 @@ namespace helper {
   }
 
    char *shaderSourceStrings(const GLsizei, const GLchar **, const GLint *);
+
+   bool getInfoLog
+   (
+    ::std::string &log,
+    void (REGAL_CALL *getInfoLog)      (GLuint,GLsizei,GLsizei *,GLchar *),
+    void (REGAL_CALL *getInfoLogLength)(GLuint,GLenum,GLint *),
+    GLuint obj
+  );
 }
 
 REGAL_NAMESPACE_END

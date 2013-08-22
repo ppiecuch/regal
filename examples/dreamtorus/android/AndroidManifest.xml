@@ -20,9 +20,11 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.regal.dreamtorus">
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <application
             android:icon="@drawable/ic_launcher_regal"
             android:label="@string/dreamtorus_activity"
+            android:debuggable="true"
             >
         <activity android:name="DreamtorusActivity"
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"

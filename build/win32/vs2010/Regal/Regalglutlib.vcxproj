@@ -69,13 +69,17 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\x64\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\Win32\Regalglutlib\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\x64\Regalglutlib\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rglutlib</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rglutlib</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">rglutlib</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">rglutlib</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../../../src/glut/include;../../../../src/glu/include;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32;WIN32;GLUT_NO_LIB_PRAGMA;REGALGLU_DECL=;GLUT_STATIC;_WINDOWS;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLUT_NO_LIB_PRAGMA;GLUT_STATIC;REGALGLU_DECL=;WIN32;_WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -83,22 +87,23 @@
       </PrecompiledHeader>
       <AssemblerListingLocation>Release\Win32\Regalglutlib\</AssemblerListingLocation>
       <ObjectFileName>Release\Win32\Regalglutlib\</ObjectFileName>
-      <ProgramDataBaseFileName>Release\Win32\regalglutlib.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>Release\Win32\rglutlib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\Win32\regalglutlib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Release\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
-      <ProgramDatabaseFile>Release\Win32\regalglutlib.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>Release\Win32\rglutlib.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <ImportLibrary>Release\Win32\regalglutlib.lib</ImportLibrary>
+      <ImportLibrary>Release\Win32\rglutlib.lib</ImportLibrary>
     </Link>
     <Midl>
       <HeaderFileName>
@@ -114,7 +119,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../../../src/glut/include;../../../../src/glu/include;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32;WIN32;GLUT_NO_LIB_PRAGMA;REGALGLU_DECL=;GLUT_STATIC;_WINDOWS;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLUT_NO_LIB_PRAGMA;GLUT_STATIC;REGALGLU_DECL=;WIN32;_WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -122,22 +127,23 @@
       </PrecompiledHeader>
       <AssemblerListingLocation>Release\x64\Regalglutlib\</AssemblerListingLocation>
       <ObjectFileName>Release\x64\Regalglutlib\</ObjectFileName>
-      <ProgramDataBaseFileName>Release\x64\regalglutlib.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>Release\x64\rglutlib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\x64\regalglutlib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Release\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
-      <ProgramDatabaseFile>Release\x64\regalglutlib.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>Release\x64\rglutlib.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
-      <ImportLibrary>Release\x64\regalglutlib.lib</ImportLibrary>
+      <ImportLibrary>Release\x64\rglutlib.lib</ImportLibrary>
     </Link>
     <Midl>
       <HeaderFileName>
@@ -152,31 +158,32 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../../src/glut/include;../../../../src/glu/include;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32;WIN32;GLUT_NO_LIB_PRAGMA;REGALGLU_DECL=;GLUT_STATIC;_WINDOWS;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLUT_NO_LIB_PRAGMA;GLUT_STATIC;REGALGLU_DECL=;WIN32;_WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <AssemblerListingLocation>Debug\Win32\Regalglutlib\</AssemblerListingLocation>
       <ObjectFileName>Debug\Win32\Regalglutlib\</ObjectFileName>
-      <ProgramDataBaseFileName>Debug\Win32\regalglutlib.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>Debug\Win32\rglutlib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\Win32\regalglutlib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Debug\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>Debug\Win32\regalglutlib.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>Debug\Win32\rglutlib.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <ImportLibrary>Debug\Win32\regalglutlib.lib</ImportLibrary>
+      <ImportLibrary>Debug\Win32\rglutlib.lib</ImportLibrary>
     </Link>
     <Midl>
       <HeaderFileName>
@@ -191,30 +198,31 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../../src/glut/include;../../../../src/glu/include;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32;WIN32;GLUT_NO_LIB_PRAGMA;REGALGLU_DECL=;GLUT_STATIC;_WINDOWS;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLUT_NO_LIB_PRAGMA;GLUT_STATIC;REGALGLU_DECL=;WIN32;_WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <AssemblerListingLocation>Debug\x64\Regalglutlib\</AssemblerListingLocation>
       <ObjectFileName>Debug\x64\Regalglutlib\</ObjectFileName>
-      <ProgramDataBaseFileName>Debug\x64\regalglutlib.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>Debug\x64\rglutlib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\x64\regalglutlib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Debug\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>Debug\x64\regalglutlib.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>Debug\x64\rglutlib.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
-      <ImportLibrary>Debug\x64\regalglutlib.lib</ImportLibrary>
+      <ImportLibrary>Debug\x64\rglutlib.lib</ImportLibrary>
     </Link>
     <Midl>
       <HeaderFileName>

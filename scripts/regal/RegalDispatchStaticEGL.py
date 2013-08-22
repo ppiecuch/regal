@@ -7,9 +7,9 @@ from ApiUtil import typeIsVoid
 
 from ApiCodeGen import *
 
-from RegalDispatchLog import apiDispatchFuncInitCode
-from RegalDispatchEmu import dispatchSourceTemplate
 from RegalContextInfo import cond
+
+from RegalDispatchShared import dispatchSourceTemplate, apiDispatchFuncInitCode
 
 ##############################################################################################
 
@@ -54,8 +54,18 @@ def apiStaticEGLFuncInitCode(apis, args):
   for api in apis:
     if api.name=='egl':
       for function in api.functions:
-        name   = function.name
-        code += '  tbl.r%s = ::%s;\n' % ( name, name )
+        if not ("KHR" in function.name or "NV" in function.name or "MESA" in function.name or "ANGLE" in function.name):
+          name   = function.name
+          code += '  tbl.r%s = ::%s;\n' % ( name, name )
+
+      code += "\n#if !REGAL_SYS_EMSCRIPTEN\n"
+
+      for function in api.functions:
+        if "KHR" in function.name or "NV" in function.name or "MESA" in function.name or "ANGLE" in function.name:
+          name   = function.name
+          code += '  tbl.r%s = ::%s;\n' % ( name, name )
+
+      code += "#endif // !REGAL_SYS_EMSCRIPTEN\n"
 
   return code
 
@@ -95,6 +105,7 @@ def generateStaticEGLSource(apis, args):
   substitute['LOCAL_CODE']    = ''
   substitute['API_DISPATCH_FUNC_DEFINE'] = ''
   substitute['API_DISPATCH_FUNC_INIT'] = apiStaticEGLFuncInitCode( apis, args )
+  substitute['API_DISPATCH_GLOBAL_FUNC_INIT'] = ''
   substitute['IFDEF'] = '#if REGAL_SYS_EGL && REGAL_DRIVER && REGAL_STATIC_EGL\n\n'
   substitute['ENDIF'] = '#endif\n'
 

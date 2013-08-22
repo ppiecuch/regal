@@ -7,29 +7,49 @@ formulae = {
   'Begin' : {
     'entries' : [ 'glBegin' ],
     'impl' : [ 'RegalAssert(_context);',
-               '_context->depthBeginEnd++;'
-             ]
+               '_context->depthBeginEnd++;' ]
   },
 
   'End' : {
     'entries' : [ 'glEnd' ],
+    'prefix'  : [ 'if (_context)',
+                  '  _context->depthBeginEnd--;' ]
+  },
+
+  'PushMatrix' : {
+    'entries' : [ 'glPushMatrix|glMatrixPushEXT' ],
     'impl' : [ 'RegalAssert(_context);',
-               '_context->depthBeginEnd--;'
-             ]
+               '_context->depthPushMatrix++;' ]
+  },
+
+  'PopMatrix' : {
+    'entries' : [ 'glPopMatrix|glMatrixPopEXT' ],
+    'prefix'  : [ 'if (_context)',
+                  '  _context->depthPushMatrix--;' ]
   },
 
   'PushAttrib' : {
     'entries' : [ 'glPushAttrib' ],
     'impl' : [ 'RegalAssert(_context);',
-               '_context->depthPushAttrib++;'
-             ]
+               '_context->depthPushAttrib++;' ]
   },
 
   'PopAttrib' : {
     'entries' : [ 'glPopAttrib' ],
+    'prefix'  : [ 'if (_context)',
+                  '  _context->depthPushAttrib--;' ]
+  },
+
+  'NewList' : {
+    'entries' : [ 'glNewList' ],
     'impl' : [ 'RegalAssert(_context);',
-               '_context->depthPushAttrib--;'
-             ]
+               '_context->depthNewList++;' ]
+  },
+
+  'EndList' : {
+    'entries' : [ 'glEndList' ],
+    'prefix'  : [ 'if (_context)',
+                  '  _context->depthNewList--;' ]
   },
 
 }

@@ -29,7 +29,7 @@ typedef unsigned char jsonsl_uchar_t;
 #endif /* JSONSL_USE_WCHAR */
 
 /* Stolen from http-parser.h, and possibly others */
-#if defined(_WIN32) && !defined(__MINGW32__) 
+#if defined(_WIN32) && !defined(__MINGW32__) && (!defined(_MSC_VER) || _MSC_VER<1600)
 typedef __int8 int8_t;
 typedef unsigned __int8 uint8_t;
 typedef __int16 int16_t;
@@ -48,8 +48,6 @@ typedef int ssize_t;
 
 
 #if (!defined(JSONSL_STATE_GENERIC)) && (!defined(JSONSL_STATE_USER_FIELDS))
-#warning "JSONSL_STATE_USER_FIELDS not defined. Define this for extra structure fields"
-#warning "or define JSONSL_STATE_GENERIC"
 #define JSONSL_STATE_GENERIC
 #endif /* !defined JSONSL_STATE_GENERIC */
 
@@ -58,8 +56,17 @@ typedef int ssize_t;
 #endif /* JSONSL_STATE_GENERIC */
 
 #ifndef JSONSL_API
+/**
+ * We require a /DJSONSL_DLL so that users already using this as a static
+ * or embedded library don't get confused
+ */
+#if defined(_WIN32) && defined(JSONSL_DLL)
+#define JSONSL_API __declspec(dllexport)
+#else
 #define JSONSL_API
-#endif /* JSONSL_API */
+#endif /* _WIN32 */
+
+#endif /* !JSONSL_API */
 
 #define JSONSL_MAX_LEVELS 512
 

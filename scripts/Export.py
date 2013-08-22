@@ -13,6 +13,11 @@ from copy import deepcopy
 import os
 import re
 
+import sys
+scripts = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, scripts+'/api')
+sys.path.insert(0, scripts+'/regal')
+
 from ApiUtil import validVersion
 from ApiUtil import outputCode
 from ApiUtil import importAttr
@@ -22,37 +27,38 @@ from ApiUtil import typeIsVoid
 
 from ApiCodeGen import *
 
-import sys
-scripts = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, scripts+'/regal')
-
-from Regal                import *
-from RegalEnum            import *
-from RegalSystem          import *
-from RegalContext         import *
-from RegalContextInfo     import *
-from RegalLookup          import *
-from RegalToken           import *
-from RegalDispatch        import *
-from RegalDispatchCode    import *
-from RegalDispatchDebug   import *
-from RegalDispatchError   import *
-from RegalDispatchEmu     import *
-from RegalDispatchLog     import *
-from RegalDispatchLoader  import *
-from RegalDispatchMissing import *
-from RegalDispatchPpapi   import *
-from RegalDispatchStaticEGL import *
-from RegalDispatchStaticES2 import *
+from Regal                   import *
+from RegalEnum               import *
+from RegalSystem             import *
+from RegalContext            import *
+from RegalContextInfo        import *
+from RegalStatistics         import *
+from RegalLookup             import *
+from RegalPlugin             import *
+from RegalToken              import *
+from RegalDispatch           import *
+from RegalDispatchCode       import *
+from RegalDispatchDebug      import *
+from RegalDispatchError      import *
+from RegalDispatchEmu        import *
+from RegalDispatchGMock      import *
+from RegalDispatchLog        import *
+from RegalDispatchLoader     import *
+from RegalDispatchMissing    import *
+from RegalDispatchPpapi      import *
+from RegalDispatchStatistics import *
+from RegalDispatchStaticEGL  import *
+from RegalDispatchStaticES2  import *
+from RegalDispatchTrace      import *
 
 regalLicense = '''
 /*
-  Copyright (c) 2011 NVIDIA Corporation
-  Copyright (c) 2011-2012 Cass Everitt
-  Copyright (c) 2012 Scott Nations
+  Copyright (c) 2011-2013 NVIDIA Corporation
+  Copyright (c) 2011-2013 Cass Everitt
+  Copyright (c) 2012-2013 Scott Nations
   Copyright (c) 2012 Mathias Schott
-  Copyright (c) 2012 Nigel Stewart
-  Copyright (c) 2012 Google Inc.
+  Copyright (c) 2012-2013 Nigel Stewart
+  Copyright (c) 2012-2013 Google Inc.
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without modification,
@@ -82,6 +88,28 @@ regalLicense = '''
   $ astyle --style=allman --indent=spaces=2 --indent-switches
 */
 '''
+
+emulatedExts = {
+  'GL_ARB_draw_buffers':              { 'emulatedBy' : 'filt',   'emulatedIf' : '(info->gl_version_major >= 2) || info->gl_nv_draw_buffers'},
+  'GL_ARB_multitexture':              { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_ARB_texture_cube_map':          { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_ARB_texture_env_combine':       { 'emulatedBy' : 'iff',    'emulatedIf' : '' },
+  'GL_ARB_texture_env_dot3':          { 'emulatedBy' : 'iff',    'emulatedIf' : '' },
+  'GL_ARB_texture_storage':           { 'emulatedBy' : 'texsto', 'emulatedIf' : '' },
+  'GL_ATI_draw_buffers':              { 'emulatedBy' : 'filt',   'emulatedIf' : '(info->gl_version_major >= 2) || info->gl_nv_draw_buffers'},
+  'GL_EXT_blend_color':               { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_EXT_blend_subtract':            { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_EXT_direct_state_access':       { 'emulatedBy' : 'dsa',    'emulatedIf' : '' },
+  'GL_EXT_framebuffer_blit':          { 'emulatedBy' : 'filt',   'emulatedIf' : '(info->gl_version_major >= 3) || info->gl_nv_framebuffer_blit' },
+  'GL_EXT_framebuffer_object':        { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_EXT_texture_cube_map':          { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_EXT_texture_edge_clamp':        { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_EXT_texture_env_combine':       { 'emulatedBy' : 'iff',    'emulatedIf' : '' },
+  'GL_EXT_texture_env_dot3':          { 'emulatedBy' : 'iff',    'emulatedIf' : '' },
+  'GL_IBM_texture_mirrored_repeat':   { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_NV_blend_square':               { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+}
+
 
 def cmpCategoryName(a,b):
   if a.category==b.category:
@@ -119,6 +147,15 @@ def traverse(apis, args):
             if i.name=='defines':
               i.enumerants.sort(cmpCategoryName)
 
+        for i in api.enums:
+          if i.name=='defines':
+            i.enumerantsByName = sorted(i.enumerants,key=lambda k : k.name)
+
+        for e in api.extensions:
+          if e.name in emulatedExts:
+            e.emulatedBy = emulatedExts[e.name]['emulatedBy']
+            e.emulatedIf = emulatedExts[e.name]['emulatedIf']
+
         apiHasCtx = api.name == 'gl';
         toRemove = set()
 
@@ -146,11 +183,29 @@ def traverse(apis, args):
         for typedef in toRemove:
           api.typedefs.remove(typedef)
 
+				# Build a dict of default typedef values
+
+        api.defaults = {}
+        for i in apis:
+					for typedef in i.typedefs:
+						if getattr(typedef,'default',None)!=None:
+							api.defaults[typedef.name] = typedef.default
+
+        api.defaults['int']   = '0';
+        api.defaults['HDC']   = 'NULL';
+        api.defaults['HGLRC'] = 'NULL';
+
     traverseContextInfo(apis,args)
 
 def generate(apis, args):
 
   traverse(apis, args)
+  generateTraceSource( apis, args )
+  generatePublicHeader(apis, args)
+  generatePluginSource(apis,args)
+  generateDispatchStatistics( apis, args )
+  generateStatisticsHeader(apis, args)
+  generateStatisticsSource(apis, args)
   generateSource(apis, args)
   generateSystemHeader(apis, args)
   generateEmuSource( apis, args )
@@ -163,7 +218,6 @@ def generate(apis, args):
   generatePpapiSource( apis, args )
   generateStaticES2Source( apis, args )
   generateStaticEGLSource( apis, args )
-  generatePublicHeader(apis, args)
   generateDispatchHeader(apis, args)
   generateContextHeader(apis, args)
   generateContextSource(apis, args)
@@ -175,17 +229,17 @@ def generate(apis, args):
   generateTokenHeader(apis, args)
   generateEnumHeader(apis, args)
 
+  generateGMockHeader(apis, args)
+  generateGmockSource(apis, args)
+
   additional_exports = ['RegalSetErrorCallback', 'RegalShareContext', 'RegalMakeCurrent', 'RegalDestroyContext']
 
   generateDefFile( apis, args, additional_exports)
 
 ##############################################################################################
 
-# Class Export
 
-class Export:
-
-  def __init__(self):
+def main():
 
     parser = OptionParser()
     parser.add_option('-a', '--api',       dest = 'apis',      metavar = 'API VERSION', action = 'append', nargs = 2, help = 'generate loader for API and VERSION')
@@ -225,6 +279,7 @@ class Export:
     genArgs.license   = regalLicense
     genArgs.generated = autoGeneratedMessage
     genArgs.srcdir    = options.outdir + '/src/regal'
+    genArgs.testdir   = options.outdir + '/tests'
     genArgs.incdir    = options.outdir + '/include/GL'
 
     for path in (genArgs.incdir, genArgs.srcdir):
@@ -234,4 +289,5 @@ class Export:
 
     generate(apis, genArgs)
 
-export = Export()
+if __name__ == '__main__':
+  main()

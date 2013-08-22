@@ -72,10 +72,10 @@ static Bool synchronize = False;
 #endif
 
 void
-__glutOpenWin32Connection(char* display)
+__glutOpenWin32Connection(char *display)
 {
-  static char *classname;
-  WNDCLASSA wc;
+  static TCHAR *classname;
+  WNDCLASS wc;
   HINSTANCE hInstance = GetModuleHandle(NULL);
   
   /* Make sure we register the window only once. */
@@ -93,10 +93,10 @@ __glutOpenWin32Connection(char* display)
   _control87(MCW_EM,MCW_EM);
 #endif
 
-  classname = "GLUT";
+  classname = TEXT("GLUT");
 
   /* Clear (important!) and then fill in the window class structure. */
-  memset(&wc, 0, sizeof(WNDCLASSA));
+  memset(&wc, 0, sizeof(WNDCLASS));
   wc.style         = CS_OWNDC;
   wc.lpfnWndProc   = (WNDPROC)__glutWindowProc;
   wc.hInstance     = hInstance;
@@ -110,7 +110,7 @@ __glutOpenWin32Connection(char* display)
   if(!wc.hIcon)
     wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
   
-  if(!RegisterClassA(&wc)) {
+  if(!RegisterClass(&wc)) {
     __glutFatalError("RegisterClass() failed:"
 		     "Cannot register GLUT window class.");
   }

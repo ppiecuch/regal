@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011-2012 NVIDIA Corporation
+  Copyright (c) 2011-2013 NVIDIA Corporation
   Copyright (c) 2011-2012 Cass Everitt
   Copyright (c) 2012 Scott Nations
   Copyright (c) 2012 Mathias Schott
@@ -48,20 +48,30 @@ REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
-struct RegalBin : public RegalEmu
+namespace Emu
+{
+
+struct Bin
 {
   void Init( RegalContext &ctx )
   {
     UNUSED_PARAMETER(ctx);
   }
 
-  void ShaderBinary( RegalContext * ctx, GLsizei count, const GLuint *shaders, GLenum binaryFormat, const void * binary, GLsizei length)
+  void Cleanup( RegalContext &ctx )
   {
-    DispatchTable & tbl = ctx->dispatcher.emulation;
+    UNUSED_PARAMETER(ctx);
+  }
+
+  void ShaderBinary( RegalContext *ctx, GLsizei count, const GLuint *shaders, GLenum binaryFormat, const void *binary, GLsizei length)
+  {
+    DispatchTableGL &tbl = ctx->dispatcher.emulation;
     tbl.glShaderBinary( count, shaders, binaryFormat, binary, length );
   }
 };
 
+}
+
 REGAL_NAMESPACE_END
 
-#endif // ! __REGAL_VAO_H__
+#endif // ! __REGAL_BIN_H__

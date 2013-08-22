@@ -4,7 +4,7 @@ from string import Template, upper, replace
 
 from ApiUtil import outputCode
 
-regalSys = '''#if _WIN32
+regalSys = '''#if defined(_WIN32)
 # if defined(PPAPI)
 #  ifndef REGAL_SYS_PPAPI
 #   define REGAL_SYS_PPAPI 1
@@ -14,9 +14,12 @@ regalSys = '''#if _WIN32
 #   define REGAL_SYS_WGL 1
 #  endif
 # endif
-#elif __APPLE__
+# ifndef REGAL_SYS_WIN32
+#  define REGAL_SYS_WIN32 1
+# endif
+#elif defined(__APPLE__)
 # include <TargetConditionals.h>
-# if TARGET_OS_IPHONE
+# if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 #  ifndef REGAL_SYS_IOS
 #   define REGAL_SYS_IOS 1
 #  endif
@@ -36,9 +39,31 @@ regalSys = '''#if _WIN32
 # ifndef REGAL_SYS_EGL
 #  define REGAL_SYS_EGL 1
 # endif
-#elif !defined(_WIN32) && !defined(__APPLE__) && !REGAL_SYS_PPAPI
+#elif defined(EMSCRIPTEN)
+# ifndef REGAL_SYS_EMSCRIPTEN
+#  define REGAL_SYS_EMSCRIPTEN 1
+# endif
+# ifndef REGAL_SYS_EGL
+#  define REGAL_SYS_EGL 1
+# endif
+# ifndef REGAL_SYS_ES2
+#  define REGAL_SYS_ES2 1
+# endif
+# ifndef REGAL_SYS_EMSCRIPTEN_STATIC
+#  define REGAL_SYS_EMSCRIPTEN_STATIC 0
+# endif
+# if REGAL_SYS_EMSCRIPTEN_STATIC
+#  define REGAL_DRIVER 1
+#  define REGAL_NAMESPACE 1
+#  define REGAL_STATIC_ES2 1
+#  define REGAL_STATIC_EGL 1
+# endif
+#elif !defined(REGAL_SYS_PPAPI) || !REGAL_SYS_PPAPI
+# ifndef REGAL_SYS_X11
+#  define REGAL_SYS_X11 1
+# endif
 # ifndef REGAL_SYS_GLX
-#  define REGAL_SYS_GLX 1
+#  define REGAL_SYS_GLX REGAL_SYS_X11
 # endif
 #endif
 
@@ -68,6 +93,30 @@ regalSys = '''#if _WIN32
 
 #ifndef REGAL_SYS_GLX
 # define REGAL_SYS_GLX 0
+#endif
+
+#ifndef REGAL_SYS_X11
+# define REGAL_SYS_X11 0
+#endif
+
+#ifndef REGAL_SYS_WIN32
+# define REGAL_SYS_WIN32 0
+#endif
+
+#ifndef REGAL_SYS_EMSCRIPTEN
+#define REGAL_SYS_EMSCRIPTEN 0
+#endif
+
+#ifndef REGAL_SYS_ES1
+#define REGAL_SYS_ES1 0
+#endif
+
+#ifndef REGAL_SYS_ES2
+#define REGAL_SYS_ES2 (REGAL_SYS_PPAPI || REGAL_SYS_IOS || REGAL_SYS_ANDROID || REGAL_SYS_EMSCRIPTEN || REGAL_SYS_EGL)
+#endif
+
+#ifndef REGAL_SYS_GL
+#define REGAL_SYS_GL (REGAL_SYS_WGL || (!REGAL_SYS_PPAPI && !REGAL_SYS_IOS && !REGAL_SYS_ANDROID && !REGAL_SYS_EMSCRIPTEN))
 #endif
 '''
 

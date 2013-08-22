@@ -39,12 +39,13 @@ REGAL_GLOBAL_BEGIN
 #include <list>
 #include <set>
 
-#include <boost/print/json.hpp>           // Note - shouldn't need this in RegalLog.h
 #include <boost/print/print_string.hpp>
 
 REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
+
+namespace Json { struct Output; }
 
 // Compile-time logging control
 
@@ -112,6 +113,10 @@ REGAL_NAMESPACE_BEGIN
 # define REGAL_LOG_THREAD 1
 #endif
 
+#ifndef REGAL_LOG_PROCESS
+# define REGAL_LOG_PROCESS 1
+#endif
+
 #ifndef REGAL_LOG_ONCE
 # define REGAL_LOG_ONCE 1
 #endif
@@ -146,6 +151,9 @@ namespace Logging
   extern void Init();
   extern void Cleanup();
 
+  extern void writeJSON(Json::Output &jo);
+  extern void getLogMessagesHTML(std::string &text);
+
   // GL_REGAL_log
 
   enum Mode
@@ -163,6 +171,8 @@ namespace Logging
 
   extern void Output(const Mode mode, const char *file, const int line, const char *prefix, const char *delim, const char *name, const std::string &str = std::string());
 
+  extern void createLocks();
+
   // Runtime control of logging
 
   extern bool enableError;
@@ -179,15 +189,13 @@ namespace Logging
   extern int  maxBytes;
 
   extern bool frameTime;        // Per-frame elapsed time to info log
+  extern bool frameStatistics;  // Per-frame call statistics
 
   extern bool pointers;         // Enabled by default, otherwise empty
   extern bool thread;           // Disabled by default
+  extern bool process;          // Disabled by default
 
-#if REGAL_LOG_ONCE
   extern bool once;             // Warning and error message logged once only
-  extern std::set<std::string> uniqueErrors;
-  extern std::set<std::string> uniqueWarnings;
-#endif
 
   // Callback output
 
@@ -207,7 +215,6 @@ namespace Logging
 
   // Buffering for HTTP query purposes
 
-  extern std::list<std::string> *buffer;
   extern std::size_t             bufferSize;
   extern std::size_t             bufferLimit;
 

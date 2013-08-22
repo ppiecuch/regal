@@ -43,7 +43,7 @@ they are so as to convert the texture correctly."""
 
 texCFormulae = {
     'ShadowActiveTextureUnit' : {
-        'entries' : [ 'glActiveTexture' ],
+        'entries' : [ 'glActiveTexture(ARB|)' ],
         'impl' : [
             '_context->texc->ShadowActiveTexture( ${arg0plus} );',
             '_context->dispatcher.emulation.glActiveTexture( ${arg0plus} );',
@@ -51,7 +51,7 @@ texCFormulae = {
     },
 
     'ShadowBindTexture' : {
-        'entries' : [ 'glBindTexture' ],
+        'entries' : [ 'glBindTexture(EXT|)' ],
         'impl' : [
             '_context->texc->ShadowBindTexture( ${arg0plus} );',
             '_context->dispatcher.emulation.glBindTexture( ${arg0plus} );',
@@ -59,7 +59,7 @@ texCFormulae = {
     },
 
     'ShadowDeleteTexture' : {
-        'entries' : [ 'glDeleteTextures' ],
+        'entries' : [ 'glDeleteTextures(EXT|)' ],
         'impl' : [
             '_context->texc->ShadowDeleteTextures( ${arg0plus} );',
             '_context->dispatcher.emulation.glDeleteTextures( ${arg0plus} );',
@@ -67,7 +67,7 @@ texCFormulae = {
     },
 
     'ShadowGenTextures' : {
-        'entries' : [ 'glGenTextures' ],
+        'entries' : [ 'glGenTextures(EXT|)' ],
         'impl' : [
             '_context->dispatcher.emulation.glGenTextures( ${arg0plus} );',
             '_context->texc->ShadowGenTextures( ${arg0}, ${arg1} );',
@@ -75,7 +75,7 @@ texCFormulae = {
     },
 
     'ShadowGenerateMipmap' : {
-        'entries' : [ 'glGenerateMipmap' ],
+        'entries' : [ 'glGenerateMipmap(EXT|)' ],
         'impl' : [
             '_context->texc->ShadowGenerateMipmap( ${arg0plus} );',
             '_context->dispatcher.emulation.glGenerateMipmap( ${arg0plus} );',

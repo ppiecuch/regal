@@ -45,25 +45,25 @@ REGAL_GLOBAL_BEGIN
 #include "RegalThread.h"
 #include "RegalContext.h"
 #include "RegalDispatcher.h"
-#include "RegalShaderCache.h"
+#include "RegalCacheShader.h"
 
 REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
-static void REGAL_CALL cache_glShaderSource(GLuint shader, GLsizei count, const GLchar **string, const GLint *length)
+static void REGAL_CALL cache_glShaderSource(GLuint shader, GLsizei count, const GLchar * const * string, const GLint *length)
 {
   RegalContext *_context = REGAL_GET_CONTEXT();
   RegalAssert(_context);
-  DispatchTable *_next = _context->dispatcher.cache._next;
+  DispatchTableGL *_next = _context->dispatcher.cache.next();
   RegalAssert(_next);
   if (Config::cache && Config::cacheShader)
-    ShaderCache::shaderSource(_next->call(&_next->glShaderSource), shader, count, string, length);
+    Cache::shaderSource(_next->call(&_next->glShaderSource), shader, count, string, length);
   else
     _next->call(&_next->glShaderSource)(shader, count, string, length);
 }
 
-void InitDispatchTableCache(DispatchTable &tbl)
+void InitDispatchTableCache(DispatchTableGL &tbl)
 {
   tbl.glShaderSource = cache_glShaderSource;
 }

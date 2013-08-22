@@ -7,9 +7,9 @@ from ApiUtil import typeIsVoid
 
 from ApiCodeGen import *
 
-from RegalDispatchLog import apiDispatchFuncInitCode
-from RegalDispatchEmu import dispatchSourceTemplate
 from RegalContextInfo import cond
+
+from RegalDispatchShared import dispatchSourceTemplate, apiDispatchFuncInitCode
 
 from Emu       import emuFindEntry, emuCodeGen
 
@@ -61,7 +61,7 @@ def apiDebugFuncDefineCode(apis, args):
       code += 'static %sREGAL_CALL %s%s(%s) \n{\n' % (rType, 'debug_', name, params)
       code += '  RegalContext *_context = REGAL_GET_CONTEXT();\n'
       code += '  RegalAssert(_context);\n'
-      code += '  DispatchTable *_next = _context->dispatcher.debug._next;\n'
+      code += '  DispatchTableGL *_next = _context->dispatcher.debug.next();\n'
       code += '  RegalAssert(_next);\n'
       e = emuFindEntry( function, debugDispatchFormulae, '' )
       if e != None and 'prefix' in e :
@@ -109,6 +109,7 @@ def generateDebugSource(apis, args):
   substitute['LOCAL_CODE']      = debugLocalCode
   substitute['API_DISPATCH_FUNC_DEFINE'] = funcDefine
   substitute['API_DISPATCH_FUNC_INIT'] = funcInit
+  substitute['API_DISPATCH_GLOBAL_FUNC_INIT'] = ''
   substitute['IFDEF'] = '#if REGAL_DEBUG\n\n'
   substitute['ENDIF'] = '#endif\n'
 

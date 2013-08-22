@@ -1,0 +1,53 @@
+ifndef MAKEFILE_ZLIB_INCLUDED
+MAKEFILE_ZLIB_INCLUDED := 1
+
+.PHONY: zlib.lib zlib.clean
+
+include build/common.inc
+include build/zlib.inc
+
+#
+# zlib
+#
+
+ifdef ZLIB.STATIC
+
+all:: zlib.lib
+
+clean:: zlib.clean
+
+ZLIB.SRCS       := $(ZLIB.C)
+ZLIB.SRCS.NAMES := $(notdir $(ZLIB.SRCS))
+ZLIB.OBJS       := $(addprefix tmp/$(SYSTEM)/zlib/static/,$(ZLIB.SRCS.NAMES))
+ZLIB.OBJS       := $(ZLIB.OBJS:.c=.o)
+ZLIB.DEPS       := $(ZLIB.OBJS:.o=.d)
+
+-include $(ZLIB.DEPS)
+
+ifeq ($(filter-out linux% darwin% nacl%,$(SYSTEM)),)
+ZLIB.CFLAGS     += -DHAVE_UNISTD_H
+endif
+
+zlib.lib: lib/$(SYSTEM)/$(ZLIB.STATIC)
+
+zlib.clean:
+	$(RM) -r tmp/$(SYSTEM)/zlib/static
+	$(RM) -r lib/$(SYSTEM)/$(ZLIB.STATIC)
+
+tmp/$(SYSTEM)/zlib/static/%.o: src/zlib/src/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(ZLIB.CFLAGS) $(CFLAGS) $(PICFLAG) -o $@ -c $<
+
+lib/$(SYSTEM)/$(ZLIB.STATIC): $(ZLIB.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(ZLIB.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif
+

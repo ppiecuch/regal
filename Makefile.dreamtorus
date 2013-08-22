@@ -1,0 +1,68 @@
+ifndef MAKEFILE_DREAMTORUS_INCLUDED
+MAKEFILE_DREAMTORUS_INCLUDED := 1
+
+.PHONY: dreamtorus.bin dreamtorus.clean
+
+include build/common.inc
+
+# Not supported for NaCL or emscripten - Revisit
+
+ifeq ($(filter nacl% emscripten%,$(SYSTEM)),)
+
+#
+# dreamtorus
+#
+
+include Makefile.regal
+include Makefile.glut
+
+ifndef REGAL.STATIC
+$(error dreamtorus needs Regal.)
+endif
+
+all:: dreamtorus.bin
+
+clean:: dreamtorus.clean
+
+dreamtorus.bin: bin/$(SYSTEM)/dreamtorus
+
+dreamtorus.clean:
+	$(RM) -r tmp/$(SYSTEM)/dreamtorus/static
+	$(RM) -r bin/$(SYSTEM)/dreamtorus
+
+DREAMTORUS.SRCS       += examples/dreamtorus/src/render.cpp
+DREAMTORUS.SRCS       += examples/dreamtorus/glut/code/main.cpp
+DREAMTORUS.SRCS.NAMES := $(notdir $(DREAMTORUS.SRCS))
+DREAMTORUS.OBJS       := $(addprefix tmp/$(SYSTEM)/dreamtorus/static/,$(DREAMTORUS.SRCS.NAMES))
+DREAMTORUS.OBJS       := $(DREAMTORUS.OBJS:.cpp=.o)
+DREAMTORUS.DEPS       := $(DREAMTORUS.DEPS:.o=.d)
+DREAMTORUS.CFLAGS     := -Iinclude -Iexamples/dreamtorus/src
+DREAMTORUS.LIBS       += -Llib/$(SYSTEM) $(LDFLAGS.GLUT) $(LDFLAGS.GLU) $(LDFLAGS.X11)
+DREAMTORUS.LIBS       += -lm -pthread
+
+-include $(DREAMTORUS.DEPS)
+
+tmp/$(SYSTEM)/dreamtorus/static/%.o: examples/dreamtorus/src/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(DREAMTORUS.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+tmp/$(SYSTEM)/dreamtorus/static/%.o: examples/dreamtorus/glut/code/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(DREAMTORUS.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+DREAMTORUS.DEPEND :=  
+DREAMTORUS.DEPEND += lib/$(SYSTEM)/$(REGAL.SHARED) 
+
+ifdef GLUT.SHARED
+bin/$(SYSTEM)/dreamtorus: lib/$(SYSTEM)/$(GLUT.SHARED) lib/$(SYSTEM)/$(GLU.SHARED)
+endif
+
+bin/$(SYSTEM)/dreamtorus: $(DREAMTORUS.OBJS) lib/$(SYSTEM)/$(REGAL.SHARED)
+	@mkdir -p $(dir $@)
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) -o $@ $(DREAMTORUS.OBJS) lib/$(SYSTEM)/$(REGAL.SHARED) $(DREAMTORUS.LIBS) $(REGAL.LDFLAGS)
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif

@@ -1,0 +1,30 @@
+NACL_ARCH := pnacl
+
+include config/nacl.inc
+
+NACL_TOOLCHAIN := $(NACL_SDK_ROOT)/toolchain/$(NACL_OS)_x86_pnacl/$(NACL_LIBC)
+
+CC     := $(NACL_TOOLCHAIN)/bin/pnacl-clang
+CXX    := $(NACL_TOOLCHAIN)/bin/pnacl-clang++
+LD     := $(NACL_TOOLCHAIN)/bin/pnacl-clang++
+AR     := $(NACL_TOOLCHAIN)/bin/pnacl-ar
+RANLIB :=
+STRIP  ?=
+
+BIN_EXTENSION = .pexe
+EXT.DYNAMIC = so
+LDFLAGS.EXTRA =
+LIBDIR =
+CFLAGS.EXTRA +=
+LDFLAGS.EXTRA +=
+LDFLAGS.GL =
+LDFLAGS.GLU = -lRegalGLU
+LDFLAGS.GLUT = -lRegalGLUT
+LDFLAGS.STATIC =
+LDFLAGS.DYNAMIC = -shared
+BIN.SUFFIX =
+LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+LIB.DEVLNK = lib$(NAME).so
+LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+LIB.STATIC = lib$(NAME).a
+LDFLAGS.SO = $(LDFLAGS.DYNAMIC) -Wl,-soname=$(LIB.SONAME)

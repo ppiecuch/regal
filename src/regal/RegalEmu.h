@@ -52,57 +52,23 @@ REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
-#define REGAL_EMU_MAX_TEXTURE_UNITS 16
+// In ES2 mode, 16 texture units only?
 
-struct Float4
-{
-    Float4()
-    : x(0.f),
-      y(0.f),
-      z(0.f),
-      w(1.f)
-    {
-    }
+#ifndef REGAL_EMU_MAX_TEXTURE_UNITS
+#define REGAL_EMU_MAX_TEXTURE_UNITS 32
+#endif
 
-    Float4( const GLfloat X, const GLfloat Y, const GLfloat Z, const GLfloat W )
-    : x(X),
-      y(Y),
-      z(Z),
-      w(W)
-    {
-    }
+#ifndef REGAL_EMU_MAX_TEXTURE_COORDS
+#define REGAL_EMU_MAX_TEXTURE_COORDS 16
+#endif
 
-    Float4( const GLdouble X, const GLdouble Y, const GLdouble Z, const GLdouble W )
-    : x(static_cast<GLfloat>(X)),
-      y(static_cast<GLfloat>(Y)),
-      z(static_cast<GLfloat>(Z)),
-      w(static_cast<GLfloat>(W))
-    {
-    }
+#ifndef REGAL_EMU_MAX_VERTEX_ATTRIBS
+#define REGAL_EMU_MAX_VERTEX_ATTRIBS 16
+#endif
 
-    Float4( const GLint X, const GLint Y, const GLint Z, const GLint W )
-    : x(static_cast<GLfloat>(X)),
-      y(static_cast<GLfloat>(Y)),
-      z(static_cast<GLfloat>(Z)),
-      w(static_cast<GLfloat>(W))
-    {
-    }
-
-    Float4( const GLuint X, const GLuint Y, const GLuint Z, const GLuint W )
-    : x(static_cast<GLfloat>(X)),
-      y(static_cast<GLfloat>(Y)),
-      z(static_cast<GLfloat>(Z)),
-      w(static_cast<GLfloat>(W))
-    {
-    }
-
-    GLfloat x, y, z, w;
-};
-
-
-struct RegalEmu
-{
-};
+#ifndef REGAL_EMU_MAX_VERTEX_ATTRIB_BINDINGS
+#define REGAL_EMU_MAX_VERTEX_ATTRIB_BINDINGS 32
+#endif
 
 REGAL_NAMESPACE_END
 

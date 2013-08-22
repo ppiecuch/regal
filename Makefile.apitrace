@@ -1,0 +1,86 @@
+ifndef MAKEFILE_APITRACE_INCLUDED
+MAKEFILE_APITRACE_INCLUDED := 1
+
+.PHONY: apitrace.lib apitrace.clean
+
+include build/common.inc
+
+include build/apitrace.inc
+
+# Not supported for NaCL or emscripten, currently
+
+ifneq ($(filter nacl% emscripten%,$(SYSTEM)),)
+APITRACE.STATIC :=
+APITRACE.SHARED :=
+endif
+
+#
+# apitrace
+#
+
+ifdef APITRACE.STATIC
+
+include Makefile.snappy
+
+ifndef SNAPPY.STATIC
+$(error apitrace needs snappy.)
+endif
+
+all:: apitrace.lib
+
+clean:: apitrace.clean
+
+APITRACE.SRCS       := $(APITRACE.CXX)
+APITRACE.SRCS       := $(filter %.c,$(APITRACE.SRCS)) $(filter %.cc,$(APITRACE.SRCS)) $(filter %.cpp,$(APITRACE.SRCS))
+APITRACE.SRCS.NAMES := $(notdir $(APITRACE.SRCS))
+APITRACE.OBJS       := $(addprefix tmp/$(SYSTEM)/apitrace/static/,$(APITRACE.SRCS.NAMES))
+APITRACE.OBJS       := $(APITRACE.OBJS:.c=.o) $(APITRACE.OBJS:.cc=.o) $(APITRACE.OBJS:.cpp=.o)
+APITRACE.OBJS       := $(filter %.o,$(APITRACE.OBJS))
+APITRACE.DEPS       := $(APITRACE.OBJS:.o=.d)
+
+-include $(APITRACE.DEPS)
+
+ifneq ($(filter linux%,$(SYSTEM)),)
+APITRACE.CFLAGS  += -DHAVE_X11=1
+endif
+
+ifeq ($(MODE),release)
+APITRACE.CFLAGS  += -DNDEBUG
+APITRACE.CFLAGS  += -DREGAL_NO_ASSERT=1
+endif
+
+apitrace.lib: snappy.lib lib/$(SYSTEM)/$(APITRACE.STATIC)
+
+apitrace.clean:
+	$(RM) -r tmp/$(SYSTEM)/apitrace/static
+	$(RM) -r lib/$(SYSTEM)/$(APITRACE.STATIC)
+
+tmp/$(SYSTEM)/apitrace/static/%.o: src/apitrace/common/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(APITRACE.CFLAGS) $(CFLAGS) $(PICFLAG) -o $@ -c $<
+
+tmp/$(SYSTEM)/apitrace/static/%.o: src/apitrace/dispatch/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(APITRACE.CFLAGS) $(CFLAGS) $(PICFLAG) -o $@ -c $<
+
+tmp/$(SYSTEM)/apitrace/static/%.o: src/apitrace/helpers/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(APITRACE.CFLAGS) $(CFLAGS) $(PICFLAG) -o $@ -c $<
+
+tmp/$(SYSTEM)/apitrace/static/%.o: src/apitrace/wrappers/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(APITRACE.CFLAGS) $(CFLAGS) $(PICFLAG) -o $@ -c $<
+
+lib/$(SYSTEM)/$(APITRACE.STATIC): $(APITRACE.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(APITRACE.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif
+

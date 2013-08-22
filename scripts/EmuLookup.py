@@ -2,42 +2,39 @@
 
 formulae = {
     'wglGetProcAddress' : {
-        'entries' : [ 'wglGetProcAddress' ],
+        'entries' : [ '(wglGetProcAddress)()' ],
         'impl' : [
-                  'RegalAssert(dispatchTableGlobal.wglGetProcAddress);',
-                  'PROC drvproc = ret = dispatchTableGlobal.wglGetProcAddress(lpszProc);',
+                  'ret = _next->call(&_next->${m1}${m2})(${arg0});',
                   'if (!ret)',
                   '  return NULL;',
-                  'ret = Lookup::gl_Lookup<PROC>(lpszProc);',
+                  'ret = Lookup::gl_Lookup<PROC>(${arg0});',
                   'if (ret)',
-                  '  return ret;'
+                  '  return ret;',
+                  'ret = Lookup::wgl_Lookup<PROC>(${arg0});',
+                  'if (ret)',
+                  '  return ret;',
                    ],
-        'suffix' : [
-                  'size_t off = Lookup::wgl_LookupOffset(lpszProc);',
-                  '((void **)(&dispatchTableGlobal))[off] = (void *)drvproc;',
-                  'ret = Lookup::wgl_Lookup<PROC>(lpszProc);'
-                   ]
     },
 
     'glXGetProcAddress' : {
-        'entries' : [ 'glXGetProcAddress','glXGetProcAddressARB' ],
+        'entries' : [ '(glXGetProcAddress)(|ARB)' ],
         'impl' : [
-                  'ret = Lookup::gl_Lookup<void *>(reinterpret_cast<const char *>(procName));',
+                  'ret = Lookup::gl_Lookup<__GLXextFuncPtr>(reinterpret_cast<const char *>(${arg0}));',
                   'if (ret)',
                   '  return ret;',
-                  'ret = Lookup::glx_Lookup<void *>(reinterpret_cast<const char *>(procName));',
+                  'ret = Lookup::glx_Lookup<__GLXextFuncPtr>(reinterpret_cast<const char *>(${arg0}));',
                   'if (ret)',
                   '  return ret;',
                    ]
     },
 
     'eglGetProcAddress' : {
-        'entries' : [ 'eglGetProcAddress','eglGetProcAddressARB' ],
+        'entries' : [ '(eglGetProcAddress)(|ARB)' ],
         'impl' : [
-                  'ret = Lookup::gl_Lookup<__eglMustCastToProperFunctionPointerType>(reinterpret_cast<const char *>(procname));',
+                  'ret = Lookup::gl_Lookup<__eglMustCastToProperFunctionPointerType>(reinterpret_cast<const char *>(${arg0}));',
                   'if (ret)',
                   '  return ret;',
-                  'ret = Lookup::egl_Lookup<__eglMustCastToProperFunctionPointerType>(reinterpret_cast<const char *>(procname));',
+                  'ret = Lookup::egl_Lookup<__eglMustCastToProperFunctionPointerType>(reinterpret_cast<const char *>(${arg0}));',
                   'if (ret)',
                   '  return ret;',
                    ]

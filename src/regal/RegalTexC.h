@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011-2012 NVIDIA Corporation
+  Copyright (c) 2011-2013 NVIDIA Corporation
   Copyright (c) 2011-2012 Cass Everitt
   Copyright (c) 2012 Scott Nations
   Copyright (c) 2012 Mathias Schott
@@ -51,6 +51,7 @@ REGAL_GLOBAL_BEGIN
 #include <boost/cstdint.hpp>
 
 #include "RegalEmu.h"
+#include "RegalContext.h"
 #include "RegalSharedMap.h"
 
 REGAL_GLOBAL_END
@@ -173,11 +174,16 @@ struct TextureUnitState
 };
 
 
-struct TexC : public RegalEmu
+struct TexC
 {
   TexC();
 
   void Init( RegalContext &ctx );
+
+  void Cleanup( RegalContext &ctx )
+  {
+    UNUSED_PARAMETER(ctx);
+  }
 
   void Reset_();
 

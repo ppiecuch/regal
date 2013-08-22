@@ -63,7 +63,7 @@ REGAL_NAMESPACE_BEGIN
 #define REGAL_PPC_MAX_TEXTURE_COORDS 16
 
 
-struct RegalPpc : public RegalEmu {
+struct RegalPpc {
 
     struct ClientPixelStoreState {
 

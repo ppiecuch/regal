@@ -1,0 +1,59 @@
+ifndef MAKEFILE_NACL_INCLUDED
+MAKEFILE_NACL_INCLUDED := 1
+
+#
+# NaCl-only
+#
+
+ifneq ($(filter nacl%,$(SYSTEM)),)
+
+.PHONY: nacl.bin nacl.clean
+
+include build/common.inc
+
+#
+# NaCl example
+#
+
+include Makefile.regal
+
+ifndef REGAL.STATIC
+$(error nacl example needs Regal.)
+endif
+
+all:: nacl.bin
+
+clean:: nacl.clean
+
+nacl.bin: bin/$(SYSTEM)/nacl$(BIN_EXTENSION)
+
+nacl.clean:
+	$(RM) -r tmp/$(SYSTEM)/nacl/static
+	$(RM) -r bin/$(SYSTEM)/nacl$(BIN_EXTENSION)
+
+NACL.SRCS       += examples/nacl/main.c
+NACL.SRCS.NAMES := $(notdir $(NACL.SRCS))
+NACL.OBJS       := $(addprefix tmp/$(SYSTEM)/nacl/static/,$(NACL.SRCS.NAMES))
+NACL.OBJS       := $(NACL.OBJS:.c=.o)
+NACL.CFLAGS     := -Iinclude
+NACL.LIBS       += -Llib/$(SYSTEM) -lRegal
+NACL.LIBS       += -lpng -lz -lm -pthread -lppapi -lppapi_gles2 -lstdc++
+
+-include $(NACL.DEPS)
+
+tmp/$(SYSTEM)/nacl/static/%.o: examples/nacl/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CC) $(CFLAGS) -std=gnu99 $(NACL.CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+bin/$(SYSTEM)/nacl$(BIN_EXTENSION): lib/$(SYSTEM)/$(REGAL.STATIC) $(NACL.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_LD)$(LD) $(LDFLAGS.EXTRA) -o $@ $(NACL.OBJS) $(NACL.LIBS)
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+examples/nacl/nacl.nmf: bin/$(SYSTEM)/nacl$(BIN_EXTENSION)
+	$(NACL_SDK_ROOT)/tools/create_nmf.py -Llib/$(SYSTEM) $(NMF_FLAGS) -o $@ bin/$(SYSTEM)/nacl*.nexe -s examples/nacl
+
+endif
+endif

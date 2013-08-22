@@ -71,6 +71,9 @@ public:
   void insert(const size_type i, const string_list &other);
   void insert(const size_type i, const size_type n, const value_type &x);
 
+  void pop_front();
+  void pop_back();
+
   template<typename I>
   string_list<T> &
   operator<<(I i)
@@ -391,6 +394,9 @@ template<typename T> void string_list<T>::insert(const size_type i, const size_t
       swap(*i,*j);
   }
 }
+
+template<typename T> void string_list<T>::pop_front() { _list.pop_front(); }
+template<typename T> void string_list<T>::pop_back () { _list.pop_back();  }
 
 template<typename T> void string_list<T>::sort()
 {

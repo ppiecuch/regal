@@ -7,9 +7,21 @@
 Regal
 =====
 
-https://github.com/p3/regal
+| https://github.com/p3/regal
+| `Downloads <https://bitbucket.org/nigels_com/regal/downloads>`_, `Issues <https://github.com/p3/regal/issues>`_, `Commits <https://github.com/p3/regal/commits/master>`_.
+| Status: |status|
 
-.. contents::
+.. |status| image:: https://travis-ci.org/nigels-com/regal.png?branch=master
+   :target: https://travis-ci.org/nigels-com/regal
+   :alt: Build Status
+
+Recent News
+===========
+
+* July 30th 2013 - New binaries available for Windows and Mac.
+* July 26th 2013 - `Emscripten <https://github.com/kripken/emscripten>`_ support in progress.
+* July 22nd 2013 - `OpenGL 4.4 <http://www.opengl.org/registry/>`_ API support added.
+* July 21st 2013 - `apitrace <http://apitrace.github.io/>`_ support added.
 
 Summary
 =======
@@ -21,6 +33,8 @@ OpenGL portability layer for OpenGL 2.x, 3.x, 4.x, Core contexts and ES 2.0
 |               |  and to play with the examples.  Don't use it in your projects yet.  |
 |               |  You have been warned.                                               |
 +---------------+----------------------------------------------------------------------+
+
+.. contents::
 
 Goals
 =====
@@ -62,6 +76,21 @@ Deployment
 From an application developer's perspective, Regal just looks like an OpenGL implementation.
 You link with it instead of your platform's OpenGL library or framework, and that's really
 all you have to do to use Regal.  The rest of your code can remain unchanged.
+
+Downloads
+=========
+
+* `github.com sources <https://github.com/p3/regal>`_, `ZIP snapshot <https://github.com/p3/regal/archive/master.zip>`_.
+
+July 30th 2013
+
+* `Windows x86 Debug <https://bitbucket.org/nigels_com/regal/downloads/Regal_Windows_x86_Debug_20130730.zip>`_ | `Windows x86 Release <https://bitbucket.org/nigels_com/regal/downloads/Regal_Windows_x86_Release_20130730.zip>`_
+* `Windows AMD64 Debug <https://bitbucket.org/nigels_com/regal/downloads/Regal_Windows_x64_Debug_20130730.zip>`_ | `Windows AMD64 Release <https://bitbucket.org/nigels_com/regal/downloads/Regal_Windows_x64_Release_20130730.zip>`_
+* `Mac Universal Debug <https://bitbucket.org/nigels_com/regal/downloads/Regal_Mac_Debug_20130730.tgz>`_         | `Mac Universal Release <https://bitbucket.org/nigels_com/regal/downloads/Regal_Mac_Release_20130730.tgz>`_
+
+Archives
+
+* `Archived Downloads <https://bitbucket.org/nigels_com/regal/downloads>`_
 
 Features
 ========
@@ -168,9 +197,13 @@ Logging
 Multi-threading support
 -----------------------
 
-  - Enabled by default.
+  - Locking and per-thread contexts enabled by default.
 
-  - Build-time configuration: **REGAL_NO_TLS**
+  - Per-thread context build-time configuration: **REGAL_NO_TLS**
+
+  - Locking build-time configuration: **REGAL_THREAD_LOCKING**
+
+  - Locking environment variable configuration: **REGAL_THREAD_LOCKING**
 
 Spoofing OpenGL vendor, renderer, version and extension strings
 ---------------------------------------------------------------
@@ -255,6 +288,11 @@ Limitations
 .. _GL_REGAL_log:             https://github.com/p3/regal/blob/master/doc/extensions/GL_REGAL_log.txt
 .. _GL_REGAL_enable:          https://github.com/p3/regal/blob/master/doc/extensions/GL_REGAL_enable.txt
 
+Contact Information
+===================
+
+* Discussion of Regal is primarily via the `Issue Tracker <https://github.com/p3/regal/issues>`_ currently.
+
 Other Information
 =================
 
@@ -288,7 +326,7 @@ Linux
 
 * Ubuntu/Debian/Mint recommended packages:
 
- ``$ apt-get install libxmu-dev``
+ ``$ apt-get install libxmu-dev libxi-dev``
 
 * Use GNU make with Makefile
 
@@ -296,15 +334,15 @@ Linux
 
 * Set **LD_LIBRARY_PATH**
 
- ``$ export LD_LIBRARY_PATH=`pwd`/lib``
+ ``$ export LD_LIBRARY_PATH=`pwd`/lib/linux``
 
 * Run the dreamtorus example
 
- ``$ REGAL_FORCE_EMULATION=1; bin/dreamtorus``
+ ``$ REGAL_FORCE_EMULATION=1; bin/linux/dreamtorus``
 
- ``$ REGAL_FORCE_EMULATION=0; bin/dreamtorus``
+ ``$ REGAL_FORCE_EMULATION=0; bin/linux/dreamtorus``
 
- ``$ REGAL_LOG_DRIVER=1; bin/dreamtorus``
+ ``$ REGAL_LOG_DRIVER=1; bin/linux/dreamtorus``
 
 OS X
 ----
@@ -316,7 +354,13 @@ iOS
 ---
 
 PPAPI and NaCl
-----
+--------------
+
+* NACL_SDK_ROOT needs to be set
+
+* NACL_LIBC=newlib is the default, specify NACL_LIBC=glibc as an alternative
+
+* regaltest requires pepper_26 or newer
 
 Questions and Answers
 =====================
@@ -334,6 +378,11 @@ Alternatives for OpenGL Loading
 * `GLEW <http://glew.sourceforge.net/>`_.
 
 * `OpenGL Loader Generator <https://bitbucket.org/alfonse/glloadgen/wiki/Home>`_.
+
+Related Efforts
+---------------
+
+* Mesa3D mail thread: `Mesa as part of OpenGL-on-OpenGL ES 2.0 <http://lists.freedesktop.org/archives/mesa-dev/2012-March/019692.html>`_
 
 License and Credits
 ===================

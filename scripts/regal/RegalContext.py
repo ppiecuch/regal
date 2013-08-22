@@ -6,6 +6,8 @@ from ApiUtil import outputCode
 from ApiCodeGen import *
 
 from EmuInit           import formulae       as initFormulae
+from EmuInit           import formulaeGlobal as initFormulaeGlobal
+from EmuContextShare   import formulae       as contextShareFormulae
 from EmuContextState   import formulae       as contextStateFormulae
 from EmuGetString      import formulae       as getStringFormulae
 from EmuForceCore      import formulae       as forceCoreFormulae
@@ -25,18 +27,26 @@ from Emu       import emuFindEntry, emuCodeGen
 from EmuDsa    import dsaFormulae
 from EmuVao    import vaoFormulae
 from EmuSo     import soFormulae
-from EmuPpc    import ppcFormulae
+from EmuPpca   import ppcaFormulae
 from EmuPpa    import ppaFormulae
 from EmuIff    import iffFormulae
 from EmuBin    import binFormulae
 from EmuObj    import objFormulae
 from EmuFilter import formulae as filterFormulae
 from EmuTexC   import texCFormulae
+from EmuTextureStorage import texstoFormulae
+from EmuBaseVertex import baseVertexFormulae
+from EmuRect   import rectFormulae
+from EmuHint   import hintFormulae
+
+from EmuPixelTransfer import xferFormulae
 
 # Regal.cpp emulation
 
 emuRegal = [
     { 'type' : None,       'include' : None,            'member' : None,     'conditional' : None,  'ifdef' : None,  'formulae' : initFormulae },
+    { 'type' : None,       'include' : None,            'member' : None,     'conditional' : None,  'ifdef' : None,  'formulae' : initFormulaeGlobal },
+    { 'type' : None,       'include' : None,            'member' : None,     'conditional' : None,  'ifdef' : None,  'formulae' : contextShareFormulae },
     { 'type' : None,       'include' : None,            'member' : None,     'conditional' : None,  'ifdef' : None,  'formulae' : contextStateFormulae },
     { 'type' : None,       'include' : None,            'member' : None,     'conditional' : None,  'ifdef' : None,  'formulae' : getStringFormulae },
     { 'type' : None,       'include' : None,            'member' : None,     'conditional' : None,  'ifdef' : None,  'formulae' : forceCoreFormulae },
@@ -56,17 +66,22 @@ emuRegal = [
 # RegalDispathEmu.cpp fixed-function emulation
 
 emu = [
-    { 'type' : 'RegalObj',    'include' : 'RegalObj.h',  'member' : 'obj',    'conditional' : 'Config::enableEmuObj',    'ifdef' : 'REGAL_EMU_OBJ',    'formulae' : objFormulae    },
-    #{ 'type' : 'RegalPpc',   'include' : 'RegalPpc.h',  'member' : 'ppc',    'conditional' : None,                      'ifdef' : '',                 'formulae' : ppcFormulae    },
-    { 'type' : 'RegalPpa',    'include' : 'RegalPpa.h',  'member' : 'ppa',    'conditional' : 'Config::enableEmuPpa',    'ifdef' : 'REGAL_EMU_PPA',    'formulae' : ppaFormulae    },
-    { 'type' : 'RegalBin',    'include' : 'RegalBin.h',  'member' : 'bin',    'conditional' : 'Config::enableEmuBin',    'ifdef' : 'REGAL_EMU_BIN',    'formulae' : binFormulae    },
-    { 'type' : 'RegalDsa',    'include' : 'RegalDsa.h',  'member' : 'dsa',    'conditional' : 'Config::enableEmuDsa',    'ifdef' : 'REGAL_EMU_DSA',    'formulae' : dsaFormulae    },
-    { 'type' : 'Emu::Iff',    'include' : 'RegalIff.h',  'member' : 'iff',    'conditional' : 'Config::enableEmuIff',    'ifdef' : 'REGAL_EMU_IFF',    'formulae' : iffFormulae    },
-    { 'type' : 'Emu::So',     'include' : 'RegalSo.h',   'member' : 'so',     'conditional' : 'Config::enableEmuSo',     'ifdef' : 'REGAL_EMU_SO',     'formulae' : soFormulae     },
-    { 'type' : 'RegalVao',    'include' : 'RegalVao.h',  'member' : 'vao',    'conditional' : 'Config::enableEmuVao',    'ifdef' : 'REGAL_EMU_VAO',    'formulae' : vaoFormulae    },
-    { 'type' : None,          'include' : None,          'member' : None,     'conditional' : 'Config::enableEmuFilter', 'ifdef' : 'REGAL_EMU_FILTER', 'formulae' : filterFormulae },
-    { 'type' : 'Emu::TexC',   'include' : 'RegalTexC.h', 'member' : 'texc',   'conditional' : 'Config::enableEmuTexC',   'ifdef' : 'REGAL_EMU_TEXC',   'formulae' : texCFormulae   },
-    { 'type' : 'void',        'include' : None,          'member' : None,     'conditional' : None,                      'ifdef' : None,               'formulae' : None           }
+    { 'type' : 'Emu::Obj',        'include' : 'RegalObj.h',        'member' : 'obj',    'plugin' : False, 'conditional' : 'Config::enableEmuObj               || Config::forceEmuObj        || REGAL_FORCE_EMU_OBJ',        'ifdef' : 'REGAL_EMU_OBJ',        'formulae' : objFormulae        },
+    { 'type' : 'Emu::Hint',       'include' : 'RegalHint.h',       'member' : 'hint',   'plugin' : False, 'conditional' : 'Config::enableEmuHint              || Config::forceEmuHint       || REGAL_FORCE_EMU_HINT',       'ifdef' : 'REGAL_EMU_HINT',       'formulae' : hintFormulae       },
+    { 'type' : 'Emu::Ppa',        'include' : 'RegalPpa.h',        'member' : 'ppa',    'plugin' : False, 'conditional' : 'Config::enableEmuPpa               || Config::forceEmuPpa        || REGAL_FORCE_EMU_PPA',        'ifdef' : 'REGAL_EMU_PPA',        'formulae' : ppaFormulae        },
+    { 'type' : 'Emu::Ppca',       'include' : 'RegalPpca.h',       'member' : 'ppca',   'plugin' : False, 'conditional' : 'Config::enableEmuPpca              || Config::forceEmuPpca       || REGAL_FORCE_EMU_PPCA',       'ifdef' : 'REGAL_EMU_PPCA',       'formulae' : ppcaFormulae       },
+    { 'type' : 'Emu::Bin',        'include' : 'RegalBin.h',        'member' : 'bin',    'plugin' : False, 'conditional' : 'Config::enableEmuBin               || Config::forceEmuBin        || REGAL_FORCE_EMU_BIN',        'ifdef' : 'REGAL_EMU_BIN',        'formulae' : binFormulae        },
+    { 'type' : 'Emu::Xfer',       'include' : 'RegalXfer.h',       'member' : 'xfer',   'plugin' : False, 'conditional' : '(isES2() && Config::enableEmuXfer) || Config::forceEmuXfer       || REGAL_FORCE_EMU_XFER',       'ifdef' : 'REGAL_EMU_XFER',       'formulae' : xferFormulae       },
+    { 'type' : 'Emu::TexSto',     'include' : 'RegalTexSto.h',     'member' : 'texsto', 'plugin' : False, 'conditional' : 'Config::enableEmuTexSto            || Config::forceEmuTexSto     || REGAL_FORCE_EMU_TEXSTO',     'ifdef' : 'REGAL_EMU_TEXSTO',     'formulae' : texstoFormulae     },
+    { 'type' : 'Emu::BaseVertex', 'include' : 'RegalBaseVertex.h', 'member' : 'bv',     'plugin' : False, 'conditional' : 'Config::enableEmuBaseVertex        || Config::forceEmuBaseVertex || REGAL_FORCE_EMU_BASEVERTEX', 'ifdef' : 'REGAL_EMU_BASEVERTEX', 'formulae' : baseVertexFormulae },
+    { 'type' : 'Emu::Rect',       'include' : 'RegalRect.h',       'member' : 'rect',   'plugin' : False, 'conditional' : 'Config::enableEmuRect              || Config::forceEmuRect       || REGAL_FORCE_EMU_RECT',       'ifdef' : 'REGAL_EMU_RECT',       'formulae' : rectFormulae       },
+    { 'type' : 'Emu::Iff',        'include' : 'RegalIff.h',        'member' : 'iff',    'plugin' : False, 'conditional' : 'Config::enableEmuIff               || Config::forceEmuIff        || REGAL_FORCE_EMU_IFF',        'ifdef' : 'REGAL_EMU_IFF',        'formulae' : iffFormulae        },
+    { 'type' : 'Emu::So',         'include' : 'RegalSo.h',         'member' : 'so',     'plugin' : False, 'conditional' : '(Config::enableEmuSo && !info->gl_arb_sampler_objects) || Config::forceEmuSo || REGAL_FORCE_EMU_SO',                                                           'ifdef' : 'REGAL_EMU_SO',     'formulae' : soFormulae     },
+    { 'type' : 'Emu::Dsa',        'include' : 'RegalDsa.h',        'member' : 'dsa',    'plugin' : False, 'conditional' : 'Config::enableEmuDsa               || Config::forceEmuDsa        || REGAL_FORCE_EMU_DSA',        'ifdef' : 'REGAL_EMU_DSA',        'formulae' : dsaFormulae        },
+    { 'type' : 'Emu::Vao',        'include' : 'RegalVao.h',        'member' : 'vao',    'plugin' : False, 'conditional' : '(Config::enableEmuVao              || Config::enableEmuVao       || REGAL_FORCE_EMU_VAO) && (Config::enableEmuIff || Config::forceEmuIff || REGAL_FORCE_EMU_IFF)', 'ifdef' : 'REGAL_EMU_VAO', 'formulae' : vaoFormulae },
+    { 'type' : 'Emu::TexC',       'include' : 'RegalTexC.h',       'member' : 'texc',   'plugin' : False, 'conditional' : '(isES2() && Config::enableEmuTexC) || Config::forceEmuTexC       || REGAL_FORCE_EMU_TEXC',   'ifdef' : 'REGAL_EMU_TEXC',   'formulae' : texCFormulae   },
+    { 'type' : 'Emu::Filt',       'include' : 'RegalFilt.h',       'member' : 'filt',   'plugin' : False, 'conditional' : 'Config::enableEmuFilter            || Config::forceEmuFilter     || REGAL_FORCE_EMU_FILTER', 'ifdef' : 'REGAL_EMU_FILTER', 'formulae' : filterFormulae },
+    { 'type' : 'void',            'include' : None,                'member' : None,     'plugin' : False, 'conditional' : None,                                                                         'ifdef' : None,               'formulae' : None           }
 ]
 
 contextHeaderTemplate = Template( '''${AUTOGENERATED}
@@ -81,7 +96,8 @@ REGAL_GLOBAL_BEGIN
 
 #include "RegalThread.h"
 #include "RegalPrivate.h"
-#include "RegalDispatcher.h"
+#include "RegalContextInfo.h"
+#include "RegalDispatcherGL.h"
 #include "RegalDispatchError.h"
 #include "RegalSharedList.h"
 
@@ -96,7 +112,7 @@ REGAL_GLOBAL_END
 REGAL_NAMESPACE_BEGIN
 
 struct DebugInfo;
-struct ContextInfo;
+struct Statistics;
 
 ${EMU_FORWARD_DECLARE}
 
@@ -106,12 +122,24 @@ struct RegalContext
   ~RegalContext();
 
   void Init();
+  void Cleanup();
+
+  // If profile is forced at build-time, no need to check runtime flag
+
+  inline bool isES1()    const { RegalAssert(info); return REGAL_SYS_ES1 && ( REGAL_FORCE_ES1_PROFILE  || info->es1  ); }
+  inline bool isES2()    const { RegalAssert(info); return REGAL_SYS_ES2 && ( REGAL_FORCE_ES2_PROFILE  || info->es2  ); }
+  inline bool isCore()   const { RegalAssert(info); return REGAL_SYS_GL  && ( REGAL_FORCE_CORE_PROFILE || info->core ); }
+  inline bool isCompat() const { RegalAssert(info); return REGAL_SYS_GL  &&                               info->compat; }
 
   bool                initialized;
-  Dispatcher          dispatcher;
+  DispatcherGL        dispatcher;
   DispatchErrorState  err;
   DebugInfo          *dbg;
   ContextInfo        *info;
+
+#if REGAL_STATISTICS
+  Statistics         *statistics;
+#endif
 
   //
   // Emulation
@@ -126,6 +154,14 @@ ${EMU_MEMBER_DECLARE}
 
   RegalSystemContext  sysCtx;
   Thread::Thread      thread;
+
+  #if REGAL_SYS_X11
+  Display            *x11Display;
+  #endif
+
+  #if REGAL_SYS_GLX
+  GLXDrawable         x11Drawable;
+  #endif
 
   GLLOGPROCREGAL      logCallback;
 
@@ -145,15 +181,24 @@ ${EMU_MEMBER_DECLARE}
 
   RegalContext *groupInitializedContext();
 
+  // For RegalDispatchCode
+
+#if REGAL_CODE
+  FILE               *codeSource;
+  FILE               *codeHeader;
+  size_t              codeInputNext;
+  size_t              codeOutputNext;
+  size_t              codeShaderNext;  // glCreateShader/glCreateShaderObjectARB
+  size_t              codeProgramNext; // glCreateProgram/glCreateProgramObjectARB
+  size_t              codeTextureNext; // glTexImage2D etc.
+#endif
+
   // State tracked via EmuContextState.py / Regal.cpp
 
   size_t              depthBeginEnd;   // Normally zero or one
+  size_t              depthPushMatrix; //
   size_t              depthPushAttrib; //
-
-  // For RegalDispatchCode
-
-  size_t              codeInputNext;
-  size_t              codeOutputNext;
+  size_t              depthNewList;    //
 };
 
 REGAL_NAMESPACE_END
@@ -174,6 +219,7 @@ REGAL_GLOBAL_BEGIN
 #include "RegalContext.h"
 #include "RegalDebugInfo.h"
 #include "RegalContextInfo.h"
+#include "RegalStatistics.h"
 
 ${INCLUDES}#if REGAL_EMULATION
 ${EMU_INCLUDES}#endif
@@ -189,19 +235,39 @@ RegalContext::RegalContext()
   dispatcher(),
   dbg(NULL),
   info(NULL),
+#if REGAL_STATISTICS
+  statistics(new Statistics()),
+#endif
 ${MEMBER_CONSTRUCT}#if REGAL_EMULATION
 ${EMU_MEMBER_CONSTRUCT}#endif
 #if REGAL_SYS_PPAPI
   ppapiES2(NULL),
-  ppapiResource(NULL),
-#endif
+  ppapiResource(0),
+  sysCtx(0),
+#else
   sysCtx(NULL),
+#endif
   thread(0),
+#if REGAL_SYS_X11
+  x11Display(NULL),
+#endif
+#if REGAL_SYS_GLX
+  x11Drawable(0),
+#endif
   logCallback(NULL),
-  depthBeginEnd(0),
-  depthPushAttrib(0),
+#if REGAL_CODE
+  codeSource(NULL),
+  codeHeader(NULL),
   codeInputNext(0),
-  codeOutputNext(0)
+  codeOutputNext(0),
+  codeShaderNext(0),
+  codeProgramNext(0),
+  codeTextureNext(0),
+#endif
+  depthBeginEnd(0),
+  depthPushMatrix(0),
+  depthPushAttrib(0),
+  depthNewList(0)
 {
   Internal("RegalContext::RegalContext","()");
 
@@ -221,10 +287,13 @@ RegalContext::Init()
 
   RegalAssert(!initialized);
 
-  info = new ContextInfo();
   RegalAssert(this);
-  RegalAssert(info);
-  info->init(*this);
+  if (!info)
+  {
+    info = new ContextInfo();
+    RegalAssert(info);
+    info->init(*this);
+  }
 
 ${MEMBER_INIT}
 
@@ -237,7 +306,7 @@ ${MEMBER_INIT}
       Config::enableEmulation &&
       (
         info->core ||
-        info->gles ||
+        info->es2  ||
         ( info->compat && !info->gl_ext_direct_state_access )
       )
     )
@@ -249,9 +318,31 @@ ${EMU_MEMBER_INIT}
   }
 #endif
 
+#if REGAL_CODE
+  if (Config::enableCode && !codeSource && !codeHeader)
+  {
+    if (Config::codeSourceFile.length())
+    {
+      codeSource = fopen(Config::codeSourceFile.c_str(),"wt");
+      if (!codeSource)
+        Warning("Failed to open file ",Config::codeSourceFile," for writing code source.");
+    }
+    if (Config::codeHeaderFile.length())
+    {
+      if (Config::codeHeaderFile==Config::codeSourceFile)
+        codeHeader = codeSource;
+      else
+        codeHeader = fopen(Config::codeHeaderFile.c_str(),"wt");
+      if (!codeHeader)
+        Warning("Failed to open file ",Config::codeHeaderFile," for writing code header.");
+    }
+  }
+#endif
+
   initialized = true;
 }
 
+// Note that Cleanup() may or may not have been called prior to destruction
 RegalContext::~RegalContext()
 {
   Internal("RegalContext::~RegalContext","()");
@@ -263,7 +354,30 @@ RegalContext::~RegalContext()
   delete info;
 ${MEMBER_CLEANUP}
 #if REGAL_EMULATION
+${EMU_MEMBER_DESTRUCT}#endif
+
+#if REGAL_CODE
+  if (codeSource)
+    fclose(codeSource);
+
+  if (codeHeader)
+    fclose(codeHeader);
+#endif
+}
+
+// Called prior to deletion, if this context is still set for this thread.
+// Need to:
+// 1) clean up GL state we've modified
+// 2) leave the RegalContext in a state where Init() could be called again
+void
+RegalContext::Cleanup()
+{
+  Internal("RegalContext::Cleanup","()");
+
+#if REGAL_EMULATION
 ${EMU_MEMBER_CLEANUP}#endif
+
+  initialized = false;
 }
 
 bool
@@ -325,12 +439,8 @@ def generateContextHeader(apis, args):
 
     for i in emu:
       if i.get('member')!=None:
-        if i['type']=='Emu::Iff':
-          emuForwardDeclare += 'namespace Emu { struct Iff; };\n'
-        elif i['type']=='Emu::So':
-          emuForwardDeclare += 'namespace Emu { struct So; };\n'
-        elif i['type']=='Emu::TexC':
-          emuForwardDeclare += 'namespace Emu { struct TexC; };\n'
+        if i['type'].startswith('Emu::'):
+          emuForwardDeclare += 'namespace Emu { struct %s; };\n' % i['type'][5:]
         else:
           emuForwardDeclare += 'struct %s;\n' % i['type']
         emuMemberDeclare  += '  %-18s *%s;\n' % ( i['type'], i['member'] )
@@ -353,6 +463,31 @@ def generateContextHeader(apis, args):
 
     outputCode( '%s/RegalContext.h' % args.srcdir, contextHeaderTemplate.substitute(substitute))
 
+def addEmulatedExtensions(extensions, emuLayer):
+    str = ''
+
+    for extension in extensions:
+      if extension.emulatedBy == emuLayer:
+        emuStr = ''
+
+        # Strip 'GL_' prefix
+        name = extension.name[3:]
+
+        emuStr += 'Internal("RegalContext::Init ","GL_%s");\n' % name
+        emuStr += 'info->regal_%s = true;\n' % name.lower()
+        emuStr += 'info->regalExtensionsSet.insert("GL_%s");\n' % name
+
+        supportStr = '!info->gl_%s' % name.lower()
+        if (len(extension.emulatedIf)):
+          supportStr += ' && (%s)' % extension.emulatedIf
+
+        str += wrapCIf(supportStr, emuStr)
+
+    if str != '':
+      str += 'info->regalExtensions = ::boost::print::detail::join(info->regalExtensionsSet,std::string(" "));\n'
+
+    return str
+
 def generateContextSource(apis, args):
 
     includes           = ''
@@ -363,20 +498,28 @@ def generateContextSource(apis, args):
     emuMemberConstruct = ''
     emuMemberInit      = ''
     emuMemberCleanup   = ''
+    emuMemberDestruct  = ''
+    emulatedExtensions = []
 
     for i in emuRegal:
       if i['include']:
         includes        += '#include "%s"\n' % i['include']
       if i['member']:
         memberConstruct += '  %s(NULL),\n' % ( i['member'] )
-        memberInit      += '  %s = new %s;\n'%(i['member'],i['type'])
+        memberInit      += indent(wrapCIf('!%s' % i['member'],'%s = new %s;\n'%(i['member'],i['type'])),'  ')
         memberCleanup   += indent(wrapIf(i['ifdef'],'delete %s;\n' % i['member']),'  ')
 
     emuMemberConstruct += '  emuLevel(0),\n'
 
     emuMemberInit += '    // emu\n'
     emuMemberInit += '    emuLevel = %d;\n' % ( len( emu ) - 1 )
-    emuMemberCleanup += '  // emu\n'
+    emuMemberCleanup  += '  // emu\n'
+    emuMemberDestruct += '  // emu\n'
+
+    for api in apis:
+      for extension in api.extensions:
+        if len(extension.emulatedBy):
+          emulatedExtensions.append(extension)
 
     for i in range( len( emu ) - 1 ) :
       if emu[i]['member']:
@@ -386,17 +529,19 @@ def generateContextSource(apis, args):
         if emu[i]['include']:
             emuIncludes += '#include "%s"\n' % emu[i]['include']
         if emu[i]['member']:
-            emuMemberCleanup += indent(wrapIf(emu[i]['ifdef'],'delete %s;\n' % emu[i]['member']),'  ')
+            emuMemberDestruct += indent(wrapIf(emu[i]['ifdef'],'delete %s;\n' % emu[i]['member']),'  ')
+            cleanup = ''
+            cleanup += 'emuLevel = %d;\n' % ( int(emu[i]['level']) - 1)
+            cleanup += '%s->Cleanup(*this);\n' % emu[i]['member']
+            cleanup += 'delete %s;\n' % emu[i]['member']
+            cleanup += '%s = NULL;\n' % emu[i]['member']
+            emuMemberCleanup += indent(wrapIf(emu[i]['ifdef'],wrapCIf(emu[i]['member'],cleanup)),'  ')
+
         revi = len( emu ) - 2 - i;
         if emu[revi]['member']:
             init = ''
-            if emu[revi]['member']=='dsa':
-              init += 'Internal("RegalContext::Init ","GL_EXT_direct_state_access");\n'
-              init += 'info->regal_ext_direct_state_access = true;\n'
-#              init += '#ifndef REGAL_GL_EXTENSIONS\n'
-              init += 'info->regalExtensionsSet.insert("GL_EXT_direct_state_access");\n'
-              init += 'info->regalExtensions = ::boost::print::detail::join(info->regalExtensionsSet,std::string(" "));\n'
-#              init += '#endif\n'
+
+            init += addEmulatedExtensions(emulatedExtensions, emu[revi]['member'])
 
             init += '%s = new %s;\n' % ( emu[revi]['member'], emu[revi]['type'] )
             init += 'emuLevel = %d;\n' % ( int(emu[revi]['level']) - 1)
@@ -421,5 +566,6 @@ def generateContextSource(apis, args):
     substitute['EMU_MEMBER_CONSTRUCT'] = emuMemberConstruct
     substitute['EMU_MEMBER_INIT']      = emuMemberInit
     substitute['EMU_MEMBER_CLEANUP']   = emuMemberCleanup
+    substitute['EMU_MEMBER_DESTRUCT']  = emuMemberDestruct
 
     outputCode( '%s/RegalContext.cpp' % args.srcdir, contextSourceTemplate.substitute(substitute))

@@ -1,17 +1,19 @@
 /*
-Copyright (c) 2011 NVIDIA Corporation
-Copyright (c) 2011-2012 Cass Everitt
-Copyright (c) 2012 Scott Nations
-Copyright (c) 2012 Mathias Schott
-Copyright (c) 2012 Nigel Stewart
-All rights reserved.
+  Copyright (c) 2011-2013 NVIDIA Corporation
+  Copyright (c) 2011-2013 Cass Everitt
+  Copyright (c) 2012-2013 Scott Nations
+  Copyright (c) 2012 Mathias Schott
+  Copyright (c) 2012-2013 Nigel Stewart
+  Copyright (c) 2012-2013 Google Inc.
+  All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
+  Redistribution and use in source and binary forms, with or without modification,
+  are permitted provided that the following conditions are met:
 
-  Redistributions of source code must retain the above copyright notice, this
+    Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
-  Redistributions in binary form must reproduce the above copyright notice,
+
+    Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
@@ -45,40 +47,18 @@ REGAL_NAMESPACE_BEGIN
 struct Dispatcher
 {
 public:
-
-#if REGAL_DEBUG
-   DispatchTable debug;
-#endif
-
-#if REGAL_ERROR
-   DispatchTable error;
-#endif
-
-#if REGAL_EMULATION
-   DispatchTable emulation;
-#endif
-
-#if REGAL_CACHE
-   DispatchTable cache;
-#endif
-
-#if REGAL_CODE
-   DispatchTable code;
-#endif
-
-#if REGAL_LOG
-   DispatchTable logging;
-#endif
-
-   DispatchTable driver;      // Underlying OpenGL/ES implementation
-
-   DispatchTable missing;     // Must have this last
-
-public:
   Dispatcher();
   ~Dispatcher();
 
-  void push_back(DispatchTable &table, bool enable);
+  inline std::size_t size() const
+  {
+    return _size;
+  }
+
+protected:
+  void push_back(DispatchTable &table, bool enable);           // Push to the back of the stack
+  bool erase    (DispatchTable &table);                        // Remove from dispatch stack
+  bool insert   (DispatchTable &other, DispatchTable &table);  // Insert before the other
 
   inline void
   enable(DispatchTable &table)
@@ -95,11 +75,6 @@ public:
   inline bool isEnabled(DispatchTable &table) const
   {
     return table._enabled;
-  }
-
-  inline std::size_t size() const
-  {
-    return _size;
   }
 
   inline DispatchTable &operator[](const std::size_t i)

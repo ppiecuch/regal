@@ -49,6 +49,9 @@ namespace Emu {
 using namespace ::REGAL_NAMESPACE_INTERNAL::Logging;
 using namespace ::REGAL_NAMESPACE_INTERNAL::Token;
 
+const GLenum So::index2Enum[17] = { GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_1D_ARRAY, GL_TEXTURE_2D_ARRAY, GL_TEXTURE_RECTANGLE, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_2D_MULTISAMPLE_ARRAY, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, REGAL_NUM_TEXTURE_TARGETS };
+
+
 void
 So::GenSamplers(GLsizei count, GLuint *samplers)
 {
@@ -103,6 +106,9 @@ So::BindSampler(GLuint unit, GLuint so)
         Warning("Unrecognized sampler object: so = ", so);
         return;
     }
+
+    if (so>0)
+        noSamplersInUse = false;
 
     SamplingState *pso = so != 0 ? samplerObjects[so] : NULL;
 
@@ -202,7 +208,7 @@ So::BindTexture(RegalContext &ctx, GLuint unit, GLenum target, GLuint to)
       }
     }
 
-    DispatchTable &tbl = ctx.dispatcher.emulation;
+    DispatchTableGL &tbl = ctx.dispatcher.emulation;
 
     GLuint originallyActiveUnit = activeTextureUnit;
 
@@ -237,6 +243,9 @@ So::ActiveTexture( RegalContext &ctx, GLenum tex )
 void
 So::PreDraw( RegalContext &ctx )
 {
+  if (noSamplersInUse)
+    return;
+
   Internal("Regal::So::PreDraw",&ctx);
 
   GLuint originallyActiveUnit = activeTextureUnit;
@@ -251,7 +260,7 @@ So::PreDraw( RegalContext &ctx )
     {
       TextureState* ts = tu.boundTextureObjects[tt];
       GLenum target = TT_Index2Enum( tt );
-      if( target != GL_TEXTURE_2D ) 
+      if( target != GL_TEXTURE_2D )
         continue;
 
       //Internal( "RegalSo unit", unit, " texture ", ts ? ts->name : 0, " for sampler ", pSS ? pSS->name : 0 );
@@ -304,7 +313,7 @@ So::SendStateToDriver(RegalContext &ctx, GLuint unit, GLenum target, SamplingSta
     return sent;
   }
 
-  if (REGAL_FORCE_ES2_PROFILE || ctx.info->gles)
+  if (REGAL_FORCE_ES2_PROFILE || ctx.info->es2)
   {
     if (target != GL_TEXTURE_2D && target != GL_TEXTURE_CUBE_MAP)
     {
@@ -312,7 +321,7 @@ So::SendStateToDriver(RegalContext &ctx, GLuint unit, GLenum target, SamplingSta
     }
   }
 
-  DispatchTable &tbl = ctx.dispatcher.emulation;
+  DispatchTableGL &tbl = ctx.dispatcher.emulation;
 
   if (newState.BorderColor[0] != drv.BorderColor[0] ||
       newState.BorderColor[1] != drv.BorderColor[1] ||
@@ -321,7 +330,7 @@ So::SendStateToDriver(RegalContext &ctx, GLuint unit, GLenum target, SamplingSta
   {
     if (activeTextureUnit != unit)
       ActiveTexture(ctx, GL_TEXTURE0 + unit );
-    tbl.glTexParameteriv( target, GL_TEXTURE_BORDER_COLOR, newState.BorderColor);
+    tbl.glTexParameterfv( target, GL_TEXTURE_BORDER_COLOR, newState.BorderColor);
     drv.BorderColor[0] = newState.BorderColor[0];
     drv.BorderColor[1] = newState.BorderColor[1];
     drv.BorderColor[2] = newState.BorderColor[2];

@@ -158,7 +158,7 @@ __glutSetWindow(GLUTwindow * window)
 
 #if !defined(_WIN32)
   /* We should be careful to force a finish between each
-     iteration through the GLUT main loop if indirect OpenGL 
+     iteration through the GLUT main loop if indirect OpenGL
      contexts are in use; indirect contexts tend to have  much
      longer latency because lots of OpenGL extension requests
      can queue up in the X protocol stream.  We accomplish this
@@ -739,7 +739,7 @@ glutCreateWindow(const char *title)
   textprop.format = 8;
   textprop.nitems = (unsigned long) strlen(title);
 #if defined(_WIN32)
-  SetWindowTextA(win, title);
+  __glutSetWindowText(win, title);
   if (__glutIconic) {
     window->desiredMapState = IconicState;
   }

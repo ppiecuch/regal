@@ -1,6 +1,6 @@
 /*
-  Copyright (c) 2011-2012 NVIDIA Corporation
-  Copyright (c) 2011-2012 Cass Everitt
+  Copyright (c) 2011-2013 NVIDIA Corporation
+  Copyright (c) 2011-2013 Cass Everitt
   Copyright (c) 2012 Scott Nations
   Copyright (c) 2012 Mathias Schott
   Copyright (c) 2012 Nigel Stewart
@@ -37,7 +37,7 @@ REGAL_GLOBAL_BEGIN
 
 #include "RegalInit.h"
 
-#if !(REGAL_SYS_WGL || (REGAL_SYS_PPAPI && !defined(__native_client__)))
+#if !REGAL_SYS_WIN32
 #include <pthread.h>
 #endif
 
@@ -62,6 +62,8 @@ REGAL_GLOBAL_END
 REGAL_NAMESPACE_BEGIN
 
 struct RegalContext;
+struct DispatchTableGL;
+struct DispatchTableGlobal;
 
 namespace Thread
 {
@@ -93,45 +95,80 @@ inline Thread Self()
 #endif
 }
 
+// Three TLS items - the current RegalContext,
+// and the dispatch table pointers for plugins
+// calling back into Regal.
+
+struct ThreadLocal
+{
+  inline ThreadLocal()
+  : currentContext(NULL),
+    nextDispatchTable(NULL),
+    nextDispatchTableGlobal(NULL)
+  {
+  }
+
+  RegalContext        *currentContext;
+  DispatchTableGL     *nextDispatchTable;
+  DispatchTableGlobal *nextDispatchTableGlobal;
+
+  // Platform-specifics for thread-local storage
+
+  #if REGAL_NO_TLS
+  static ThreadLocal _instance;
+  #else
+    #if REGAL_SYS_WGL
+      #if REGAL_WIN_TLS
+        static DWORD _instanceIndex;
+      #else
+        static __declspec(thread) ThreadLocal _instance;
+      #endif
+    #else
+      static pthread_key_t _instanceKey;
+    #endif
+  #endif
+
+  // Cross-platform thread local storage lookup
+
+  static inline ThreadLocal &instance()
+  {
+    #if REGAL_NO_TLS
+      return _instance;
+    #elif REGAL_SYS_WGL
+      #if REGAL_WIN_TLS
+        ThreadLocal *i = static_cast<ThreadLocal *>(TlsGetValue(_instanceIndex));
+        if (!i)
+        {
+          i = new ThreadLocal();
+          TlsSetValue(_instanceIndex,i);
+        }
+        RegalAssert(i);
+        return *i;
+      #else
+        return _instance;
+      #endif
+    #else
+      ThreadLocal *i = static_cast<ThreadLocal *>(pthread_getspecific(_instanceKey));
+      if (!i)
+      {
+        i = new ThreadLocal();
+        pthread_setspecific(_instanceKey,i);
+      }
+      RegalAssert(i);
+      return *i;
+    #endif
+  }
+};
+
+
 //
 // Thread::CurrentContext()
 //
 
-#if REGAL_NO_TLS
-extern RegalContext *currentContext;
-#else
-#if REGAL_SYS_WGL
-#if REGAL_WIN_TLS
-extern DWORD currentContextIndex;
-#else
-extern __declspec( thread ) void *currentContext;
-#endif
-#else
-extern pthread_key_t currentContextKey;
-#endif
-#endif
-
-inline void *CurrentContext()
+inline RegalContext *CurrentContext()
 {
-#if REGAL_NO_TLS
-  return currentContext;
-#elif REGAL_SYS_WGL
-#if REGAL_WIN_TLS
-  return TlsGetValue(currentContextIndex);
-#else
-  return currentContext;
-#endif
-#elif REGAL_SYS_OSX
-  void *v = pthread_getspecific(currentContextKey);
-  if (!v)
-  {
-    Init::makeCurrent(CGLGetCurrentContext());
-    return pthread_getspecific(currentContextKey);
-  }
-  return v;
-#else
-  return pthread_getspecific(currentContextKey);
-#endif
+  ThreadLocal &instance = ThreadLocal::instance();
+  return instance.currentContext;
 }
 
 //
@@ -172,7 +209,7 @@ inline std::size_t threadId()
 
 }
 
-#define REGAL_GET_CONTEXT() ((RegalContext *) Thread::CurrentContext())
+#define REGAL_GET_CONTEXT() (::REGAL_NAMESPACE_INTERNAL::Thread::CurrentContext())
 
 REGAL_NAMESPACE_END
 

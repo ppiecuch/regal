@@ -69,13 +69,17 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\x64\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\Win32\Regaltest\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\x64\Regaltest\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">regaltest</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">regaltest</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">regaltest</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">regaltest</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>../../../../src/googletest/include;../../../../src/boost;../../../../src/regal;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GTEST_HAS_RTTI=0;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../../src/googletest/include;../../../../src/googlemock/include;../../../../src/googlemock;../../../../src/boost;../../../../src/regal;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GTEST_HAS_RTTI=0;REGAL_SYS_WGL_DECLARE_WGL;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -88,10 +92,11 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>gtestlib.lib;regallib.lib;mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;advapi32.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\Win32\regaltest.exe</OutputFile>
+      <AdditionalDependencies>gtestlib.lib;regallib.lib;mongooselib.lib;md5lib.lib;jsonsllib.lib;squishlib.lib;apitracelib.lib;snappylib.lib;pnglib.lib;zlib.lib;advapi32.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Release\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
@@ -113,8 +118,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>../../../../src/googletest/include;../../../../src/boost;../../../../src/regal;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GTEST_HAS_RTTI=0;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../../src/googletest/include;../../../../src/googlemock/include;../../../../src/googlemock;../../../../src/boost;../../../../src/regal;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GTEST_HAS_RTTI=0;REGAL_SYS_WGL_DECLARE_WGL;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -128,10 +133,11 @@
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>  /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>gtestlib.lib;regallib.lib;mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;advapi32.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Release\x64\regaltest.exe</OutputFile>
+      <AdditionalDependencies>gtestlib.lib;regallib.lib;mongooselib.lib;md5lib.lib;jsonsllib.lib;squishlib.lib;apitracelib.lib;snappylib.lib;pnglib.lib;zlib.lib;advapi32.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Release\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
@@ -151,8 +157,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../../src/googletest/include;../../../../src/boost;../../../../src/regal;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GTEST_HAS_RTTI=0;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../../src/googletest/include;../../../../src/googlemock/include;../../../../src/googlemock;../../../../src/boost;../../../../src/regal;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GTEST_HAS_RTTI=0;REGAL_SYS_WGL_DECLARE_WGL;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -165,10 +171,11 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalOptions> %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>gtestlib.lib;regallib.lib;mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;advapi32.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\Win32\regaltest.exe</OutputFile>
+      <AdditionalDependencies>gtestlib.lib;regallib.lib;mongooselib.lib;md5lib.lib;jsonsllib.lib;squishlib.lib;apitracelib.lib;snappylib.lib;pnglib.lib;zlib.lib;advapi32.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Debug\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
@@ -190,8 +197,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../../src/googletest/include;../../../../src/boost;../../../../src/regal;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GTEST_HAS_RTTI=0;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../../src/googletest/include;../../../../src/googlemock/include;../../../../src/googlemock;../../../../src/boost;../../../../src/regal;../../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GTEST_HAS_RTTI=0;REGAL_SYS_WGL_DECLARE_WGL;_ITERATOR_DEBUG_LEVEL=0;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -204,10 +211,11 @@
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>  /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>gtestlib.lib;regallib.lib;mongooselib.lib;md5lib.lib;pnglib.lib;zlib.lib;advapi32.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>Debug\x64\regaltest.exe</OutputFile>
+      <AdditionalDependencies>gtestlib.lib;regallib.lib;mongooselib.lib;md5lib.lib;jsonsllib.lib;squishlib.lib;apitracelib.lib;snappylib.lib;pnglib.lib;zlib.lib;advapi32.lib;gdi32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>Debug\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile></ModuleDefinitionFile>
@@ -226,8 +234,15 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\tests\RegalDispatchGMock.cpp" />
+    <ClCompile Include="..\..\..\..\tests\testRegalHelper.cpp" />
+    <ClCompile Include="..\..\..\..\tests\testRegalJson.cpp" />
     <ClCompile Include="..\..\..\..\tests\testRegalPixelConversions.cpp" />
+    <ClCompile Include="..\..\..\..\tests\testRegalPpa.cpp" />
+    <ClCompile Include="..\..\..\..\tests\testRegalPpca.cpp" />
+    <ClCompile Include="..\..\..\..\tests\testRegalState.cpp" />
     <ClCompile Include="..\..\..\..\tests\testRegalTexC.cpp" />
+    <ClCompile Include="..\..\..\..\tests\testRegalToken.cpp" />
     <ClCompile Include="..\..\..\..\tests\testStringList.cpp" />
     <ClCompile Include="..\..\..\..\tests\test_main.cpp" />
   </ItemGroup>

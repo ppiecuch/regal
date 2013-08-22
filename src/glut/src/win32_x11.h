@@ -3,8 +3,8 @@
 
 /* Copyright (c) Nate Robins, 1997. */
 
-/* This program is freely distributable without licensing fees 
-   and is provided without guarantee or warrantee expressed or 
+/* This program is freely distributable without licensing fees
+   and is provided without guarantee or warrantee expressed or
    implied. This program is -not- in the public domain. */
 
 #include <GL/Regal.h>
@@ -38,31 +38,31 @@ typedef int Status;
    to Grab requests.  Not to be confused with event names.  */
 
 #define NoEventMask			0L
-#define KeyPressMask			(1L<<0)  
-#define KeyReleaseMask			(1L<<1)  
-#define ButtonPressMask			(1L<<2)  
-#define ButtonReleaseMask		(1L<<3)  
-#define EnterWindowMask			(1L<<4)  
-#define LeaveWindowMask			(1L<<5)  
-#define PointerMotionMask		(1L<<6)  
-#define PointerMotionHintMask		(1L<<7)  
-#define Button1MotionMask		(1L<<8)  
-#define Button2MotionMask		(1L<<9)  
-#define Button3MotionMask		(1L<<10) 
-#define Button4MotionMask		(1L<<11) 
-#define Button5MotionMask		(1L<<12) 
-#define ButtonMotionMask		(1L<<13) 
+#define KeyPressMask			(1L<<0)
+#define KeyReleaseMask			(1L<<1)
+#define ButtonPressMask			(1L<<2)
+#define ButtonReleaseMask		(1L<<3)
+#define EnterWindowMask			(1L<<4)
+#define LeaveWindowMask			(1L<<5)
+#define PointerMotionMask		(1L<<6)
+#define PointerMotionHintMask		(1L<<7)
+#define Button1MotionMask		(1L<<8)
+#define Button2MotionMask		(1L<<9)
+#define Button3MotionMask		(1L<<10)
+#define Button4MotionMask		(1L<<11)
+#define Button5MotionMask		(1L<<12)
+#define ButtonMotionMask		(1L<<13)
 #define KeymapStateMask			(1L<<14)
-#define ExposureMask			(1L<<15) 
-#define VisibilityChangeMask		(1L<<16) 
-#define StructureNotifyMask		(1L<<17) 
-#define ResizeRedirectMask		(1L<<18) 
-#define SubstructureNotifyMask		(1L<<19) 
-#define SubstructureRedirectMask	(1L<<20) 
-#define FocusChangeMask			(1L<<21) 
-#define PropertyChangeMask		(1L<<22) 
-#define ColormapChangeMask		(1L<<23) 
-#define OwnerGrabButtonMask		(1L<<24) 
+#define ExposureMask			(1L<<15)
+#define VisibilityChangeMask		(1L<<16)
+#define StructureNotifyMask		(1L<<17)
+#define ResizeRedirectMask		(1L<<18)
+#define SubstructureNotifyMask		(1L<<19)
+#define SubstructureRedirectMask	(1L<<20)
+#define FocusChangeMask			(1L<<21)
+#define PropertyChangeMask		(1L<<22)
+#define ColormapChangeMask		(1L<<23)
+#define OwnerGrabButtonMask		(1L<<24)
 
 /* Key masks. Used as modifiers to GrabButton and GrabKey, results of
    QueryPointer, state in various key-, mouse-, and button-related
@@ -138,7 +138,7 @@ typedef int Status;
 #define DoGreen			(1<<1)
 #define DoBlue			(1<<2)
 
-/* 
+/*
  * Bitmask returned by XParseGeometry().  Each bit tells if the corresponding
  * value (x, y, width, height) was found in the parsed string.
  */
@@ -228,7 +228,7 @@ typedef struct {
   SetWindowPos(window, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)
 
 #define XSetWMName(display, window, tp) \
-  SetWindowTextA(window, (const char *)(tp)->value)
+  __glutSetWindowText(window, (const char *)(tp)->value)
 
 /* There really isn't a way to set the icon name separate from the
    windows name in Win32, so, just set the windows name. */
@@ -266,7 +266,7 @@ extern Colormap XCreateColormap(
 extern void XAllocColorCells(
   Display* display,
   Colormap colormap,
-  Bool contig, 
+  Bool contig,
   unsigned long plane_masks_return[],
   unsigned int nplanes,
   unsigned long pixels_return[],
@@ -284,16 +284,16 @@ extern void XSetWindowColormap(
 
 extern Bool XTranslateCoordinates(
   Display *display,
-  Window src, Window dst, 
-  int src_x, int src_y, 
+  Window src, Window dst,
+  int src_x, int src_y,
   int* dest_x_return, int* dest_y_return,
   Window* child_return);
 
 extern Status XGetGeometry(
   Display* display,
   Window window,
-  Window* root_return, 
-  int* x_return, int* y_return, 
+  Window* root_return,
+  int* x_return, int* y_return,
   unsigned int* width_return, unsigned int* height_return,
   unsigned int *border_width_return,
   unsigned int* depth_return);
@@ -308,14 +308,14 @@ extern int DisplayHeightMM(
 
 extern void XWarpPointer(
   Display* display,
-  Window src, Window dst, 
+  Window src, Window dst,
   int src_x, int src_y,
-  int src_width, int src_height, 
+  int src_width, int src_height,
   int dst_x, int dst_y);
 
 extern int XParseGeometry(
   char* string,
-  int* x, int* y, 
+  int* x, int* y,
   unsigned int* width, unsigned int* height);
 
 extern int XPending(

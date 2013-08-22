@@ -59,18 +59,15 @@ def generateLookupSource(apis, args):
     names.sort()
 
     # offset table
-    table = "DispatchTableGlobal"
+    table = "Dispatch::Global"
     if( i.name == "gl" ):
-        table = "DispatchTable"
+        table = "Dispatch::GL"
 
     for j in names:
       if j in regalOnly:
         code.append("  0,")
       else:
-        if i.name == "gl":
-          code.append("  offsetof(%s,%s)/sizeof(void *),"%(table,j))
-        else:
-          code.append("  ((char *)(&dispatchTableGlobal.%s)-(char *)(&dispatchTableGlobal))/sizeof(void *),"%(j))
+        code.append("  offsetof(%s,%s)/sizeof(void *),"%(table,j))
 
     code.append( '  0')
     code.append('};')

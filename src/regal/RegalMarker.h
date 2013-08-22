@@ -62,52 +62,64 @@ struct Marker {
     Internal("Regal::Marker::Init","()");
   }
 
-  void InsertEventMarker(RegalContext &ctx, GLsizei length, const char *marker)
+  void InsertEventMarker(RegalContext &ctx, const std::string &marker)
   {
     UNUSED_PARAMETER(ctx);
-    Internal("Regal::Marker::InsertEventMarker","()");
-    std::string m = toString(length,marker);
-    Info("/* ",m," */");
+    UNUSED_PARAMETER(marker);
+    Internal("Regal::Marker::InsertEventMarker","marker=",marker);
+    //Info("// ",marker);
   }
 
-  void InsertEventMarker(RegalContext &ctx, GLsizei length, const void *marker)
-  {
-    InsertEventMarker(ctx,length,static_cast<const char *>(marker));
-  }
-
-  void PushGroupMarker(RegalContext &ctx, GLsizei length, const char *marker)
+  void PushGroupMarker(RegalContext &ctx, const std::string &marker)
   {
     UNUSED_PARAMETER(ctx);
-    Internal("Regal::Marker::PushGroupMarker","()");
-    std::string m = toString(length,marker);
-//  Info("/* ",m," ... */");
-    markerStack.push_back(std::string());
-    markerStack.back().swap(m);
+    Internal("Regal::Marker::PushGroupMarker","marker=",marker);
+    //Info("// ",marker," ...");
+    markerStack.push_back(marker);
   }
 
   void PopGroupMarker(RegalContext &ctx)
   {
     UNUSED_PARAMETER(ctx);
-    Internal("Regal::Marker::PopGroupMarkerEXT","()");
-    std::string m;
-    m.swap(markerStack.back());
+    Internal("Regal::Marker::PopGroupMarker","()");
+    std::string marker;
+    if (markerStack.size())
+      marker.swap(markerStack.back());
     markerStack.pop_back();
-//  Info("/* ... ",m," */");
+    //Info("// ... ",marker);
   }
 
   void FrameTerminator(RegalContext &ctx);
 
   std::size_t indent() const { return markerStack.size()*2; }
 
-  private:
+  public:
 
-    std::string
-    toString(GLsizei length, const char *marker)
+    // GL_EXT_debug_marker
+    // http://www.khronos.org/registry/gles/extensions/EXT/EXT_debug_marker.txt
+    //... If length is 0 then marker is assumed to be null-terminated....
+
+    static inline std::string
+    toStringEXT(GLsizei length, const char *marker)
+    {
+      if (length<=0 || !marker)
+        return std::string(marker ? marker : "");
+      return std::string(marker,length);
+    }
+
+    // GL_KHR_debug
+    // http://www.opengl.org/registry/specs/KHR/debug.txt
+    // ... If length is negative, it is implied that message contains
+    // a null terminated string...
+
+    static inline std::string
+    toStringKHR(GLsizei length, const char *marker)
     {
       if (length==0 || !marker)
-        return std::string(marker ? marker : "");
-      else
-        return std::string(marker,length);
+        return std::string();
+      if (length<0)
+        return std::string(marker);
+      return std::string(marker,length);
     }
 
     std::list< std::string > markerStack;

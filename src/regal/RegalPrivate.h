@@ -93,7 +93,6 @@ inline void doubleToFloat(GLfloat *dest, const GLdouble *src, const std::size_t 
 
 using ::RegalErrorCallback;
 
-#define REGAL_DECL_EXPORT 1
 #define REGAL_SYS_WGL_DECLARE_WGL 1
 
 // attrib mapping

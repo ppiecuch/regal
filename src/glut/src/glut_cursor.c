@@ -14,7 +14,7 @@
 
 typedef struct _CursorTable {
 #if defined(_WIN32)
-  char* glyph;
+  TCHAR *glyph;
 #else
   int glyph;
 #endif

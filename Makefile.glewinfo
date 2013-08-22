@@ -1,0 +1,63 @@
+ifndef MAKEFILE_GLEWINFO_INCLUDED
+MAKEFILE_GLEWINFO_INCLUDED := 1
+
+.PHONY: glewinfo.bin glewinfo.clean
+
+include build/common.inc
+
+# Not supported for NaCL or emscripten
+
+ifeq ($(filter nacl% emscripten%,$(SYSTEM)),)
+
+#
+# RegalGLEW glewinfo
+#
+
+include Makefile.regal
+include Makefile.glew
+
+ifndef REGAL.STATIC
+$(error glewinfo needs Regal.)
+endif
+
+ifndef GLEW.STATIC
+$(error glewinfo needs GLEW.)
+endif
+
+all:: glewinfo.bin
+
+clean:: glewinfo.clean
+
+GLEWINFO.SRCS       += src/glew/src/glewinfo.c
+GLEWINFO.SRCS.NAMES := $(notdir $(GLEWINFO.SRCS))
+GLEWINFO.OBJS       := $(addprefix tmp/$(SYSTEM)/glewinfo/static/,$(GLEWINFO.SRCS.NAMES))
+GLEWINFO.OBJS       := $(GLEWINFO.OBJS:.c=.o)
+GLEWINFO.DEPS       := $(GLEWINFO.OBJS:.o=.d)
+GLEWINFO.CFLAGS     := -Iinclude -Isrc/glew/include -DGLEW_REGAL -DGLEW_NO_GLU
+GLEWINFO.LIBS       += -Llib/$(SYSTEM) $(LDFLAGS.X11) $(LDFLAGS.AGL)
+
+ifneq ($(filter linux%,$(SYSTEM)),)
+GLEWINFO.LIBS       += -lX11
+endif
+
+-include $(GLEWINFO.DEPS)
+
+glewinfo.bin: bin/$(SYSTEM)/glewinfo
+
+glewinfo.clean:
+	$(RM) -r tmp/$(SYSTEM)/glewinfo/static
+	$(RM) -r bin/$(SYSTEM)/glewinfo
+
+tmp/$(SYSTEM)/glewinfo/static/%.o: src/glew/src/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(GLEWINFO.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+bin/$(SYSTEM)/glewinfo: $(GLEWINFO.OBJS) lib/$(SYSTEM)/$(GLEW.SHARED) lib/$(SYSTEM)/$(REGAL.SHARED)
+	@mkdir -p $(dir $@)
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) -o $@ $(GLEWINFO.OBJS) lib/$(SYSTEM)/$(GLEW.SHARED) lib/$(SYSTEM)/$(REGAL.SHARED) $(GLEWINFO.LIBS) $(REGAL.LDFLAGS)
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif

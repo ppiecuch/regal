@@ -1,0 +1,102 @@
+ifndef MAKEFILE_GLU_INCLUDED
+MAKEFILE_GLU_INCLUDED := 1
+
+.PHONY: glu.lib glu.clean
+
+include build/common.inc
+
+include build/glu.inc
+
+#
+# RegalGLU
+#
+
+# Not supported for NaCL or emscripten, yet
+
+ifneq ($(filter nacl% emscripten%,$(SYSTEM)),)
+GLU.SHARED     :=
+endif
+
+ifdef GLU.STATIC
+
+include Makefile.regal
+
+ifndef REGAL.STATIC
+$(error RegalGLU needs Regal.)
+endif
+
+all:: glu.lib
+
+clean:: glu.clean
+
+GLU.SRCS       := $(GLU.C) $(GLU.CXX)
+GLU.SRCS.NAMES := $(notdir $(GLU.SRCS))
+GLU.OBJS       := $(addprefix tmp/$(SYSTEM)/glu/shared/,$(GLU.SRCS.NAMES))
+GLU.OBJS       := $(GLU.OBJS:.c=.o) $(GLU.OBJS:.cc=.o)
+GLU.OBJS       := $(filter %.o,$(GLU.OBJS))
+GLU.DEPS       := $(GLU.OBJS:.o=.d)
+GLU.LIBS       := -Llib/$(SYSTEM) -lRegal
+GLU.LIBS       += -pthread -lm
+
+-include $(GLU.DEPS)
+
+ifdef GLU.STATIC
+glu.lib: lib/$(SYSTEM)/$(GLU.STATIC)
+endif
+
+ifdef GLU.SHARED
+glu.lib: lib/$(SYSTEM)/$(GLU.SHARED)
+endif
+
+glu.clean:
+	$(RM) -r tmp/$(SYSTEM)/glu/shared
+ifdef GLU.STATIC
+	$(RM) -r lib/$(SYSTEM)/$(GLU.STATIC)
+endif
+ifdef GLU.SHARED
+	$(RM) -r lib/$(SYSTEM)/$(GLU.SHARED)
+endif
+
+tmp/$(SYSTEM)/glu/shared/%.o: src/glu/libtess/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(PICFLAG) $(GLU.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+tmp/$(SYSTEM)/glu/shared/%.o: src/glu/libutil/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(PICFLAG) $(GLU.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+tmp/$(SYSTEM)/glu/shared/%.o: src/glu/libnurbs/interface/%.cc
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CC) $(PICFLAG) $(GLU.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+tmp/$(SYSTEM)/glu/shared/%.o: src/glu/libnurbs/internals/%.cc
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CC) $(PICFLAG) $(GLU.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+tmp/$(SYSTEM)/glu/shared/%.o: src/glu/libnurbs/nurbtess/%.cc
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CC) $(PICFLAG) $(GLU.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+
+ifdef GLU.SHARED
+lib/$(SYSTEM)/$(GLU.SHARED): $(GLU.OBJS) lib/$(SYSTEM)/$(REGAL.SHARED)
+	@mkdir -p $(dir $@)
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) $(LDFLAGS.DYNAMIC) $(GLU.LIBS) $(REGAL.LDFLAGS) -o $@ $(GLU.OBJS)
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+endif
+
+ifdef GLU.STATIC
+lib/$(SYSTEM)/$(GLU.STATIC): $(GLU.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(GLU.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+endif
+
+endif
+endif
