@@ -56,6 +56,7 @@
 
 #include "os.hpp"
 #include "os_string.hpp"
+#include "os_backtrace.hpp"
 
 
 namespace os {
@@ -175,7 +176,7 @@ int execute(char * const * args)
 
 static volatile bool logging = false;
 
-#if TRACE_OS_LOG
+#ifndef HAVE_EXTERNAL_OS_LOG
 void
 log(const char *format, ...)
 {
@@ -200,7 +201,7 @@ log(const char *format, ...)
     va_end(ap);
     logging = false;
 }
-#endif
+#endif /* !HAVE_EXTERNAL_OS_LOG */
 
 #if defined(__APPLE__)
 long long timeFrequency = 0LL;
@@ -245,11 +246,11 @@ signalHandler(int sig, siginfo_t *info, void *context)
     if (recursion_count) {
         log("apitrace: warning: recursion handling signal %i\n", sig);
     } else {
-        if (gCallback) {
-            ++recursion_count;
+        ++recursion_count;
+        if (gCallback)
             gCallback();
-            --recursion_count;
-        }
+        os::dump_backtrace();
+        --recursion_count;
     }
 
     struct sigaction *old_action;

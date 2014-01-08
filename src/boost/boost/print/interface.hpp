@@ -691,6 +691,62 @@ template<typename A1, typename A2, typename A3, typename A4, typename A5, typena
 inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20)
 { return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20); }
 
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26)+length(a27); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26)+length(a27)+length(a28); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26)+length(a27)+length(a28)+length(a29); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26)+length(a27)+length(a28)+length(a29)+length(a30); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30, typename A31>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30, const A31 &a31)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26)+length(a27)+length(a28)+length(a29)+length(a30)+length(a31); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30, typename A31, typename A32>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30, const A31 &a31, const A32 &a32)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26)+length(a27)+length(a28)+length(a29)+length(a30)+length(a31)+length(a32); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30, typename A31, typename A32, typename A33>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30, const A31 &a31, const A32 &a32, const A33 &a33)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26)+length(a27)+length(a28)+length(a29)+length(a30)+length(a31)+length(a32)+length(a33); }
+
+template<typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30, typename A31, typename A32, typename A33, typename A34>
+inline size_t length(const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30, const A31 &a31, const A32 &a32, const A33 &a33, const A34 &a34)
+{ return length(a1)+length(a2)+length(a3)+length(a4)+length(a5)+length(a6)+length(a7)+length(a8)+length(a9)+length(a10)+length(a11)+length(a12)+length(a13)+length(a14)+length(a15)+length(a16)+length(a17)+length(a18)+length(a19)+length(a20)+length(a21)+length(a22)+length(a23)+length(a24)+length(a25)+length(a26)+length(a27)+length(a28)+length(a29)+length(a30)+length(a31)+length(a32)+length(a33)+length(a34); }
+
 // Convenience functions for writing multiple items
 
 template<typename Iterator, typename A1, typename A2>
@@ -995,6 +1051,461 @@ inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A
   write(i,a18);
   write(i,a19);
   write(i,a20);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+  write(i,a27);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+  write(i,a27);
+  write(i,a28);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+  write(i,a27);
+  write(i,a28);
+  write(i,a29);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+  write(i,a27);
+  write(i,a28);
+  write(i,a29);
+  write(i,a30);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30, typename A31>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30, const A31 &a31)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+  write(i,a27);
+  write(i,a28);
+  write(i,a29);
+  write(i,a30);
+  write(i,a31);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30, typename A31, typename A32>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30, const A31 &a31, const A32 &a32)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+  write(i,a27);
+  write(i,a28);
+  write(i,a29);
+  write(i,a30);
+  write(i,a31);
+  write(i,a32);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30, typename A31, typename A32, typename A33>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30, const A31 &a31, const A32 &a32, const A33 &a33)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+  write(i,a27);
+  write(i,a28);
+  write(i,a29);
+  write(i,a30);
+  write(i,a31);
+  write(i,a32);
+  write(i,a33);
+}
+
+template<typename Iterator, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10, typename A11, typename A12, typename A13, typename A14, typename A15, typename A16, typename A17, typename A18, typename A19, typename A20, typename A21, typename A22, typename A23, typename A24, typename A25, typename A26, typename A27, typename A28, typename A29, typename A30, typename A31, typename A32, typename A33, typename A34>
+inline void write(Iterator &i, const A1 &a1, const A2 &a2, const A3 &a3, const A4 &a4, const A5 &a5, const A6 &a6, const A7 &a7, const A8 &a8, const A9 &a9, const A10 &a10, const A11 &a11, const A12 &a12, const A13 &a13, const A14 &a14, const A15 &a15, const A16 &a16, const A17 &a17, const A18 &a18, const A19 &a19, const A20 &a20, const A21 &a21, const A22 &a22, const A23 &a23, const A24 &a24, const A25 &a25, const A26 &a26, const A27 &a27, const A28 &a28, const A29 &a29, const A30 &a30, const A31 &a31, const A32 &a32, const A33 &a33, const A34 &a34)
+{
+  write(i,a1);
+  write(i,a2);
+  write(i,a3);
+  write(i,a4);
+  write(i,a5);
+  write(i,a6);
+  write(i,a7);
+  write(i,a8);
+  write(i,a9);
+  write(i,a10);
+  write(i,a11);
+  write(i,a12);
+  write(i,a13);
+  write(i,a14);
+  write(i,a15);
+  write(i,a16);
+  write(i,a17);
+  write(i,a18);
+  write(i,a19);
+  write(i,a20);
+  write(i,a21);
+  write(i,a22);
+  write(i,a23);
+  write(i,a24);
+  write(i,a25);
+  write(i,a26);
+  write(i,a27);
+  write(i,a28);
+  write(i,a29);
+  write(i,a30);
+  write(i,a31);
+  write(i,a32);
+  write(i,a33);
+  write(i,a34);
 }
 
 }}}

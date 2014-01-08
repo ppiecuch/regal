@@ -1,0 +1,222 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4336679E17C56F0B00D45AD9 /* jsonsl.c in Sources */ = {isa = PBXBuildFile; fileRef = 4336679C17C56F0B00D45AD9 /* jsonsl.c */; };
+		4336679F17C56F0B00D45AD9 /* jsonsl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4336679D17C56F0B00D45AD9 /* jsonsl.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4336679417C56EF900D45AD9 /* libjsonsl.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonsl.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4336679C17C56F0B00D45AD9 /* jsonsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jsonsl.c; path = ../../../src/jsonsl/jsonsl.c; sourceTree = "<group>"; };
+		4336679D17C56F0B00D45AD9 /* jsonsl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsonsl.h; path = ../../../src/jsonsl/jsonsl.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4336679117C56EF900D45AD9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4336678B17C56EF900D45AD9 = {
+			isa = PBXGroup;
+			children = (
+				4336679B17C56EFE00D45AD9 /* src */,
+				4336679517C56EF900D45AD9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4336679517C56EF900D45AD9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4336679417C56EF900D45AD9 /* libjsonsl.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4336679B17C56EFE00D45AD9 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4336679C17C56F0B00D45AD9 /* jsonsl.c */,
+				4336679D17C56F0B00D45AD9 /* jsonsl.h */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4336679217C56EF900D45AD9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4336679F17C56F0B00D45AD9 /* jsonsl.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		4336679317C56EF900D45AD9 /* jsonsl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4336679817C56EF900D45AD9 /* Build configuration list for PBXNativeTarget "jsonsl" */;
+			buildPhases = (
+				4336679017C56EF900D45AD9 /* Sources */,
+				4336679117C56EF900D45AD9 /* Frameworks */,
+				4336679217C56EF900D45AD9 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = jsonsl;
+			productName = jsonsl;
+			productReference = 4336679417C56EF900D45AD9 /* libjsonsl.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4336678C17C56EF900D45AD9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Cass Everitt";
+			};
+			buildConfigurationList = 4336678F17C56EF900D45AD9 /* Build configuration list for PBXProject "jsonsl" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4336678B17C56EF900D45AD9;
+			productRefGroup = 4336679517C56EF900D45AD9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4336679317C56EF900D45AD9 /* jsonsl */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4336679017C56EF900D45AD9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4336679E17C56F0B00D45AD9 /* jsonsl.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4336679617C56EF900D45AD9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = "";
+			};
+			name = Debug;
+		};
+		4336679717C56EF900D45AD9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = "";
+			};
+			name = Release;
+		};
+		4336679917C56EF900D45AD9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4336679A17C56EF900D45AD9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4336678F17C56EF900D45AD9 /* Build configuration list for PBXProject "jsonsl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4336679617C56EF900D45AD9 /* Debug */,
+				4336679717C56EF900D45AD9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4336679817C56EF900D45AD9 /* Build configuration list for PBXNativeTarget "jsonsl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4336679917C56EF900D45AD9 /* Debug */,
+				4336679A17C56EF900D45AD9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4336678C17C56EF900D45AD9 /* Project object */;
+}

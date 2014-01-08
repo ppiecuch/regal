@@ -1,0 +1,218 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4336677717C56DE400D45AD9 /* mongoose.c in Sources */ = {isa = PBXBuildFile; fileRef = 4336677617C56DE400D45AD9 /* mongoose.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4336676E17C56DC700D45AD9 /* libmongoose.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmongoose.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4336677617C56DE400D45AD9 /* mongoose.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mongoose.c; path = ../../../src/mongoose/mongoose.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4336676B17C56DC700D45AD9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4336676517C56DC600D45AD9 = {
+			isa = PBXGroup;
+			children = (
+				4336677517C56DCD00D45AD9 /* src */,
+				4336676F17C56DC700D45AD9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4336676F17C56DC700D45AD9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4336676E17C56DC700D45AD9 /* libmongoose.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4336677517C56DCD00D45AD9 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4336677617C56DE400D45AD9 /* mongoose.c */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4336676C17C56DC700D45AD9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		4336676D17C56DC700D45AD9 /* mongoose */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4336677217C56DC700D45AD9 /* Build configuration list for PBXNativeTarget "mongoose" */;
+			buildPhases = (
+				4336676A17C56DC700D45AD9 /* Sources */,
+				4336676B17C56DC700D45AD9 /* Frameworks */,
+				4336676C17C56DC700D45AD9 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = mongoose;
+			productName = mongoose;
+			productReference = 4336676E17C56DC700D45AD9 /* libmongoose.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4336676617C56DC600D45AD9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Cass Everitt";
+			};
+			buildConfigurationList = 4336676917C56DC600D45AD9 /* Build configuration list for PBXProject "mongoose" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4336676517C56DC600D45AD9;
+			productRefGroup = 4336676F17C56DC700D45AD9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4336676D17C56DC700D45AD9 /* mongoose */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4336676A17C56DC700D45AD9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4336677717C56DE400D45AD9 /* mongoose.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4336677017C56DC700D45AD9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = "";
+			};
+			name = Debug;
+		};
+		4336677117C56DC700D45AD9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = "";
+			};
+			name = Release;
+		};
+		4336677317C56DC700D45AD9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4336677417C56DC700D45AD9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4336676917C56DC600D45AD9 /* Build configuration list for PBXProject "mongoose" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4336677017C56DC700D45AD9 /* Debug */,
+				4336677117C56DC700D45AD9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4336677217C56DC700D45AD9 /* Build configuration list for PBXNativeTarget "mongoose" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4336677317C56DC700D45AD9 /* Debug */,
+				4336677417C56DC700D45AD9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4336676617C56DC600D45AD9 /* Project object */;
+}

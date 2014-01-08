@@ -44,7 +44,11 @@ REGAL_GLOBAL_END
 REGAL_NAMESPACE_BEGIN
 
 #ifndef REGAL_NO_HTTP
-#define REGAL_NO_HTTP 0
+#  if REGAL_WRANGLER
+#    define REGAL_NO_HTTP 1
+#  else
+#    define REGAL_NO_HTTP 0
+#  endif
 #endif
 
 // Http is disabled for NaCL, for now

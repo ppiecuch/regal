@@ -66,7 +66,17 @@ typedef void *HMODULE;
 extern "C" {
   HMODULE __stdcall LoadLibraryA(const char *filename);
   void *  __stdcall GetProcAddress(HMODULE hModule, const char *proc);
+  UINT    __stdcall GetSystemDirectoryA(char *lpBuffer, UINT uSize);
 }
+
+// http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+// In the Windows API ... the maximum length for a path is MAX_PATH, which is
+// defined as 260 characters...
+
+#ifndef MAX_PATH
+#define MAX_PATH 260
+#endif
+
 #endif
 
 REGAL_GLOBAL_END
@@ -74,6 +84,7 @@ REGAL_GLOBAL_END
 REGAL_NAMESPACE_BEGIN
 
 #if !REGAL_NO_ASSERT
+#if REGAL_ASSERT_VERBOSE
 void
 AssertFunction(const char *file, const size_t line, const char *expr)
 {
@@ -85,6 +96,17 @@ AssertFunction(const char *file, const size_t line, const char *expr)
   Error("Assertion Failed: ", message);
 #endif
 }
+#else
+void
+AssertFunction(const char *expr)
+{
+#ifdef REGAL_ASSERT_FUNCTION
+  REGAL_ASSERT_FUNCTION(expr ? expr : "");
+#else
+  Error("Assertion Failed: ", expr ? expr : "");
+#endif
+}
+#endif
 #endif
 
 inline const char * getEnvironment(const char * const var)
@@ -121,7 +143,9 @@ const char *libraryLocation(const Library &library)
 
   if (library==LIBRARY_GL || library==LIBRARY_WGL || library==LIBRARY_GLX)
   {
-    // First, try ... variable
+    // First, try configured variable
+
+    ret = Config::loadGL.length() ? Config::loadGL.c_str() : NULL;
 
     // Second, try default installation location
 
@@ -140,20 +164,23 @@ const char *libraryLocation(const Library &library)
 
       if (ret)
       {
-        // This string will be leaked, but needs to remain
-        // valid until we're completely shut down.
-
-        char *tmp = (char *) calloc(strlen(ret)+23,1);
-        assert(tmp);
-        if (tmp)
-        {
-          strcpy(tmp,ret);
-          strcat(tmp,"\\system32\\opengl32.dll");
-          return tmp;
-        }
-        else
-          return NULL;
+        static string opengl32;
+        if (!opengl32.length())
+          opengl32 = print_string(ret,"\\system32\\opengl32.dll");
+        return opengl32.c_str();
       }
+
+      char systemDirectory[MAX_PATH];
+      UINT n = GetSystemDirectoryA(systemDirectory,MAX_PATH);
+      if (n>0 && n<MAX_PATH)
+      {
+        static string opengl32;
+        if (!opengl32.length())
+          opengl32 = print_string(systemDirectory,"\\opengl32.dll");
+        return opengl32.c_str();
+      }
+
+      return "opengl32.dll";
 #endif
 
 #if REGAL_SYS_GLX
@@ -163,6 +190,7 @@ const char *libraryLocation(const Library &library)
         "/usr/lib/amd64/libGL.so.1",                  // Solaris
         "/usr/lib64/nvidia/libGL.so.1",               // RedHat
         "/usr/lib64/libGL.so.1",                      // RedHat
+        "/lib64/libGL.so.1",                          // Fedora 18
         "/usr/lib/nvidia-current/libGL.so.1",         // Ubuntu NVIDIA
         "/usr/lib/libGL.so.1",                        // Ubuntu
         "/usr/lib/x86_64-linux-gnu/mesa/libGL.so.1",  // Ubuntu via VMWare on Windows
@@ -225,7 +253,9 @@ const char *libraryLocation(const Library &library)
 
   if (library==LIBRARY_ES2)
   {
-    // First, try ... variable
+    // First, try configured variable
+
+    ret = Config::loadES2.length() ? Config::loadES2.c_str() : NULL;
 
     // Second, try default installation location
 
@@ -247,7 +277,9 @@ const char *libraryLocation(const Library &library)
 
   if (library==LIBRARY_EGL)
   {
-    // First, try ... variable
+    // First, try configured variable
+
+    ret = Config::loadEGL.length() ? Config::loadEGL.c_str() : NULL;
 
     // Second, try default installation location
 
@@ -368,11 +400,11 @@ void *GetProcAddress( const char * entry )
 
 // Emscripten-specific GetProcAddress.  Can match EGL and GLES symbols.
 
-extern "C" void *eglGetProcAddressEMSCRIPTEN(const char *name);
+extern "C" void *eglGetProcAddress(const char *name);
 
 void *GetProcAddress(const char *entry)
 {
-    return eglGetProcAddressEMSCRIPTEN(entry);
+    return eglGetProcAddress(entry);
 }
 
 #elif REGAL_SYS_GLX || REGAL_SYS_EGL
@@ -468,7 +500,12 @@ void *GetProcAddress(const char *entry)
     if (!lib_GL && lib_GL_filename)
     {
       Info("Loading OpenGL from ",lib_GL_filename);
-      lib_GL = dlopen( lib_GL_filename, RTLD_LAZY );
+
+      // We'd rather not use RTLD_GLOBAL, but the Linux Mesa
+      // GL implementation requires this for finding symbols
+      // in libglapi.so.0
+
+      lib_GL = dlopen( lib_GL_filename, RTLD_LAZY | RTLD_GLOBAL );
     }
   }
 #endif
@@ -524,7 +561,12 @@ void *GetProcAddress(const char *entry)
     if (!lib_GLX && lib_GLX_filename)
     {
       Info("Loading GL/GLX from: ",lib_GLX_filename);
-      lib_GLX = dlopen( lib_GLX_filename, RTLD_LAZY );
+
+      // We'd rather not use RTLD_GLOBAL, but the Linux Mesa
+      // GL implementation requires this for finding symbols
+      // in libglapi.so.0
+
+      lib_GLX = dlopen( lib_GLX_filename, RTLD_LAZY | RTLD_GLOBAL );
     }
   }
 #endif
@@ -670,6 +712,14 @@ FILE *fileOpen(const char *filename, const char *mode)
     if (!f)
     {
       string message = print_string("Failed to open ",filename," due to errno ",errno," : ",strerror(errno));
+
+      // Helpful advice for Android .apk access to /sdcard
+
+#if REGAL_SYS_ANDROID
+      if (errno==EACCES && strstr(filename, "/sdcard/"))
+        message += " - Missing WRITE_EXTERNAL_STORAGE permission in AndroidManifest.xml?";
+#endif
+
       Warning(message);
     }
     return f;

@@ -40,6 +40,8 @@
 
 #include "RegalUtil.h"
 
+#if REGAL_FRAME
+
 REGAL_GLOBAL_BEGIN
 
 #include "RegalTimer.h"
@@ -75,27 +77,33 @@ struct Frame {
   size_t              frameSamples;
   Timer               frameSimpleTimeout;
 
-  //
+  // Handlers for possible frame terminators
 
-  inline void glFrameTerminatorGREMEDY(RegalContext &ctx) { if (mode==AutoDetect) mode = FrameTerminatorGREMEDY; if (mode==FrameTerminatorGREMEDY) capture(ctx); }
-  inline void wglSwapBuffers          (RegalContext &ctx) { if (mode==AutoDetect) mode = SwapBuffers;            if (mode==SwapBuffers)            capture(ctx); }
-  inline void glXSwapBuffers          (RegalContext &ctx) { if (mode==AutoDetect) mode = SwapBuffers;            if (mode==SwapBuffers)            capture(ctx); }
-  inline void eglSwapBuffers          (RegalContext &ctx) { if (mode==AutoDetect) mode = SwapBuffers;            if (mode==SwapBuffers)            capture(ctx); }
-  inline void CGLFlushDrawable        (RegalContext &ctx) { if (mode==AutoDetect) mode = SwapBuffers;            if (mode==SwapBuffers)            capture(ctx); }
+  inline void glFrameTerminatorGREMEDY(RegalContext &ctx) { if (mode==AutoDetect) mode = FrameTerminatorGREMEDY; if (mode==FrameTerminatorGREMEDY) capture(ctx,true); }
+  inline void wglSwapBuffers          (RegalContext &ctx) { if (mode==AutoDetect) mode = SwapBuffers;            if (mode==SwapBuffers)            capture(ctx,true); }
+  inline void glXSwapBuffers          (RegalContext &ctx) { if (mode==AutoDetect) mode = SwapBuffers;            if (mode==SwapBuffers)            capture(ctx,true); }
+  inline void eglSwapBuffers          (RegalContext &ctx) { if (mode==AutoDetect) mode = SwapBuffers;            if (mode==SwapBuffers)            capture(ctx,true); }
+  inline void CGLFlushDrawable        (RegalContext &ctx) { if (mode==AutoDetect) mode = SwapBuffers;            if (mode==SwapBuffers)            capture(ctx,true); }
+  inline void glFinish                (RegalContext &ctx) { if (mode==AutoDetect) mode = Finish;                 if (mode==Finish)                 capture(ctx,true); }
+
+  inline void capture(RegalContext &ctx) { capture(ctx,false); }
 
 private:
-  void capture(RegalContext &ctx);
+  void capture(RegalContext &ctx, const bool frameTerminator);
 
   enum Mode
   {
     AutoDetect,
     FrameTerminatorGREMEDY,
-    SwapBuffers
+    SwapBuffers,
+    Finish                     // glFinish()
   };
 
   Mode mode;
 };
 
 REGAL_NAMESPACE_END
+
+#endif // REGAL_FRAME
 
 #endif

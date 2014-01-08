@@ -38,6 +38,7 @@ REGAL_GLOBAL_BEGIN
 
 #include "RegalLog.h"
 #include "RegalFilt.h"
+#include "RegalEmuInfo.h"
 #include "RegalToken.h"
 
 REGAL_GLOBAL_END
@@ -57,7 +58,7 @@ namespace Emu {
 
     if (ctx.isES2())
     {
-      switch( target )
+      switch ( target )
       {
         case GL_TEXTURE_1D:
         case GL_TEXTURE_3D:
@@ -101,6 +102,46 @@ namespace Emu {
     return false;
   }
 
+  bool Filt::TexParameter(const RegalContext &ctx, GLenum target, GLenum pname)
+  {
+    UNUSED_PARAMETER(target);
+
+    RegalAssert(ctx.info.get());
+
+    // ES 2.0 does not support GL_TEXTURE_WRAP_R, filter it out
+    // See: http://www.khronos.org/opengles/sdk/docs/man/xhtml/glTexParameter.xml
+
+    if (ctx.isES2())
+      switch (pname)
+      {
+        case GL_TEXTURE_MIN_FILTER:
+        case GL_TEXTURE_MAG_FILTER:
+        case GL_TEXTURE_WRAP_S:
+        case GL_TEXTURE_WRAP_T:
+          break;
+
+        // sRGB is supported for Tegra 4 onwards
+
+        case GL_TEXTURE_SRGB_DECODE_EXT:
+          if (ctx.info->gl_ext_texture_srgb_decode)
+            return false;
+
+        // GL_EXT_shadow_samplers for Tegra 4
+        // http://www.khronos.org/registry/gles/extensions/EXT/EXT_shadow_samplers.txt
+
+        case GL_TEXTURE_COMPARE_MODE_EXT:
+        case GL_TEXTURE_COMPARE_FUNC_EXT:
+          if (ctx.info->gl_ext_shadow_samplers)
+            return false;
+
+        default:
+          Warning("glTexParameter ",GLenumToString(pname)," not supported for ES 2.0.");
+          return true;
+      }
+
+    return false;
+  }
+
   bool Filt::FilterTexParameter(const RegalContext &ctx, GLenum target, GLenum pname, GLfloat param, GLfloat &newParam)
   {
     UNUSED_PARAMETER(ctx);
@@ -109,20 +150,22 @@ namespace Emu {
     if (!ctx.isES2() && !ctx.isCore())
       return false;
 
-    switch(pname)
+    switch (pname)
     {
       case GL_TEXTURE_WRAP_S:
       case GL_TEXTURE_WRAP_T:
       case GL_TEXTURE_WRAP_R:
-        switch(int(param))
+        switch (int(param))
         {
           case GL_CLAMP:
             Warning("Regal does not support GL_CLAMP wrap mode for core or ES 2.0 profiles - remapping to equivalent GL_CLAMP_TO_EDGE");
             newParam = GL_CLAMP_TO_EDGE;
             return true;
-          default: break;
+          default:
+            break;
         }
-      default: break;
+      default:
+        break;
     }
 
     return false;
@@ -138,7 +181,7 @@ namespace Emu {
     if (!ctx.isES2())
       return false;
 
-    switch(target)
+    switch (target)
     {
       case GL_PROXY_TEXTURE_CUBE_MAP:
         Warning( "Regal does not support PROXY_TEXTURE_CUBE_MAP as target for ES 2.0 profile" );
@@ -205,7 +248,7 @@ namespace Emu {
     if (!ctx.isES2())
       return false;
 
-    switch(target)
+    switch (target)
     {
       case GL_TEXTURE_2D:
       case GL_TEXTURE_CUBE_MAP:
@@ -235,7 +278,7 @@ namespace Emu {
     if (!ctx.isES2() || !ctx.info->gl_nv_read_buffer)
       return false;
 
-    switch(src)
+    switch (src)
     {
       // These two should always be supported w/o additional extensions
       case GL_COLOR_ATTACHMENT0:
@@ -325,7 +368,7 @@ namespace Emu {
 
     if (ctx.isES2())
     {
-      switch(pname)
+      switch (pname)
       {
         case GL_PACK_ALIGNMENT:
         case GL_UNPACK_ALIGNMENT:
@@ -420,8 +463,8 @@ namespace Emu {
         case GL_MAX_PIXEL_MAP_TABLE:           retVal = 256;  break;
         case GL_MAX_NAME_STACK_DEPTH:          retVal = 128;  break;
         case GL_MAX_LIST_NESTING:              retVal = 64;   break;
-        case GL_MAX_CLIENT_ATTRIB_STACK_DEPTH:
-        case GL_MAX_ATTRIB_STACK_DEPTH:        retVal = 16;   break;
+        case GL_MAX_CLIENT_ATTRIB_STACK_DEPTH: retVal = ctx.emuInfo->gl_max_client_attrib_stack_depth;   break;
+        case GL_MAX_ATTRIB_STACK_DEPTH:        retVal = ctx.emuInfo->gl_max_attrib_stack_depth;          break;
 
         case GL_DEPTH_BITS:                    retVal = 24;   break;
 
@@ -552,6 +595,13 @@ namespace Emu {
             retVal = GL_NONE;
           break;
 
+        // GL_CONTEXT_PROFILE_MASK not relevant for ES 2.0
+
+        case GL_CONTEXT_PROFILE_MASK:
+          retVal = GL_NONE;
+          filtered = true;
+          break;
+
         default:
           filtered = false;
           break;
@@ -581,7 +631,7 @@ namespace Emu {
 
     if (ctx.isES2())
     {
-      switch( target )
+      switch ( target )
       {
         case GL_PROXY_TEXTURE_CUBE_MAP:
           Warning( "Regal does not support PROXY_TEXTURE_CUBE_MAP as target for TexImage2D for ES 2.0 profile" );

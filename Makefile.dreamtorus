@@ -50,8 +50,8 @@ tmp/$(SYSTEM)/dreamtorus/static/%.o: examples/dreamtorus/glut/code/%.cpp
 	@mkdir -p $(dir $@)
 	$(LOG_CXX)$(CCACHE) $(CXX) $(DREAMTORUS.CFLAGS) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
 
-DREAMTORUS.DEPEND :=  
-DREAMTORUS.DEPEND += lib/$(SYSTEM)/$(REGAL.SHARED) 
+DREAMTORUS.DEPEND :=
+DREAMTORUS.DEPEND += lib/$(SYSTEM)/$(REGAL.SHARED)
 
 ifdef GLUT.SHARED
 bin/$(SYSTEM)/dreamtorus: lib/$(SYSTEM)/$(GLUT.SHARED) lib/$(SYSTEM)/$(GLU.SHARED)

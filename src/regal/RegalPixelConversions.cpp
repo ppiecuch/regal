@@ -40,6 +40,8 @@
 
 #include "RegalUtil.h"
 
+#if REGAL_EMULATION
+
 REGAL_GLOBAL_BEGIN
 
 #include <map>
@@ -165,3 +167,5 @@ IConversion *GetConversionInterface(GLenum format, GLenum type)
 }
 
 REGAL_NAMESPACE_END
+
+#endif // REGAL_EMULATION

@@ -109,7 +109,7 @@ static void REGAL_CALL code_glBegin(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glBegin(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -928,7 +928,7 @@ static void REGAL_CALL code_glColorMaterial(GLenum face, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glColorMaterial(";
                    _code << toString(face);
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -964,7 +964,7 @@ static void REGAL_CALL code_glCullFace(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glCullFace(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -1319,7 +1319,7 @@ static void REGAL_CALL code_glEvalMesh1(GLenum mode, GLint i1, GLint i2)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glEvalMesh1(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << i1;
     _code << ", "; _code << i2;
     _code << ");\n";
@@ -1337,7 +1337,7 @@ static void REGAL_CALL code_glEvalMesh2(GLenum mode, GLint i1, GLint i2, GLint j
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glEvalMesh2(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << i1;
     _code << ", "; _code << i2;
     _code << ", "; _code << j1;
@@ -1504,7 +1504,7 @@ static void REGAL_CALL code_glFrontFace(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glFrontFace(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -1968,7 +1968,7 @@ static void REGAL_CALL code_glHint(GLenum target, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glHint(";
                    _code << toString(target);
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -2699,7 +2699,7 @@ static void REGAL_CALL code_glMatrixMode(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixMode(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -2752,7 +2752,7 @@ static void REGAL_CALL code_glNewList(GLuint list, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glNewList(";
                    _code << list;
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -3147,7 +3147,7 @@ static void REGAL_CALL code_glPolygonMode(GLenum face, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glPolygonMode(";
                    _code << toString(face);
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -3704,7 +3704,7 @@ static void REGAL_CALL code_glReadBuffer(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glReadBuffer(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -3903,7 +3903,7 @@ static GLint REGAL_CALL code_glRenderMode(GLenum mode)
     string_list< ::std::string > _code;
     size_t _retIndex = _context->codeOutputNext++;
     _code << indent << "const GLint o" << _retIndex << " = glRenderMode(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -4032,7 +4032,7 @@ static void REGAL_CALL code_glShadeModel(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glShadeModel(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -5664,7 +5664,7 @@ static void REGAL_CALL code_glDrawArrays(GLenum mode, GLint first, GLsizei count
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawArrays(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << first;
     _code << ", "; _code << count;
     _code << ");\n";
@@ -5682,7 +5682,7 @@ static void REGAL_CALL code_glDrawElements(GLenum mode, GLsizei count, GLenum ty
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElements(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << reinterpret_cast<const GLubyte *>(indices);
@@ -5929,7 +5929,7 @@ static void REGAL_CALL code_glPushClientAttrib(GLbitfield mask)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glPushClientAttrib(";
-    _code << mask;
+    _code << GLpushClientAttribToString(mask);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -6058,7 +6058,7 @@ static void REGAL_CALL code_glBlendEquation(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquation(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -6098,7 +6098,7 @@ static void REGAL_CALL code_glDrawRangeElements(GLenum mode, GLuint start, GLuin
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawRangeElements(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << end;
     _code << ", "; _code << count;
@@ -7169,7 +7169,7 @@ static void REGAL_CALL code_glMultiDrawArrays(GLenum mode, const GLint *first, c
     size_t _countIndex = _context->codeInputNext++;
     _code << indent << "const GLsizei i" << _countIndex << "[" << primcount << "] = " << array<GLsizei,const char * const>(count,primcount,"","{ "," };",", ") << "\n";
     _code << indent << "glMultiDrawArrays(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _firstIndex;
     _code << ", "; _code << "i" << _countIndex;
     _code << ", "; _code << primcount;
@@ -7190,7 +7190,7 @@ static void REGAL_CALL code_glMultiDrawElements(GLenum mode, const GLsizei *coun
     size_t _countIndex = _context->codeInputNext++;
     _code << indent << "const GLsizei i" << _countIndex << "[" << primcount << "] = " << array<GLsizei,const char * const>(count,primcount,"","{ "," };",", ") << "\n";
     _code << indent << "glMultiDrawElements(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _countIndex;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -8250,8 +8250,8 @@ static void REGAL_CALL code_glBlendEquationSeparate(GLenum modeRGB, GLenum modeA
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationSeparate(";
-                   _code << toString(modeRGB);
-    _code << ", "; _code << toString(modeAlpha);
+                   _code << GLmodeToString(modeRGB);
+    _code << ", "; _code << GLmodeToString(modeAlpha);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -10086,7 +10086,7 @@ static void REGAL_CALL code_glBeginConditionalRender(GLuint id, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glBeginConditionalRender(";
                    _code << id;
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11110,7 +11110,7 @@ static void REGAL_CALL code_glDrawArraysInstanced(GLenum mode, GLint start, GLsi
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawArraysInstanced(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << count;
     _code << ", "; _code << primcount;
@@ -11129,7 +11129,7 @@ static void REGAL_CALL code_glDrawElementsInstanced(GLenum mode, GLsizei count, 
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsInstanced(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -11187,26 +11187,6 @@ static void REGAL_CALL code_glFramebufferTexture(GLenum target, GLenum attachmen
     _code << ", "; _code << toString(attachment);
     _code << ", "; _code << texture;
     _code << ", "; _code << level;
-    _code << ");\n";
-    if (_context->codeSource)
-      fprintf(_context->codeSource,"%s",_code.str().c_str());
-}
-
-static void REGAL_CALL code_glFramebufferTextureFace(GLenum target, GLenum attachment, GLuint texture, GLint level, GLenum face)
-{
-    RegalContext *_context = REGAL_GET_CONTEXT();
-    RegalAssert(_context);
-    DispatchTableGL *_next = _context->dispatcher.code.next();
-    RegalAssert(_next);
-    _next->call(&_next->glFramebufferTextureFace)(target, attachment, texture, level, face);
-    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
-    string_list< ::std::string > _code;
-    _code << indent << "glFramebufferTextureFace(";
-                   _code << toString(target);
-    _code << ", "; _code << toString(attachment);
-    _code << ", "; _code << texture;
-    _code << ", "; _code << level;
-    _code << ", "; _code << toString(face);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11276,8 +11256,8 @@ static void REGAL_CALL code_glBlendEquationSeparatei(GLuint buf, GLenum modeRGB,
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationSeparatei(";
                    _code << buf;
-    _code << ", "; _code << toString(modeRGB);
-    _code << ", "; _code << toString(modeAlpha);
+    _code << ", "; _code << GLmodeToString(modeRGB);
+    _code << ", "; _code << GLmodeToString(modeAlpha);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11294,7 +11274,7 @@ static void REGAL_CALL code_glBlendEquationi(GLuint buf, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationi(";
                    _code << buf;
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11446,7 +11426,7 @@ static void REGAL_CALL code_glBlendEquationIndexedAMD(GLuint buf, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationIndexedAMD(";
                    _code << buf;
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11463,8 +11443,8 @@ static void REGAL_CALL code_glBlendEquationSeparateIndexedAMD(GLuint buf, GLenum
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationSeparateIndexedAMD(";
                    _code << buf;
-    _code << ", "; _code << toString(modeRGB);
-    _code << ", "; _code << toString(modeAlpha);
+    _code << ", "; _code << GLmodeToString(modeRGB);
+    _code << ", "; _code << GLmodeToString(modeAlpha);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11536,7 +11516,7 @@ static void REGAL_CALL code_glMultiDrawArraysIndirectAMD(GLenum mode, const GLvo
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMultiDrawArraysIndirectAMD(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << indirect;
     _code << ", "; _code << primcount;
     _code << ", "; _code << stride;
@@ -11555,7 +11535,7 @@ static void REGAL_CALL code_glMultiDrawElementsIndirectAMD(GLenum mode, GLenum t
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMultiDrawElementsIndirectAMD(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indirect;
     _code << ", "; _code << primcount;
@@ -11868,7 +11848,7 @@ static void REGAL_CALL code_glTexStorageSparseAMD(GLenum target, GLenum internal
     _code << ", "; _code << height;
     _code << ", "; _code << depth;
     _code << ", "; _code << layers;
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLtexStorageSparseAMDToString(flags);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11891,7 +11871,7 @@ static void REGAL_CALL code_glTextureStorageSparseAMD(GLuint texture, GLenum tar
     _code << ", "; _code << height;
     _code << ", "; _code << depth;
     _code << ", "; _code << layers;
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLtexStorageSparseAMDToString(flags);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11940,7 +11920,7 @@ static void REGAL_CALL code_glTessellationModeAMD(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glTessellationModeAMD(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -11964,7 +11944,7 @@ static void REGAL_CALL code_glBlitFramebufferANGLE(GLint srcX0, GLint srcY0, GLi
     _code << ", "; _code << dstY0;
     _code << ", "; _code << dstX1;
     _code << ", "; _code << dstY1;
-    _code << ", "; _code << mask;
+    _code << ", "; _code << GLblitFramebufferToString(mask);
     _code << ", "; _code << toString(filter);
     _code << ");\n";
     if (_context->codeSource)
@@ -12001,7 +11981,7 @@ static void REGAL_CALL code_glDrawArraysInstancedANGLE(GLenum mode, GLint first,
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawArraysInstancedANGLE(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << first;
     _code << ", "; _code << count;
     _code << ", "; _code << primcount;
@@ -12020,7 +12000,7 @@ static void REGAL_CALL code_glDrawElementsInstancedANGLE(GLenum mode, GLsizei co
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsInstancedANGLE(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -12042,6 +12022,198 @@ static void REGAL_CALL code_glVertexAttribDivisorANGLE(GLuint index, GLuint divi
     _code << indent << "glVertexAttribDivisorANGLE(";
                    _code << index;
     _code << ", "; _code << divisor;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glBeginQueryANGLE(GLenum target, GLuint id)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glBeginQueryANGLE)(target, id);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glBeginQueryANGLE(";
+                   _code << toString(target);
+    _code << ", "; _code << id;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glDeleteQueriesANGLE(GLsizei n, const GLuint *ids)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glDeleteQueriesANGLE)(n, ids);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glDeleteQueriesANGLE(";
+                   _code << n;
+    _code << ", "; _code << ids;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glEndQueryANGLE(GLenum target)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glEndQueryANGLE)(target);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glEndQueryANGLE(";
+    _code << toString(target);
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glGenQueriesANGLE(GLsizei n, GLuint *ids)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glGenQueriesANGLE)(n, ids);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glGenQueriesANGLE(";
+                   _code << n;
+    _code << ", "; _code << ids;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glGetQueryObjecti64vANGLE(GLuint id, GLenum pname, GLint64 *params)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryObjecti64vANGLE)(id, pname, params);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glGetQueryObjecti64vANGLE(";
+                   _code << id;
+    _code << ", "; _code << toString(pname);
+    _code << ", "; _code << params;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glGetQueryObjectivANGLE(GLuint id, GLenum pname, GLint *params)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryObjectivANGLE)(id, pname, params);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glGetQueryObjectivANGLE(";
+                   _code << id;
+    _code << ", "; _code << toString(pname);
+    _code << ", "; _code << params;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glGetQueryObjectui64vANGLE(GLuint id, GLenum pname, GLuint64 *params)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryObjectui64vANGLE)(id, pname, params);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glGetQueryObjectui64vANGLE(";
+                   _code << id;
+    _code << ", "; _code << toString(pname);
+    _code << ", "; _code << params;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glGetQueryObjectuivANGLE(GLuint id, GLenum pname, GLuint *params)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryObjectuivANGLE)(id, pname, params);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glGetQueryObjectuivANGLE(";
+                   _code << id;
+    _code << ", "; _code << toString(pname);
+    _code << ", "; _code << params;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glGetQueryivANGLE(GLenum target, GLenum pname, GLint *params)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryivANGLE)(target, pname, params);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glGetQueryivANGLE(";
+                   _code << toString(target);
+    _code << ", "; _code << toString(pname);
+    _code << ", "; _code << params;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static GLboolean REGAL_CALL code_glIsQueryANGLE(GLuint id)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    GLboolean  _ret = _next->call(&_next->glIsQueryANGLE)(id);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    size_t _retIndex = _context->codeOutputNext++;
+    _code << indent << "const GLboolean o" << _retIndex << " = glIsQueryANGLE(";
+    _code << id;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+    return _ret;
+}
+
+static void REGAL_CALL code_glQueryCounterANGLE(GLuint id, GLenum target)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glQueryCounterANGLE)(id, target);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glQueryCounterANGLE(";
+                   _code << id;
+    _code << ", "; _code << toString(target);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -12095,7 +12267,7 @@ static void REGAL_CALL code_glDrawElementArrayAPPLE(GLenum mode, GLint first, GL
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementArrayAPPLE(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << first;
     _code << ", "; _code << count;
     _code << ");\n";
@@ -12113,7 +12285,7 @@ static void REGAL_CALL code_glDrawRangeElementArrayAPPLE(GLenum mode, GLuint sta
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawRangeElementArrayAPPLE(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << end;
     _code << ", "; _code << first;
@@ -12150,7 +12322,7 @@ static void REGAL_CALL code_glMultiDrawElementArrayAPPLE(GLenum mode, const GLin
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMultiDrawElementArrayAPPLE(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << first;
     _code << ", "; _code << count;
     _code << ", "; _code << primcount;
@@ -12169,7 +12341,7 @@ static void REGAL_CALL code_glMultiDrawRangeElementArrayAPPLE(GLenum mode, GLuin
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMultiDrawRangeElementArrayAPPLE(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << end;
     _code << ", "; _code << first;
@@ -12501,7 +12673,7 @@ static GLenum REGAL_CALL code_glClientWaitSyncAPPLE(GLsync sync, GLbitfield flag
     size_t _retIndex = _context->codeOutputNext++;
     _code << indent << "const GLenum o" << _retIndex << " = glClientWaitSyncAPPLE(";
                    _code << sync;
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLclientWaitSyncToString(flags);
     _code << ", "; _code << timeout;
     _code << ");\n";
     if (_context->codeSource)
@@ -12537,7 +12709,7 @@ static GLsync REGAL_CALL code_glFenceSyncAPPLE(GLenum condition, GLbitfield flag
     size_t _retIndex = _context->codeOutputNext++;
     _code << indent << "const GLsync o" << _retIndex << " = glFenceSyncAPPLE(";
                    _code << toString(condition);
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLfenceSyncToString(flags);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -12610,7 +12782,7 @@ static void REGAL_CALL code_glWaitSyncAPPLE(GLsync sync, GLbitfield flags, GLuin
     string_list< ::std::string > _code;
     _code << indent << "glWaitSyncAPPLE(";
                    _code << sync;
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLwaitSyncToString(flags);
     _code << ", "; _code << timeout;
     _code << ");\n";
     if (_context->codeSource)
@@ -13023,7 +13195,7 @@ static void REGAL_CALL code_glDrawArraysInstancedBaseInstance(GLenum mode, GLint
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawArraysInstancedBaseInstance(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << first;
     _code << ", "; _code << count;
     _code << ", "; _code << primcount;
@@ -13043,7 +13215,7 @@ static void REGAL_CALL code_glDrawElementsInstancedBaseInstance(GLenum mode, GLs
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsInstancedBaseInstance(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -13064,7 +13236,7 @@ static void REGAL_CALL code_glDrawElementsInstancedBaseVertexBaseInstance(GLenum
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsInstancedBaseVertexBaseInstance(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -13411,7 +13583,26 @@ static void REGAL_CALL code_glBufferStorage(GLenum target, GLsizeiptr size, cons
                    _code << toString(target);
     _code << ", "; _code << size;
     _code << ", "; _code << data;
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLbufferStorageToString(flags);
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glNamedBufferStorageEXT(GLuint buffer, GLsizeiptr size, const GLvoid *data, GLbitfield flags)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glNamedBufferStorageEXT)(buffer, size, data, flags);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glNamedBufferStorageEXT(";
+                   _code << buffer;
+    _code << ", "; _code << size;
+    _code << ", "; _code << data;
+    _code << ", "; _code << GLbufferStorageToString(flags);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -13430,7 +13621,7 @@ static GLsync REGAL_CALL code_glCreateSyncFromCLeventARB(cl_context context, cl_
     _code << indent << "const GLsync o" << _retIndex << " = glCreateSyncFromCLeventARB(";
                    _code << context;
     _code << ", "; _code << event;
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLcreateSyncFromCLeventARBToString(flags);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -13815,8 +14006,8 @@ static void REGAL_CALL code_glBlendEquationSeparateiARB(GLuint buf, GLenum modeR
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationSeparateiARB(";
                    _code << buf;
-    _code << ", "; _code << toString(modeRGB);
-    _code << ", "; _code << toString(modeAlpha);
+    _code << ", "; _code << GLmodeToString(modeRGB);
+    _code << ", "; _code << GLmodeToString(modeAlpha);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -13833,7 +14024,7 @@ static void REGAL_CALL code_glBlendEquationiARB(GLuint buf, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationiARB(";
                    _code << buf;
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -13887,7 +14078,7 @@ static void REGAL_CALL code_glDrawElementsBaseVertex(GLenum mode, GLsizei count,
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsBaseVertex(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -13907,7 +14098,7 @@ static void REGAL_CALL code_glDrawElementsInstancedBaseVertex(GLenum mode, GLsiz
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsInstancedBaseVertex(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -13928,7 +14119,7 @@ static void REGAL_CALL code_glDrawRangeElementsBaseVertex(GLenum mode, GLuint st
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawRangeElementsBaseVertex(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << end;
     _code << ", "; _code << count;
@@ -13954,7 +14145,7 @@ static void REGAL_CALL code_glMultiDrawElementsBaseVertex(GLenum mode, const GLs
     size_t _basevertexIndex = _context->codeInputNext++;
     _code << indent << "const GLint i" << _basevertexIndex << "[" << primcount << "] = " << array<GLint,const char * const>(basevertex,primcount,"","{ "," };",", ") << "\n";
     _code << indent << "glMultiDrawElementsBaseVertex(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _countIndex;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -13975,7 +14166,7 @@ static void REGAL_CALL code_glDrawArraysIndirect(GLenum mode, const GLvoid *indi
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawArraysIndirect(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << indirect;
     _code << ");\n";
     if (_context->codeSource)
@@ -13992,7 +14183,7 @@ static void REGAL_CALL code_glDrawElementsIndirect(GLenum mode, GLenum type, con
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsIndirect(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indirect;
     _code << ");\n";
@@ -14010,7 +14201,7 @@ static void REGAL_CALL code_glDrawArraysInstancedARB(GLenum mode, GLint start, G
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawArraysInstancedARB(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << count;
     _code << ", "; _code << primcount;
@@ -14029,7 +14220,7 @@ static void REGAL_CALL code_glDrawElementsInstancedARB(GLenum mode, GLsizei coun
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsInstancedARB(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -14163,7 +14354,7 @@ static void REGAL_CALL code_glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint sr
     _code << ", "; _code << dstY0;
     _code << ", "; _code << dstX1;
     _code << ", "; _code << dstY1;
-    _code << ", "; _code << mask;
+    _code << ", "; _code << GLblitFramebufferToString(mask);
     _code << ", "; _code << toString(filter);
     _code << ");\n";
     if (_context->codeSource)
@@ -15610,7 +15801,7 @@ static void REGAL_CALL code_glMultiDrawArraysIndirectCountARB(GLenum mode, const
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMultiDrawArraysIndirectCountARB(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << indirect;
     _code << ", "; _code << drawcount;
     _code << ", "; _code << maxdrawcount;
@@ -15630,7 +15821,7 @@ static void REGAL_CALL code_glMultiDrawElementsIndirectCountARB(GLenum mode, GLe
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMultiDrawElementsIndirectCountARB(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indirect;
     _code << ", "; _code << drawcount;
@@ -15844,7 +16035,7 @@ static GLvoid *REGAL_CALL code_glMapBufferRange(GLenum target, GLintptr offset, 
                    _code << toString(target);
     _code << ", "; _code << offset;
     _code << ", "; _code << length;
-    _code << ", "; _code << GLbufferAccessToString(access);
+    _code << ", "; _code << GLmapBufferRangeToString(access);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -16061,7 +16252,7 @@ static void REGAL_CALL code_glMultiDrawArraysIndirect(GLenum mode, const GLvoid 
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMultiDrawArraysIndirect(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << indirect;
     _code << ", "; _code << primcount;
     _code << ", "; _code << stride;
@@ -16080,7 +16271,7 @@ static void REGAL_CALL code_glMultiDrawElementsIndirect(GLenum mode, GLenum type
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMultiDrawElementsIndirect(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indirect;
     _code << ", "; _code << primcount;
@@ -17049,7 +17240,7 @@ static void REGAL_CALL code_glProvokingVertex(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glProvokingVertex(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -18915,7 +19106,7 @@ static void REGAL_CALL code_glUseProgramStages(GLuint pipeline, GLbitfield stage
     string_list< ::std::string > _code;
     _code << indent << "glUseProgramStages(";
                    _code << pipeline;
-    _code << ", "; _code << stages;
+    _code << ", "; _code << GLuseProgramStagesToString(stages);
     _code << ", "; _code << program;
     _code << ");\n";
     if (_context->codeSource)
@@ -18989,7 +19180,7 @@ static void REGAL_CALL code_glMemoryBarrier(GLbitfield barriers)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMemoryBarrier(";
-    _code << barriers;
+    _code << GLmemoryBarrierToString(barriers);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -20121,7 +20312,7 @@ static GLenum REGAL_CALL code_glClientWaitSync(GLsync sync, GLbitfield flags, GL
     size_t _retIndex = _context->codeOutputNext++;
     _code << indent << "const GLenum o" << _retIndex << " = glClientWaitSync(";
                    _code << reinterpret_cast<void *>(sync);
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLclientWaitSyncToString(flags);
     _code << ", "; _code << timeout;
     _code << ");\n";
     if (_context->codeSource)
@@ -20157,7 +20348,7 @@ static GLsync REGAL_CALL code_glFenceSync(GLenum condition, GLbitfield flags)
     size_t _retIndex = _context->codeOutputNext++;
     _code << indent << "const GLsync o" << _retIndex << " = glFenceSync(";
                    _code << toString(condition);
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLfenceSyncToString(flags);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -20234,7 +20425,7 @@ static void REGAL_CALL code_glWaitSync(GLsync sync, GLbitfield flags, GLuint64 t
     string_list< ::std::string > _code;
     _code << indent << "glWaitSync(";
                    _code << reinterpret_cast<void *>(sync);
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLwaitSyncToString(flags);
     _code << ", "; _code << timeout;
     _code << ");\n";
     if (_context->codeSource)
@@ -20906,7 +21097,7 @@ static void REGAL_CALL code_glDrawTransformFeedback(GLenum mode, GLuint name)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawTransformFeedback(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << name;
     _code << ");\n";
     if (_context->codeSource)
@@ -21006,7 +21197,7 @@ static void REGAL_CALL code_glDrawTransformFeedbackStream(GLenum mode, GLuint id
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawTransformFeedbackStream(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << id;
     _code << ", "; _code << stream;
     _code << ");\n";
@@ -21060,7 +21251,7 @@ static void REGAL_CALL code_glDrawTransformFeedbackInstanced(GLenum mode, GLuint
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawTransformFeedbackInstanced(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << id;
     _code << ", "; _code << primcount;
     _code << ");\n";
@@ -21078,7 +21269,7 @@ static void REGAL_CALL code_glDrawTransformFeedbackStreamInstanced(GLenum mode, 
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawTransformFeedbackStreamInstanced(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << id;
     _code << ", "; _code << stream;
     _code << ", "; _code << primcount;
@@ -21630,6 +21821,123 @@ static void REGAL_CALL code_glBindVertexBuffer(GLuint bindingindex, GLuint buffe
     _code << ", "; _code << buffer;
     _code << ", "; _code << offset;
     _code << ", "; _code << stride;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glVertexArrayBindVertexBufferEXT(GLuint vaobj, GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayBindVertexBufferEXT)(vaobj, bindingindex, buffer, offset, stride);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glVertexArrayBindVertexBufferEXT(";
+                   _code << vaobj;
+    _code << ", "; _code << bindingindex;
+    _code << ", "; _code << buffer;
+    _code << ", "; _code << offset;
+    _code << ", "; _code << stride;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glVertexArrayVertexAttribBindingEXT(GLuint vaobj, GLuint attribindex, GLuint bindingindex)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexAttribBindingEXT)(vaobj, attribindex, bindingindex);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glVertexArrayVertexAttribBindingEXT(";
+                   _code << vaobj;
+    _code << ", "; _code << attribindex;
+    _code << ", "; _code << bindingindex;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glVertexArrayVertexAttribFormatEXT(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexAttribFormatEXT)(vaobj, attribindex, size, type, normalized, relativeoffset);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glVertexArrayVertexAttribFormatEXT(";
+                   _code << vaobj;
+    _code << ", "; _code << attribindex;
+    _code << ", "; _code << size;
+    _code << ", "; _code << toString(type);
+    _code << ", "; _code << toString(normalized);
+    _code << ", "; _code << relativeoffset;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glVertexArrayVertexAttribIFormatEXT(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexAttribIFormatEXT)(vaobj, attribindex, size, type, relativeoffset);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glVertexArrayVertexAttribIFormatEXT(";
+                   _code << vaobj;
+    _code << ", "; _code << attribindex;
+    _code << ", "; _code << size;
+    _code << ", "; _code << toString(type);
+    _code << ", "; _code << relativeoffset;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glVertexArrayVertexAttribLFormatEXT(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexAttribLFormatEXT)(vaobj, attribindex, size, type, relativeoffset);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glVertexArrayVertexAttribLFormatEXT(";
+                   _code << vaobj;
+    _code << ", "; _code << attribindex;
+    _code << ", "; _code << size;
+    _code << ", "; _code << toString(type);
+    _code << ", "; _code << relativeoffset;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glVertexArrayVertexBindingDivisorEXT(GLuint vaobj, GLuint bindingindex, GLuint divisor)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexBindingDivisorEXT)(vaobj, bindingindex, divisor);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glVertexArrayVertexBindingDivisorEXT(";
+                   _code << vaobj;
+    _code << ", "; _code << bindingindex;
+    _code << ", "; _code << divisor;
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -24563,7 +24871,7 @@ static void REGAL_CALL code_glDrawElementArrayATI(GLenum mode, GLsizei count)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementArrayATI(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ");\n";
     if (_context->codeSource)
@@ -24580,7 +24888,7 @@ static void REGAL_CALL code_glDrawRangeElementArrayATI(GLenum mode, GLuint start
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawRangeElementArrayATI(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << end;
     _code << ", "; _code << count;
@@ -26278,8 +26586,8 @@ static void REGAL_CALL code_glBlendEquationSeparateEXT(GLenum modeRGB, GLenum mo
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationSeparateEXT(";
-                   _code << toString(modeRGB);
-    _code << ", "; _code << toString(modeAlpha);
+                   _code << GLmodeToString(modeRGB);
+    _code << ", "; _code << GLmodeToString(modeAlpha);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -26314,7 +26622,7 @@ static void REGAL_CALL code_glBlendEquationEXT(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationEXT(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -27345,7 +27653,7 @@ static void REGAL_CALL code_glClientAttribDefaultEXT(GLbitfield mask)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glClientAttribDefaultEXT(";
-    _code << mask;
+    _code << GLpushClientAttribToString(mask);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -28046,7 +28354,7 @@ static void REGAL_CALL code_glFramebufferDrawBufferEXT(GLuint framebuffer, GLenu
     string_list< ::std::string > _code;
     _code << indent << "glFramebufferDrawBufferEXT(";
                    _code << framebuffer;
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -28083,7 +28391,7 @@ static void REGAL_CALL code_glFramebufferReadBufferEXT(GLuint framebuffer, GLenu
     string_list< ::std::string > _code;
     _code << indent << "glFramebufferReadBufferEXT(";
                    _code << framebuffer;
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -28979,7 +29287,7 @@ static GLvoid *REGAL_CALL code_glMapNamedBufferRangeEXT(GLuint buffer, GLintptr 
                    _code << buffer;
     _code << ", "; _code << offset;
     _code << ", "; _code << length;
-    _code << ", "; _code << access;
+    _code << ", "; _code << GLmapBufferRangeToString(access);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -28996,7 +29304,7 @@ static void REGAL_CALL code_glMatrixFrustumEXT(GLenum mode, GLdouble left, GLdou
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixFrustumEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << left;
     _code << ", "; _code << right;
     _code << ", "; _code << bottom;
@@ -29018,7 +29326,7 @@ static void REGAL_CALL code_glMatrixLoadIdentityEXT(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixLoadIdentityEXT(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -29036,7 +29344,7 @@ static void REGAL_CALL code_glMatrixLoadTransposedEXT(GLenum mode, const GLdoubl
     size_t _mIndex = _context->codeInputNext++;
     _code << indent << "const GLdouble i" << _mIndex << "[" << 16 << "] = " << array<GLdouble,const char * const>(m,16,"","{ "," };",", ") << "\n";
     _code << indent << "glMatrixLoadTransposedEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _mIndex;
     _code << ");\n";
     if (_context->codeSource)
@@ -29055,7 +29363,7 @@ static void REGAL_CALL code_glMatrixLoadTransposefEXT(GLenum mode, const GLfloat
     size_t _mIndex = _context->codeInputNext++;
     _code << indent << "const GLfloat i" << _mIndex << "[" << 16 << "] = " << array<GLfloat,const char * const>(m,16,"","{ "," };",", ") << "\n";
     _code << indent << "glMatrixLoadTransposefEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _mIndex;
     _code << ");\n";
     if (_context->codeSource)
@@ -29074,7 +29382,7 @@ static void REGAL_CALL code_glMatrixLoaddEXT(GLenum mode, const GLdouble *m)
     size_t _mIndex = _context->codeInputNext++;
     _code << indent << "const GLdouble i" << _mIndex << "[" << 16 << "] = " << array<GLdouble,const char * const>(m,16,"","{ "," };",", ") << "\n";
     _code << indent << "glMatrixLoaddEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _mIndex;
     _code << ");\n";
     if (_context->codeSource)
@@ -29093,7 +29401,7 @@ static void REGAL_CALL code_glMatrixLoadfEXT(GLenum mode, const GLfloat *m)
     size_t _mIndex = _context->codeInputNext++;
     _code << indent << "const GLfloat i" << _mIndex << "[" << 16 << "] = " << array<GLfloat,const char * const>(m,16,"","{ "," };",", ") << "\n";
     _code << indent << "glMatrixLoadfEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _mIndex;
     _code << ");\n";
     if (_context->codeSource)
@@ -29112,7 +29420,7 @@ static void REGAL_CALL code_glMatrixMultTransposedEXT(GLenum mode, const GLdoubl
     size_t _mIndex = _context->codeInputNext++;
     _code << indent << "const GLdouble i" << _mIndex << "[" << 16 << "] = " << array<GLdouble,const char * const>(m,16,"","{ "," };",", ") << "\n";
     _code << indent << "glMatrixMultTransposedEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _mIndex;
     _code << ");\n";
     if (_context->codeSource)
@@ -29131,7 +29439,7 @@ static void REGAL_CALL code_glMatrixMultTransposefEXT(GLenum mode, const GLfloat
     size_t _mIndex = _context->codeInputNext++;
     _code << indent << "const GLfloat i" << _mIndex << "[" << 16 << "] = " << array<GLfloat,const char * const>(m,16,"","{ "," };",", ") << "\n";
     _code << indent << "glMatrixMultTransposefEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _mIndex;
     _code << ");\n";
     if (_context->codeSource)
@@ -29150,7 +29458,7 @@ static void REGAL_CALL code_glMatrixMultdEXT(GLenum mode, const GLdouble *m)
     size_t _mIndex = _context->codeInputNext++;
     _code << indent << "const GLdouble i" << _mIndex << "[" << 16 << "] = " << array<GLdouble,const char * const>(m,16,"","{ "," };",", ") << "\n";
     _code << indent << "glMatrixMultdEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _mIndex;
     _code << ");\n";
     if (_context->codeSource)
@@ -29169,7 +29477,7 @@ static void REGAL_CALL code_glMatrixMultfEXT(GLenum mode, const GLfloat *m)
     size_t _mIndex = _context->codeInputNext++;
     _code << indent << "const GLfloat i" << _mIndex << "[" << 16 << "] = " << array<GLfloat,const char * const>(m,16,"","{ "," };",", ") << "\n";
     _code << indent << "glMatrixMultfEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _mIndex;
     _code << ");\n";
     if (_context->codeSource)
@@ -29186,7 +29494,7 @@ static void REGAL_CALL code_glMatrixOrthoEXT(GLenum mode, GLdouble left, GLdoubl
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixOrthoEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << left;
     _code << ", "; _code << right;
     _code << ", "; _code << bottom;
@@ -29208,7 +29516,7 @@ static void REGAL_CALL code_glMatrixPopEXT(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixPopEXT(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -29224,7 +29532,7 @@ static void REGAL_CALL code_glMatrixPushEXT(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixPushEXT(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -29240,7 +29548,7 @@ static void REGAL_CALL code_glMatrixRotatedEXT(GLenum mode, GLdouble angle, GLdo
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixRotatedEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << angle;
     _code << ", "; _code << x;
     _code << ", "; _code << y;
@@ -29260,7 +29568,7 @@ static void REGAL_CALL code_glMatrixRotatefEXT(GLenum mode, GLfloat angle, GLflo
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixRotatefEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << angle;
     _code << ", "; _code << x;
     _code << ", "; _code << y;
@@ -29280,7 +29588,7 @@ static void REGAL_CALL code_glMatrixScaledEXT(GLenum mode, GLdouble x, GLdouble 
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixScaledEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << x;
     _code << ", "; _code << y;
     _code << ", "; _code << z;
@@ -29299,7 +29607,7 @@ static void REGAL_CALL code_glMatrixScalefEXT(GLenum mode, GLfloat x, GLfloat y,
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixScalefEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << x;
     _code << ", "; _code << y;
     _code << ", "; _code << z;
@@ -29318,7 +29626,7 @@ static void REGAL_CALL code_glMatrixTranslatedEXT(GLenum mode, GLdouble x, GLdou
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixTranslatedEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << x;
     _code << ", "; _code << y;
     _code << ", "; _code << z;
@@ -29337,7 +29645,7 @@ static void REGAL_CALL code_glMatrixTranslatefEXT(GLenum mode, GLfloat x, GLfloa
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMatrixTranslatefEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << x;
     _code << ", "; _code << y;
     _code << ", "; _code << z;
@@ -31426,7 +31734,7 @@ static void REGAL_CALL code_glPushClientAttribDefaultEXT(GLbitfield mask)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glPushClientAttribDefaultEXT(";
-    _code << mask;
+    _code << GLpushClientAttribToString(mask);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -32153,7 +32461,7 @@ static void REGAL_CALL code_glDrawArraysInstancedEXT(GLenum mode, GLint start, G
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawArraysInstancedEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << count;
     _code << ", "; _code << primcount;
@@ -32172,7 +32480,7 @@ static void REGAL_CALL code_glDrawElementsInstancedEXT(GLenum mode, GLsizei coun
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawElementsInstancedEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -32192,7 +32500,7 @@ static void REGAL_CALL code_glDrawRangeElementsEXT(GLenum mode, GLuint start, GL
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawRangeElementsEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << start;
     _code << ", "; _code << end;
     _code << ", "; _code << count;
@@ -32300,7 +32608,7 @@ static void REGAL_CALL code_glFragmentColorMaterialEXT(GLenum face, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glFragmentColorMaterialEXT(";
                    _code << toString(face);
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -32625,7 +32933,7 @@ static void REGAL_CALL code_glBlitFramebufferEXT(GLint srcX0, GLint srcY0, GLint
     _code << ", "; _code << dstY0;
     _code << ", "; _code << dstX1;
     _code << ", "; _code << dstY1;
-    _code << ", "; _code << mask;
+    _code << ", "; _code << GLblitFramebufferToString(mask);
     _code << ", "; _code << toString(filter);
     _code << ");\n";
     if (_context->codeSource)
@@ -33921,7 +34229,7 @@ static void REGAL_CALL code_glIndexMaterialEXT(GLenum face, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glIndexMaterialEXT(";
                    _code << toString(face);
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -33937,7 +34245,7 @@ static void REGAL_CALL code_glApplyTextureEXT(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glApplyTextureEXT(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -33970,7 +34278,7 @@ static void REGAL_CALL code_glTextureMaterialEXT(GLenum face, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glTextureMaterialEXT(";
                    _code << toString(face);
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -34008,7 +34316,7 @@ static GLvoid *REGAL_CALL code_glMapBufferRangeEXT(GLenum target, GLintptr offse
                    _code << toString(target);
     _code << ", "; _code << offset;
     _code << ", "; _code << length;
-    _code << ", "; _code << GLbufferAccessToString(access);
+    _code << ", "; _code << GLmapBufferRangeToString(access);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -34029,7 +34337,7 @@ static void REGAL_CALL code_glMultiDrawArraysEXT(GLenum mode, const GLint *first
     size_t _countIndex = _context->codeInputNext++;
     _code << indent << "const GLsizei i" << _countIndex << "[" << primcount << "] = " << array<GLsizei,const char * const>(count,primcount,"","{ "," };",", ") << "\n";
     _code << indent << "glMultiDrawArraysEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _firstIndex;
     _code << ", "; _code << "i" << _countIndex;
     _code << ", "; _code << primcount;
@@ -34050,7 +34358,7 @@ static void REGAL_CALL code_glMultiDrawElementsEXT(GLenum mode, const GLsizei *c
     size_t _countIndex = _context->codeInputNext++;
     _code << indent << "const GLsizei i" << _countIndex << "[" << primcount << "] = " << array<GLsizei,const char * const>(count,primcount,"","{ "," };",", ") << "\n";
     _code << indent << "glMultiDrawElementsEXT(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << "i" << _countIndex;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << indices;
@@ -34364,7 +34672,7 @@ static void REGAL_CALL code_glGetColorTableParameterivEXT(GLenum target, GLenum 
       fprintf(_context->codeSource,"%s",_code.str().c_str());
 }
 
-static void REGAL_CALL code_glGetPixelTransformParameterfvEXT(GLenum target, GLenum pname, const GLfloat *params)
+static void REGAL_CALL code_glGetPixelTransformParameterfvEXT(GLenum target, GLenum pname, GLfloat *params)
 {
     RegalContext *_context = REGAL_GET_CONTEXT();
     RegalAssert(_context);
@@ -34382,7 +34690,7 @@ static void REGAL_CALL code_glGetPixelTransformParameterfvEXT(GLenum target, GLe
       fprintf(_context->codeSource,"%s",_code.str().c_str());
 }
 
-static void REGAL_CALL code_glGetPixelTransformParameterivEXT(GLenum target, GLenum pname, const GLint *params)
+static void REGAL_CALL code_glGetPixelTransformParameterivEXT(GLenum target, GLenum pname, GLint *params)
 {
     RegalContext *_context = REGAL_GET_CONTEXT();
     RegalAssert(_context);
@@ -34537,7 +34845,7 @@ static void REGAL_CALL code_glProvokingVertexEXT(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glProvokingVertexEXT(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -35023,7 +35331,7 @@ static void REGAL_CALL code_glMemoryBarrierEXT(GLbitfield barriers)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glMemoryBarrierEXT(";
-    _code << barriers;
+    _code << GLmemoryBarrierToString(barriers);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -35456,7 +35764,7 @@ static void REGAL_CALL code_glTextureNormalEXT(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glTextureNormalEXT(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -35739,7 +36047,7 @@ static void REGAL_CALL code_glDrawArraysEXT(GLenum mode, GLint first, GLsizei co
     string_list< ::std::string > _code;
     _code << indent << "glDrawArraysEXT(";
                    _code << toString(mode);
-    _code << ", "; _code << first;
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ", "; _code << count;
     _code << ");\n";
     if (_context->codeSource)
@@ -36888,7 +37196,7 @@ static GLsync REGAL_CALL code_glImportSyncEXT(GLenum external_sync_type, GLintpt
     _code << indent << "const GLsync o" << _retIndex << " = glImportSyncEXT(";
                    _code << toString(external_sync_type);
     _code << ", "; _code << external_sync;
-    _code << ", "; _code << flags;
+    _code << ", "; _code << GLimportSyncEXTToString(flags);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -37303,7 +37611,7 @@ static GLvoid *REGAL_CALL code_glMapTexture2DINTEL(GLuint texture, GLint level, 
     _code << indent << "const GLvoid o" << _retIndex << " = glMapTexture2DINTEL(";
                    _code << texture;
     _code << ", "; _code << level;
-    _code << ", "; _code << access;
+    _code << ", "; _code << GLmapTexture2DINTELToString(access);
     _code << ", "; _code << stride;
     _code << ", "; _code << layout;
     _code << ");\n";
@@ -38445,6 +38753,37 @@ static void REGAL_CALL code_glUniformHandleui64vNV(GLint location, GLsizei count
       fprintf(_context->codeSource,"%s",_code.str().c_str());
 }
 
+static void REGAL_CALL code_glBlendBarrierNV(void)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glBlendBarrierNV)();
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glBlendBarrierNV();\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glBlendParameteriNV(GLenum pname, GLint value)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glBlendParameteriNV)(pname, value);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glBlendParameteriNV(";
+                   _code << toString(pname);
+    _code << ", "; _code << value;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
 static void REGAL_CALL code_glBeginConditionalRenderNV(GLuint id, GLenum mode)
 {
     RegalContext *_context = REGAL_GET_CONTEXT();
@@ -38456,7 +38795,7 @@ static void REGAL_CALL code_glBeginConditionalRenderNV(GLuint id, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glBeginConditionalRenderNV(";
                    _code << id;
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -38472,6 +38811,26 @@ static void REGAL_CALL code_glEndConditionalRenderNV(void)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glEndConditionalRenderNV();\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glCopyBufferSubDataNV(GLenum readtarget, GLenum writetarget, GLintptr readoffset, GLintptr writeoffset, GLsizeiptr size)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glCopyBufferSubDataNV)(readtarget, writetarget, readoffset, writeoffset, size);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glCopyBufferSubDataNV(";
+                   _code << toString(readtarget);
+    _code << ", "; _code << toString(writetarget);
+    _code << ", "; _code << readoffset;
+    _code << ", "; _code << writeoffset;
+    _code << ", "; _code << size;
+    _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
 }
@@ -38642,7 +39001,7 @@ static void REGAL_CALL code_glEvalMapsNV(GLenum target, GLenum mode)
     string_list< ::std::string > _code;
     _code << indent << "glEvalMapsNV(";
                    _code << toString(target);
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -39141,7 +39500,7 @@ static void REGAL_CALL code_glBlitFramebufferNV(GLint srcX0, GLint srcY0, GLint 
     _code << ", "; _code << dstY0;
     _code << ", "; _code << dstX1;
     _code << ", "; _code << dstY1;
-    _code << ", "; _code << mask;
+    _code << ", "; _code << GLblitFramebufferToString(mask);
     _code << ", "; _code << toString(filter);
     _code << ");\n";
     if (_context->codeSource)
@@ -41007,6 +41366,120 @@ static void REGAL_CALL code_glVertexWeighthvNV(const GLhalfNV *weight)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
 }
 
+static void REGAL_CALL code_glUniformMatrix2x3fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix2x3fvNV)(location, count, transpose, value);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glUniformMatrix2x3fvNV(";
+                   _code << location;
+    _code << ", "; _code << count;
+    _code << ", "; _code << toString(transpose);
+    _code << ", "; _code << value;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glUniformMatrix2x4fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix2x4fvNV)(location, count, transpose, value);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glUniformMatrix2x4fvNV(";
+                   _code << location;
+    _code << ", "; _code << count;
+    _code << ", "; _code << toString(transpose);
+    _code << ", "; _code << value;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glUniformMatrix3x2fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix3x2fvNV)(location, count, transpose, value);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glUniformMatrix3x2fvNV(";
+                   _code << location;
+    _code << ", "; _code << count;
+    _code << ", "; _code << toString(transpose);
+    _code << ", "; _code << value;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glUniformMatrix3x4fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix3x4fvNV)(location, count, transpose, value);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glUniformMatrix3x4fvNV(";
+                   _code << location;
+    _code << ", "; _code << count;
+    _code << ", "; _code << toString(transpose);
+    _code << ", "; _code << value;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glUniformMatrix4x2fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix4x2fvNV)(location, count, transpose, value);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glUniformMatrix4x2fvNV(";
+                   _code << location;
+    _code << ", "; _code << count;
+    _code << ", "; _code << toString(transpose);
+    _code << ", "; _code << value;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
+static void REGAL_CALL code_glUniformMatrix4x3fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+    RegalContext *_context = REGAL_GET_CONTEXT();
+    RegalAssert(_context);
+    DispatchTableGL *_next = _context->dispatcher.code.next();
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix4x3fvNV)(location, count, transpose, value);
+    std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
+    string_list< ::std::string > _code;
+    _code << indent << "glUniformMatrix4x3fvNV(";
+                   _code << location;
+    _code << ", "; _code << count;
+    _code << ", "; _code << toString(transpose);
+    _code << ", "; _code << value;
+    _code << ");\n";
+    if (_context->codeSource)
+      fprintf(_context->codeSource,"%s",_code.str().c_str());
+}
+
 static void REGAL_CALL code_glBeginOcclusionQueryNV(GLuint id)
 {
     RegalContext *_context = REGAL_GET_CONTEXT();
@@ -41442,7 +41915,7 @@ static void REGAL_CALL code_glGetPathMetricRangeNV(GLbitfield metricQueryMask, G
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glGetPathMetricRangeNV(";
-                   _code << metricQueryMask;
+                   _code << GLgetPathMetricsNVToString(metricQueryMask);
     _code << ", "; _code << fistPathName;
     _code << ", "; _code << numPaths;
     _code << ", "; _code << stride;
@@ -41462,7 +41935,7 @@ static void REGAL_CALL code_glGetPathMetricsNV(GLbitfield metricQueryMask, GLsiz
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glGetPathMetricsNV(";
-                   _code << metricQueryMask;
+                   _code << GLgetPathMetricsNVToString(metricQueryMask);
     _code << ", "; _code << numPaths;
     _code << ", "; _code << toString(pathNameType);
     _code << ", "; _code << paths;
@@ -41769,8 +42242,8 @@ static void REGAL_CALL code_glPathGlyphRangeNV(GLuint firstPathName, GLenum font
     _code << indent << "glPathGlyphRangeNV(";
                    _code << firstPathName;
     _code << ", "; _code << toString(fontTarget);
-    _code << ", "; _code << fontName;
-    _code << ", "; _code << fontStyle;
+    _code << ", "; _code << boost::print::quote(reinterpret_cast<const char *>(fontName),'"');
+    _code << ", "; _code << GLpathGlyphsNVToString(fontStyle);
     _code << ", "; _code << firstGlyph;
     _code << ", "; _code << numGlyphs;
     _code << ", "; _code << toString(handleMissingGlyphs);
@@ -41793,8 +42266,8 @@ static void REGAL_CALL code_glPathGlyphsNV(GLuint firstPathName, GLenum fontTarg
     _code << indent << "glPathGlyphsNV(";
                    _code << firstPathName;
     _code << ", "; _code << toString(fontTarget);
-    _code << ", "; _code << fontName;
-    _code << ", "; _code << fontStyle;
+    _code << ", "; _code << boost::print::quote(reinterpret_cast<const char *>(fontName),'"');
+    _code << ", "; _code << GLpathGlyphsNVToString(fontStyle);
     _code << ", "; _code << numGlyphs;
     _code << ", "; _code << toString(type);
     _code << ", "; _code << charcodes;
@@ -43318,7 +43791,7 @@ static void REGAL_CALL code_glDrawTransformFeedbackNV(GLenum mode, GLuint name)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawTransformFeedbackNV(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << name;
     _code << ");\n";
     if (_context->codeSource)
@@ -45670,8 +46143,8 @@ static void REGAL_CALL code_glBlendEquationSeparateOES(GLenum modeRGB, GLenum mo
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationSeparateOES(";
-                   _code << toString(modeRGB);
-    _code << ", "; _code << toString(modeAlpha);
+                   _code << GLmodeToString(modeRGB);
+    _code << ", "; _code << GLmodeToString(modeAlpha);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -45706,7 +46179,7 @@ static void REGAL_CALL code_glBlendEquationOES(GLenum mode)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glBlendEquationOES(";
-    _code << toString(mode);
+    _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -46951,7 +47424,7 @@ static void REGAL_CALL code_glEndTilingQCOM(GLbitfield preserveMask)
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glEndTilingQCOM(";
-    _code << preserveMask;
+    _code << GLstartTilingQCOMToString(preserveMask);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -46971,7 +47444,7 @@ static void REGAL_CALL code_glStartTilingQCOM(GLuint x, GLuint y, GLuint width, 
     _code << ", "; _code << y;
     _code << ", "; _code << width;
     _code << ", "; _code << height;
-    _code << ", "; _code << preserveMask;
+    _code << ", "; _code << GLstartTilingQCOMToString(preserveMask);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -48309,7 +48782,7 @@ static void REGAL_CALL code_glFragmentColorMaterialSGIX(GLenum face, GLenum mode
     string_list< ::std::string > _code;
     _code << indent << "glFragmentColorMaterialSGIX(";
                    _code << toString(face);
-    _code << ", "; _code << toString(mode);
+    _code << ", "; _code << GLmodeToString(mode);
     _code << ");\n";
     if (_context->codeSource)
       fprintf(_context->codeSource,"%s",_code.str().c_str());
@@ -49346,7 +49819,7 @@ static void REGAL_CALL code_glDrawMeshArraysSUN(GLenum mode, GLint first, GLsize
     std::string indent((_context->depthBeginEnd + _context->depthPushAttrib + 1)*2,' ');
     string_list< ::std::string > _code;
     _code << indent << "glDrawMeshArraysSUN(";
-                   _code << toString(mode);
+                   _code << GLmodeToString(mode);
     _code << ", "; _code << first;
     _code << ", "; _code << count;
     _code << ", "; _code << width;
@@ -51059,7 +51532,6 @@ void InitDispatchTableCode(DispatchTableGL &tbl)
   tbl.glPrimitiveRestartIndex = code_glPrimitiveRestartIndex;
   tbl.glTexBuffer = code_glTexBuffer;
   tbl.glFramebufferTexture = code_glFramebufferTexture;
-  tbl.glFramebufferTextureFace = code_glFramebufferTextureFace;
   tbl.glGetBufferParameteri64v = code_glGetBufferParameteri64v;
   tbl.glGetInteger64i_v = code_glGetInteger64i_v;
   tbl.glVertexAttribDivisor = code_glVertexAttribDivisor;
@@ -51104,6 +51576,17 @@ void InitDispatchTableCode(DispatchTableGL &tbl)
   tbl.glDrawArraysInstancedANGLE = code_glDrawArraysInstancedANGLE;
   tbl.glDrawElementsInstancedANGLE = code_glDrawElementsInstancedANGLE;
   tbl.glVertexAttribDivisorANGLE = code_glVertexAttribDivisorANGLE;
+  tbl.glBeginQueryANGLE = code_glBeginQueryANGLE;
+  tbl.glDeleteQueriesANGLE = code_glDeleteQueriesANGLE;
+  tbl.glEndQueryANGLE = code_glEndQueryANGLE;
+  tbl.glGenQueriesANGLE = code_glGenQueriesANGLE;
+  tbl.glGetQueryObjecti64vANGLE = code_glGetQueryObjecti64vANGLE;
+  tbl.glGetQueryObjectivANGLE = code_glGetQueryObjectivANGLE;
+  tbl.glGetQueryObjectui64vANGLE = code_glGetQueryObjectui64vANGLE;
+  tbl.glGetQueryObjectuivANGLE = code_glGetQueryObjectuivANGLE;
+  tbl.glGetQueryivANGLE = code_glGetQueryivANGLE;
+  tbl.glIsQueryANGLE = code_glIsQueryANGLE;
+  tbl.glQueryCounterANGLE = code_glQueryCounterANGLE;
   tbl.glGetTranslatedShaderSourceANGLE = code_glGetTranslatedShaderSourceANGLE;
   tbl.glCopyTextureLevelsAPPLE = code_glCopyTextureLevelsAPPLE;
   tbl.glDrawElementArrayAPPLE = code_glDrawElementArrayAPPLE;
@@ -51179,6 +51662,7 @@ void InitDispatchTableCode(DispatchTableGL &tbl)
   tbl.glBindFragDataLocationIndexed = code_glBindFragDataLocationIndexed;
   tbl.glGetFragDataIndex = code_glGetFragDataIndex;
   tbl.glBufferStorage = code_glBufferStorage;
+  tbl.glNamedBufferStorageEXT = code_glNamedBufferStorageEXT;
   tbl.glCreateSyncFromCLeventARB = code_glCreateSyncFromCLeventARB;
   tbl.glClearBufferData = code_glClearBufferData;
   tbl.glClearBufferSubData = code_glClearBufferSubData;
@@ -51603,6 +52087,12 @@ void InitDispatchTableCode(DispatchTableGL &tbl)
   tbl.glVertexAttribL4dv = code_glVertexAttribL4dv;
   tbl.glVertexAttribLPointer = code_glVertexAttribLPointer;
   tbl.glBindVertexBuffer = code_glBindVertexBuffer;
+  tbl.glVertexArrayBindVertexBufferEXT = code_glVertexArrayBindVertexBufferEXT;
+  tbl.glVertexArrayVertexAttribBindingEXT = code_glVertexArrayVertexAttribBindingEXT;
+  tbl.glVertexArrayVertexAttribFormatEXT = code_glVertexArrayVertexAttribFormatEXT;
+  tbl.glVertexArrayVertexAttribIFormatEXT = code_glVertexArrayVertexAttribIFormatEXT;
+  tbl.glVertexArrayVertexAttribLFormatEXT = code_glVertexArrayVertexAttribLFormatEXT;
+  tbl.glVertexArrayVertexBindingDivisorEXT = code_glVertexArrayVertexBindingDivisorEXT;
   tbl.glVertexAttribBinding = code_glVertexAttribBinding;
   tbl.glVertexAttribFormat = code_glVertexAttribFormat;
   tbl.glVertexAttribIFormat = code_glVertexAttribIFormat;
@@ -52485,8 +52975,11 @@ void InitDispatchTableCode(DispatchTableGL &tbl)
   tbl.glProgramUniformHandleui64vNV = code_glProgramUniformHandleui64vNV;
   tbl.glUniformHandleui64NV = code_glUniformHandleui64NV;
   tbl.glUniformHandleui64vNV = code_glUniformHandleui64vNV;
+  tbl.glBlendBarrierNV = code_glBlendBarrierNV;
+  tbl.glBlendParameteriNV = code_glBlendParameteriNV;
   tbl.glBeginConditionalRenderNV = code_glBeginConditionalRenderNV;
   tbl.glEndConditionalRenderNV = code_glEndConditionalRenderNV;
+  tbl.glCopyBufferSubDataNV = code_glCopyBufferSubDataNV;
   tbl.glCopyImageSubDataNV = code_glCopyImageSubDataNV;
   tbl.glCoverageMaskNV = code_glCoverageMaskNV;
   tbl.glCoverageOperationNV = code_glCoverageOperationNV;
@@ -52618,6 +53111,12 @@ void InitDispatchTableCode(DispatchTableGL &tbl)
   tbl.glVertexAttribs4hvNV = code_glVertexAttribs4hvNV;
   tbl.glVertexWeighthNV = code_glVertexWeighthNV;
   tbl.glVertexWeighthvNV = code_glVertexWeighthvNV;
+  tbl.glUniformMatrix2x3fvNV = code_glUniformMatrix2x3fvNV;
+  tbl.glUniformMatrix2x4fvNV = code_glUniformMatrix2x4fvNV;
+  tbl.glUniformMatrix3x2fvNV = code_glUniformMatrix3x2fvNV;
+  tbl.glUniformMatrix3x4fvNV = code_glUniformMatrix3x4fvNV;
+  tbl.glUniformMatrix4x2fvNV = code_glUniformMatrix4x2fvNV;
+  tbl.glUniformMatrix4x3fvNV = code_glUniformMatrix4x3fvNV;
   tbl.glBeginOcclusionQueryNV = code_glBeginOcclusionQueryNV;
   tbl.glDeleteOcclusionQueriesNV = code_glDeleteOcclusionQueriesNV;
   tbl.glEndOcclusionQueryNV = code_glEndOcclusionQueryNV;

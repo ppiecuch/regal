@@ -6,6 +6,7 @@
 
 # freetype sources
 
+FREETYPE.C :=
 FREETYPE.C += src/freetype/src/raster/rastpic.c
 FREETYPE.C += src/freetype/src/raster/ftrend1.c
 FREETYPE.C += src/freetype/src/raster/ftraster.c
@@ -141,6 +142,15 @@ FREETYPE.C += src/freetype/src/cff/cffpic.c
 FREETYPE.C += src/freetype/src/cff/cffcmap.c
 FREETYPE.C += src/freetype/src/cff/cffload.c
 FREETYPE.C += src/freetype/src/cff/cffobjs.c
+FREETYPE.C += src/freetype/src/cff/cf2ft.c
+FREETYPE.C += src/freetype/src/cff/cf2font.c
+FREETYPE.C += src/freetype/src/cff/cf2blues.c
+FREETYPE.C += src/freetype/src/cff/cf2intrp.c
+FREETYPE.C += src/freetype/src/cff/cf2error.c
+FREETYPE.C += src/freetype/src/cff/cf2read.c
+FREETYPE.C += src/freetype/src/cff/cf2stack.c
+FREETYPE.C += src/freetype/src/cff/cf2arrst.c
+FREETYPE.C += src/freetype/src/cff/cf2hints.c
 FREETYPE.C += src/freetype/src/truetype/ttgxvar.c
 FREETYPE.C += src/freetype/src/truetype/ttinterp.c
 FREETYPE.C += src/freetype/src/truetype/ttobjs.c
@@ -199,4 +209,4 @@ FREETYPE.C += src/freetype/src/autofit/autofit.c
 
 FREETYPE.H :=
 
-FREETYPE.H.OTHER := 
+FREETYPE.H.OTHER :=

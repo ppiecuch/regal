@@ -24,42 +24,24 @@
  *
  **************************************************************************/
 
-#ifndef _TRACE_BACKTRACE_HPP_
-#define _TRACE_BACKTRACE_HPP_
-
-/* Enable backtrace depending on the platform, opt-out with -DTRACE_BACKTRACE=0 */
-
-#ifndef TRACE_BACKTRACE
-# if defined(ANDROID) || defined(__ELF__)
-#  define TRACE_BACKTRACE 1
-# else
-#  define TRACE_BACKTRACE 0
-# endif
-#endif
+#ifndef _OS_BACKTRACE_HPP_
+#define _OS_BACKTRACE_HPP_
 
 #include <vector>
 
 #include "trace_model.hpp"
 
-namespace trace {
+namespace os {
 
-#if TRACE_BACKTRACE
+using trace::RawStackFrame;
+
 
 std::vector<RawStackFrame> get_backtrace();
 bool backtrace_is_needed(const char* fname);
 
-#else /* TRACE_BACKTRACE==0 */
+void dump_backtrace();
 
-static inline std::vector<RawStackFrame> get_backtrace() {
-    return std::vector<RawStackFrame>();
-}
 
-static inline bool backtrace_is_needed(const char*) {
-    return false;
-}
-
-#endif /* TRACE_BACKTRACE */
-
-} /* namespace trace */
+} /* namespace os */
 
 #endif

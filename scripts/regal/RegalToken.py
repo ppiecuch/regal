@@ -49,7 +49,142 @@ namespace Token {
     return print_string("0x",hex(v));
   }
 
-  std::string GLclearToString(GLbitfield v)
+  std::string
+  GLmodeToString(GLenum primitive)
+  {
+    switch (primitive)
+    {
+      case GL_AMBIENT:
+      case GL_AMBIENT_AND_DIFFUSE:
+      case GL_BACK:
+      case GL_BACK_LEFT:
+      case GL_BACK_RIGHT:
+      case GL_CCW:
+      case GL_COLOR:
+      case GL_COLOR_ATTACHMENT0:
+      case GL_COLOR_ATTACHMENT1:
+      case GL_COLOR_ATTACHMENT10:
+      case GL_COLOR_ATTACHMENT11:
+      case GL_COLOR_ATTACHMENT12:
+      case GL_COLOR_ATTACHMENT13:
+      case GL_COLOR_ATTACHMENT14:
+      case GL_COLOR_ATTACHMENT15:
+      case GL_COLOR_ATTACHMENT2:
+      case GL_COLOR_ATTACHMENT3:
+      case GL_COLOR_ATTACHMENT4:
+      case GL_COLOR_ATTACHMENT5:
+      case GL_COLOR_ATTACHMENT6:
+      case GL_COLOR_ATTACHMENT7:
+      case GL_COLOR_ATTACHMENT8:
+      case GL_COLOR_ATTACHMENT9:
+      case GL_COMPILE:
+      case GL_COMPILE_AND_EXECUTE:
+      case GL_CONTINUOUS_AMD:
+      case GL_CW:
+      case GL_DIFFUSE:
+      case GL_DISCRETE_AMD:
+      case GL_DONT_CARE:
+      case GL_EMISSION:
+      case GL_FASTEST:
+      case GL_FEEDBACK:
+      case GL_FILL:
+      case GL_FIRST_VERTEX_CONVENTION:
+      case GL_FLAT:
+      case GL_FRAGMENT_COLOR_EXT:
+      case GL_FRAGMENT_MATERIAL_EXT:
+      case GL_FRAGMENT_NORMAL_EXT:
+      case GL_FRONT:
+      case GL_FRONT_AND_BACK:
+      case GL_FRONT_LEFT:
+      case GL_FRONT_RIGHT:
+      case GL_FUNC_ADD:
+      case GL_FUNC_REVERSE_SUBTRACT:
+      case GL_FUNC_SUBTRACT:
+      case GL_INDEX_OFFSET:
+      case GL_LAST_VERTEX_CONVENTION:
+      case GL_LEFT:
+      case GL_LINE:
+      case GL_LINE_LOOP:
+      case GL_LINE_STRIP:
+      case GL_LINE_STRIP_ADJACENCY:
+      case GL_LINES_ADJACENCY:
+      case GL_MAX:
+      case GL_MIN:
+      case GL_MODELVIEW:
+      case GL_NATIVE_GRAPHICS_BEGIN_HINT_PGI:
+      case GL_NATIVE_GRAPHICS_END_HINT_PGI:
+      case GL_NATIVE_GRAPHICS_HANDLE_PGI:
+      case GL_NICEST:
+      case GL_PATCHES:
+      case GL_PERTURB_EXT:
+      case GL_POINT:
+      case GL_POLYGON:
+      case GL_PREFER_DOUBLEBUFFER_HINT_PGI:
+      case GL_PROJECTION:
+      case GL_QUAD_MESH_SUN:
+      case GL_QUAD_STRIP:
+      case GL_QUADS:
+      case GL_QUERY_BY_REGION_NO_WAIT:
+      case GL_QUERY_BY_REGION_WAIT:
+      case GL_QUERY_NO_WAIT:
+      case GL_QUERY_WAIT:
+      case GL_RECLAIM_MEMORY_HINT_PGI:
+      case GL_RENDER:
+      case GL_RIGHT:
+      case GL_SELECT:
+      case GL_SMOOTH:
+      case GL_SPECULAR:
+      case GL_TEXTURE:
+      case GL_TEXTURE0:
+      case GL_TEXTURE1:
+      case GL_TEXTURE10:
+      case GL_TEXTURE11:
+      case GL_TEXTURE12:
+      case GL_TEXTURE13:
+      case GL_TEXTURE14:
+      case GL_TEXTURE15:
+      case GL_TEXTURE16:
+      case GL_TEXTURE17:
+      case GL_TEXTURE18:
+      case GL_TEXTURE19:
+      case GL_TEXTURE2:
+      case GL_TEXTURE20:
+      case GL_TEXTURE21:
+      case GL_TEXTURE22:
+      case GL_TEXTURE23:
+      case GL_TEXTURE24:
+      case GL_TEXTURE25:
+      case GL_TEXTURE26:
+      case GL_TEXTURE27:
+      case GL_TEXTURE28:
+      case GL_TEXTURE29:
+      case GL_TEXTURE3:
+      case GL_TEXTURE30:
+      case GL_TEXTURE31:
+      case GL_TEXTURE4:
+      case GL_TEXTURE5:
+      case GL_TEXTURE6:
+      case GL_TEXTURE7:
+      case GL_TEXTURE8:
+      case GL_TEXTURE9:
+      case GL_TRIANGLE_FAN:
+      case GL_TRIANGLE_LIST_SUN:
+      case GL_TRIANGLE_MESH_SUN:
+      case GL_TRIANGLE_STRIP:
+      case GL_TRIANGLE_STRIP_ADJACENCY:
+      case GL_TRIANGLES:
+      case GL_TRIANGLES_ADJACENCY:
+                                       return GLenumToString(primitive);
+
+      case GL_POINTS:                   return "GL_POINTS";
+      case GL_LINES:                    return "GL_LINES";
+      case GL_LOGIC_OP:                 return "GL_LOGIC_OP";
+
+      default:                          return print_string("0x",hex(primitive));
+    }
+  }
+
+  std::string GLblitFramebufferToString(GLbitfield v)
   {
     const GLbitfield other = v & ~(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -76,6 +211,103 @@ namespace Token {
     if (v & GL_MAP_FLUSH_EXPLICIT_BIT)    { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_FLUSH_EXPLICIT_BIT"; }
     if (v & GL_MAP_UNSYNCHRONIZED_BIT)    { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_UNSYNCHRONIZED_BIT"; }
     if (other || v==0)                    { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLbufferStorageToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_DYNAMIC_STORAGE_BIT | GL_MAP_READ_BIT | GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_CLIENT_STORAGE_BIT);
+
+    string_list<std::string> tmp;
+    if (v & GL_DYNAMIC_STORAGE_BIT) { if (tmp.size()) tmp += " | "; tmp += "GL_DYNAMIC_STORAGE_BIT"; }
+    if (v & GL_MAP_READ_BIT)        { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_READ_BIT"; }
+    if (v & GL_MAP_WRITE_BIT)       { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_WRITE_BIT"; }
+    if (v & GL_MAP_PERSISTENT_BIT)  { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_PERSISTENT_BIT"; }
+    if (v & GL_MAP_COHERENT_BIT)    { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_COHERENT_BIT"; }
+    if (v & GL_CLIENT_STORAGE_BIT)  { if (tmp.size()) tmp += " | "; tmp += "GL_CLIENT_STORAGE_BIT"; }
+    if (other || v==0)              { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLclearToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    string_list<std::string> tmp;
+    if (v & GL_COLOR_BUFFER_BIT)   { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT"; }
+    if (v & GL_DEPTH_BUFFER_BIT)   { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT"; }
+    if (v & GL_STENCIL_BUFFER_BIT) { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT"; }
+    if (other || v==0)             { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLclientWaitSyncToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_SYNC_FLUSH_COMMANDS_BIT);
+
+    string_list<std::string> tmp;
+    if (v &  GL_SYNC_FLUSH_COMMANDS_BIT) { if (tmp.size()) tmp += " | "; tmp += " GL_SYNC_FLUSH_COMMANDS_BIT"; }
+    if (other || v==0)                   { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLfenceSyncToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_ZERO);
+
+    string_list<std::string> tmp;
+    if (v & GL_ZERO)   { if (tmp.size()) tmp += " | "; tmp += "GL_ZERO"; }
+    if (other || v==0) { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLmapBufferRangeToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_MAP_READ_BIT | GL_MAP_WRITE_BIT  | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_FLUSH_EXPLICIT_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+    string_list<std::string> tmp;
+    if (v & GL_MAP_READ_BIT)              { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_READ_BIT"; }
+    if (v & GL_MAP_WRITE_BIT)             { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_WRITE_BIT"; }
+    if (v & GL_MAP_INVALIDATE_RANGE_BIT)  { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_INVALIDATE_RANGE_BIT"; }
+    if (v & GL_MAP_INVALIDATE_BUFFER_BIT) { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_INVALIDATE_BUFFER_BIT"; }
+    if (v & GL_MAP_FLUSH_EXPLICIT_BIT)    { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_FLUSH_EXPLICIT_BIT"; }
+    if (v & GL_MAP_UNSYNCHRONIZED_BIT)    { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_UNSYNCHRONIZED_BIT"; }
+    if (other || v==0)                    { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLmemoryBarrierToString(GLbitfield v)
+  {
+    if (v == GL_ALL_BARRIER_BITS)
+      return std::string("GL_ALL_BARRIER_BITS");
+
+    const GLbitfield other = v & ~(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_ELEMENT_ARRAY_BARRIER_BIT |
+                                   GL_UNIFORM_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT |
+                                   GL_COMMAND_BARRIER_BIT | GL_PIXEL_BUFFER_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT |
+                                   GL_BUFFER_UPDATE_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT | GL_TRANSFORM_FEEDBACK_BARRIER_BIT |
+                                   GL_ATOMIC_COUNTER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+
+    string_list<std::string> tmp;
+    if (v & GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT) { if (tmp.size()) tmp += " | "; tmp += "GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT"; }
+    if (v & GL_ELEMENT_ARRAY_BARRIER_BIT)       { if (tmp.size()) tmp += " | "; tmp += "GL_ELEMENT_ARRAY_BARRIER_BIT"; }
+    if (v & GL_UNIFORM_BARRIER_BIT)             { if (tmp.size()) tmp += " | "; tmp += "GL_UNIFORM_BARRIER_BIT"; }
+    if (v & GL_TEXTURE_FETCH_BARRIER_BIT)       { if (tmp.size()) tmp += " | "; tmp += "GL_TEXTURE_FETCH_BARRIER_BIT"; }
+    if (v & GL_SHADER_IMAGE_ACCESS_BARRIER_BIT) { if (tmp.size()) tmp += " | "; tmp += "GL_SHADER_IMAGE_ACCESS_BARRIER_BIT"; }
+    if (v & GL_COMMAND_BARRIER_BIT)             { if (tmp.size()) tmp += " | "; tmp += "GL_COMMAND_BARRIER_BIT"; }
+    if (v & GL_PIXEL_BUFFER_BARRIER_BIT)        { if (tmp.size()) tmp += " | "; tmp += "GL_PIXEL_BUFFER_BARRIER_BIT"; }
+    if (v & GL_TEXTURE_UPDATE_BARRIER_BIT)      { if (tmp.size()) tmp += " | "; tmp += "GL_TEXTURE_UPDATE_BARRIER_BIT"; }
+    if (v & GL_BUFFER_UPDATE_BARRIER_BIT)       { if (tmp.size()) tmp += " | "; tmp += "GL_BUFFER_UPDATE_BARRIER_BIT"; }
+    if (v & GL_FRAMEBUFFER_BARRIER_BIT)         { if (tmp.size()) tmp += " | "; tmp += "GL_FRAMEBUFFER_BARRIER_BIT"; }
+    if (v & GL_TRANSFORM_FEEDBACK_BARRIER_BIT)  { if (tmp.size()) tmp += " | "; tmp += "GL_TRANSFORM_FEEDBACK_BARRIER_BIT"; }
+    if (v & GL_ATOMIC_COUNTER_BARRIER_BIT)      { if (tmp.size()) tmp += " | "; tmp += "GL_ATOMIC_COUNTER_BARRIER_BIT"; }
+    if (v & GL_SHADER_STORAGE_BARRIER_BIT)      { if (tmp.size()) tmp += " | "; tmp += "GL_SHADER_STORAGE_BARRIER_BIT"; }
+    if (other || v==0)                          { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
 
     return tmp.str();
   }
@@ -112,6 +344,202 @@ namespace Token {
     if (v & GL_TRANSFORM_BIT)             { if (tmp.size()) tmp += " | "; tmp += "GL_TRANSFORM_BIT"; }
     if (v & GL_VIEWPORT_BIT)              { if (tmp.size()) tmp += " | "; tmp += "GL_VIEWPORT_BIT"; }
     if (other || v==0)                    { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLpushClientAttribToString(GLbitfield v)
+  {
+    if (v == GL_CLIENT_ALL_ATTRIB_BITS)
+      return std::string("GL_CLIENT_ALL_ATTRIB_BITS");
+
+    const GLbitfield other = v & ~(GL_CLIENT_PIXEL_STORE_BIT | GL_CLIENT_VERTEX_ARRAY_BIT );
+
+    string_list<std::string> tmp;
+    if (v & GL_CLIENT_PIXEL_STORE_BIT)    { if (tmp.size()) tmp += " | "; tmp += "GL_CLIENT_PIXEL_STORE_BIT"; }
+    if (v & GL_CLIENT_VERTEX_ARRAY_BIT)   { if (tmp.size()) tmp += " | "; tmp += "GL_CLIENT_VERTEX_ARRAY_BIT"; }
+    if (other || v==0)                    { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLuseProgramStagesToString(GLbitfield v)
+  {
+    if (v == GL_ALL_SHADER_BITS)
+      return std::string("GL_ALL_SHADER_BITS");
+
+    const GLbitfield other = v & ~(GL_VERTEX_SHADER_BIT | GL_TESS_CONTROL_SHADER_BIT | GL_TESS_EVALUATION_SHADER_BIT | GL_GEOMETRY_SHADER_BIT | GL_FRAGMENT_SHADER_BIT | GL_COMPUTE_SHADER_BIT);
+
+    string_list<std::string> tmp;
+    if (v & GL_VERTEX_SHADER_BIT)          { if (tmp.size()) tmp += " | "; tmp += "GL_VERTEX_SHADER_BIT"; }
+    if (v & GL_TESS_CONTROL_SHADER_BIT)    { if (tmp.size()) tmp += " | "; tmp += "GL_TESS_CONTROL_SHADER_BIT"; }
+    if (v & GL_TESS_EVALUATION_SHADER_BIT) { if (tmp.size()) tmp += " | "; tmp += "GL_TESS_EVALUATION_SHADER_BIT"; }
+    if (v & GL_GEOMETRY_SHADER_BIT)        { if (tmp.size()) tmp += " | "; tmp += "GL_GEOMETRY_SHADER_BIT"; }
+    if (v & GL_FRAGMENT_SHADER_BIT)        { if (tmp.size()) tmp += " | "; tmp += "GL_FRAGMENT_SHADER_BIT"; }
+    if (v & GL_COMPUTE_SHADER_BIT)         { if (tmp.size()) tmp += " | "; tmp += "GL_COMPUTE_SHADER_BIT"; }
+    if (other || v==0)                     { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLwaitSyncToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_ZERO);
+
+    string_list<std::string> tmp;
+    if (v & GL_ZERO)   { if (tmp.size()) tmp += " | "; tmp += "GL_ZERO"; }
+    if (other || v==0) { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLcreateSyncFromCLeventARBToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_ZERO);
+
+    string_list<std::string> tmp;
+    if (v & GL_ZERO)   { if (tmp.size()) tmp += " | "; tmp += "GL_ZERO"; }
+    if (other || v==0) { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLimportSyncEXTToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_ZERO);
+
+    string_list<std::string> tmp;
+    if (v & GL_ZERO)   { if (tmp.size()) tmp += " | "; tmp += "GL_ZERO"; }
+    if (other || v==0) { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLgetPathMetricsNVToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_GLYPH_WIDTH_BIT_NV | GL_GLYPH_HEIGHT_BIT_NV | GL_GLYPH_HORIZONTAL_BEARING_X_BIT_NV |
+                                   GL_GLYPH_HORIZONTAL_BEARING_Y_BIT_NV | GL_GLYPH_HORIZONTAL_BEARING_ADVANCE_BIT_NV |
+                                   GL_GLYPH_VERTICAL_BEARING_X_BIT_NV | GL_GLYPH_VERTICAL_BEARING_Y_BIT_NV |
+                                   GL_GLYPH_VERTICAL_BEARING_ADVANCE_BIT_NV | GL_GLYPH_HAS_KERNING_BIT_NV | GL_FONT_X_MIN_BOUNDS_BIT_NV |
+                                   GL_FONT_Y_MIN_BOUNDS_BIT_NV | GL_FONT_X_MAX_BOUNDS_BIT_NV | GL_FONT_Y_MAX_BOUNDS_BIT_NV |
+                                   GL_FONT_UNITS_PER_EM_BIT_NV | GL_FONT_ASCENDER_BIT_NV | GL_FONT_DESCENDER_BIT_NV | GL_FONT_HEIGHT_BIT_NV |
+                                   GL_FONT_MAX_ADVANCE_WIDTH_BIT_NV | GL_FONT_MAX_ADVANCE_HEIGHT_BIT_NV | GL_FONT_UNDERLINE_POSITION_BIT_NV |
+                                   GL_FONT_UNDERLINE_THICKNESS_BIT_NV | GL_FONT_HAS_KERNING_BIT_NV);
+
+    string_list<std::string> tmp;
+    if (v & GL_GLYPH_WIDTH_BIT_NV)                      { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_WIDTH_BIT_NV"; }
+    if (v & GL_GLYPH_HEIGHT_BIT_NV)                     { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_HEIGHT_BIT_NV"; }
+    if (v & GL_GLYPH_HORIZONTAL_BEARING_X_BIT_NV)       { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_HORIZONTAL_BEARING_X_BIT_NV"; }
+    if (v & GL_GLYPH_HORIZONTAL_BEARING_Y_BIT_NV)       { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_HORIZONTAL_BEARING_Y_BIT_NV"; }
+    if (v & GL_GLYPH_HORIZONTAL_BEARING_ADVANCE_BIT_NV) { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_HORIZONTAL_BEARING_ADVANCE_BIT_NV"; }
+    if (v & GL_GLYPH_VERTICAL_BEARING_X_BIT_NV)         { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_VERTICAL_BEARING_X_BIT_NV"; }
+    if (v & GL_GLYPH_VERTICAL_BEARING_Y_BIT_NV)         { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_VERTICAL_BEARING_Y_BIT_NV"; }
+    if (v & GL_GLYPH_VERTICAL_BEARING_ADVANCE_BIT_NV)   { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_VERTICAL_BEARING_ADVANCE_BIT_NV"; }
+    if (v & GL_GLYPH_HAS_KERNING_BIT_NV)                { if (tmp.size()) tmp += " | "; tmp += "GL_GLYPH_HAS_KERNING_BIT_NV"; }
+    if (v & GL_FONT_X_MIN_BOUNDS_BIT_NV)                { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_X_MIN_BOUNDS_BIT_NV"; }
+    if (v & GL_FONT_Y_MIN_BOUNDS_BIT_NV)                { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_Y_MIN_BOUNDS_BIT_NV"; }
+    if (v & GL_FONT_X_MAX_BOUNDS_BIT_NV)                { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_X_MAX_BOUNDS_BIT_NV"; }
+    if (v & GL_FONT_Y_MAX_BOUNDS_BIT_NV)                { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_Y_MAX_BOUNDS_BIT_NV"; }
+    if (v & GL_FONT_UNITS_PER_EM_BIT_NV)                { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_UNITS_PER_EM_BIT_NV"; }
+    if (v & GL_FONT_ASCENDER_BIT_NV)                    { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_ASCENDER_BIT_NV"; }
+    if (v & GL_FONT_DESCENDER_BIT_NV)                   { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_DESCENDER_BIT_NV"; }
+    if (v & GL_FONT_HEIGHT_BIT_NV)                      { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_HEIGHT_BIT_NV"; }
+    if (v & GL_FONT_MAX_ADVANCE_WIDTH_BIT_NV)           { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_MAX_ADVANCE_WIDTH_BIT_NV"; }
+    if (v & GL_FONT_MAX_ADVANCE_HEIGHT_BIT_NV)          { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_MAX_ADVANCE_HEIGHT_BIT_NV"; }
+    if (v & GL_FONT_UNDERLINE_POSITION_BIT_NV)          { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_UNDERLINE_POSITION_BIT_NV"; }
+    if (v & GL_FONT_UNDERLINE_THICKNESS_BIT_NV)         { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_UNDERLINE_THICKNESS_BIT_NV"; }
+    if (v & GL_FONT_HAS_KERNING_BIT_NV)                 { if (tmp.size()) tmp += " | "; tmp += "GL_FONT_HAS_KERNING_BIT_NV"; }
+    if (other || v==0)                                  { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLpathGlyphsNVToString(GLbitfield v)
+  {
+    if (v == GL_NONE)
+      return std::string("GL_NONE");
+
+    const GLbitfield other = v & ~(GL_BOLD_BIT_NV | GL_ITALIC_BIT_NV);
+
+    string_list<std::string> tmp;
+    if (v & GL_BOLD_BIT_NV)   { if (tmp.size()) tmp += " | "; tmp += "GL_BOLD_BIT_NV"; }
+    if (v & GL_ITALIC_BIT_NV) { if (tmp.size()) tmp += " | "; tmp += "GL_ITALIC_BIT_NV"; }
+    if (other || v==0)        { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLtexStorageSparseAMDToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_TEXTURE_STORAGE_SPARSE_BIT_AMD);
+
+    string_list<std::string> tmp;
+    if (v & GL_TEXTURE_STORAGE_SPARSE_BIT_AMD) { if (tmp.size()) tmp += " | "; tmp += "GL_TEXTURE_STORAGE_SPARSE_BIT_AMD"; }
+    if (other || v==0)                         { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLmapTexture2DINTELToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
+
+    string_list<std::string> tmp;
+    if (v & GL_MAP_READ_BIT)  { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_READ_BIT"; }
+    if (v & GL_MAP_WRITE_BIT) { if (tmp.size()) tmp += " | "; tmp += "GL_MAP_WRITE_BIT"; }
+    if (other || v==0)        { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
+
+    return tmp.str();
+  }
+
+  std::string GLstartTilingQCOMToString(GLbitfield v)
+  {
+    const GLbitfield other = v & ~(GL_COLOR_BUFFER_BIT0_QCOM | GL_COLOR_BUFFER_BIT1_QCOM | GL_COLOR_BUFFER_BIT2_QCOM |
+                                   GL_COLOR_BUFFER_BIT3_QCOM | GL_COLOR_BUFFER_BIT4_QCOM | GL_COLOR_BUFFER_BIT5_QCOM |
+                                   GL_COLOR_BUFFER_BIT6_QCOM | GL_COLOR_BUFFER_BIT7_QCOM | GL_DEPTH_BUFFER_BIT0_QCOM |
+                                   GL_DEPTH_BUFFER_BIT1_QCOM | GL_DEPTH_BUFFER_BIT2_QCOM | GL_DEPTH_BUFFER_BIT3_QCOM |
+                                   GL_DEPTH_BUFFER_BIT4_QCOM | GL_DEPTH_BUFFER_BIT5_QCOM | GL_DEPTH_BUFFER_BIT6_QCOM |
+                                   GL_DEPTH_BUFFER_BIT7_QCOM | GL_STENCIL_BUFFER_BIT0_QCOM | GL_STENCIL_BUFFER_BIT1_QCOM |
+                                   GL_STENCIL_BUFFER_BIT2_QCOM | GL_STENCIL_BUFFER_BIT3_QCOM | GL_STENCIL_BUFFER_BIT4_QCOM |
+                                   GL_STENCIL_BUFFER_BIT5_QCOM | GL_STENCIL_BUFFER_BIT6_QCOM | GL_STENCIL_BUFFER_BIT7_QCOM |
+                                   GL_MULTISAMPLE_BUFFER_BIT0_QCOM | GL_MULTISAMPLE_BUFFER_BIT1_QCOM | GL_MULTISAMPLE_BUFFER_BIT2_QCOM |
+                                   GL_MULTISAMPLE_BUFFER_BIT3_QCOM | GL_MULTISAMPLE_BUFFER_BIT4_QCOM | GL_MULTISAMPLE_BUFFER_BIT5_QCOM |
+                                   GL_MULTISAMPLE_BUFFER_BIT6_QCOM | GL_MULTISAMPLE_BUFFER_BIT7_QCOM);
+
+    string_list<std::string> tmp;
+    if (v & GL_COLOR_BUFFER_BIT0_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT0_QCOM"; }
+    if (v & GL_COLOR_BUFFER_BIT1_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT1_QCOM"; }
+    if (v & GL_COLOR_BUFFER_BIT2_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT2_QCOM"; }
+    if (v & GL_COLOR_BUFFER_BIT3_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT3_QCOM"; }
+    if (v & GL_COLOR_BUFFER_BIT4_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT4_QCOM"; }
+    if (v & GL_COLOR_BUFFER_BIT5_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT5_QCOM"; }
+    if (v & GL_COLOR_BUFFER_BIT6_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT6_QCOM"; }
+    if (v & GL_COLOR_BUFFER_BIT7_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_COLOR_BUFFER_BIT7_QCOM"; }
+    if (v & GL_DEPTH_BUFFER_BIT0_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT0_QCOM"; }
+    if (v & GL_DEPTH_BUFFER_BIT1_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT1_QCOM"; }
+    if (v & GL_DEPTH_BUFFER_BIT2_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT2_QCOM"; }
+    if (v & GL_DEPTH_BUFFER_BIT3_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT3_QCOM"; }
+    if (v & GL_DEPTH_BUFFER_BIT4_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT4_QCOM"; }
+    if (v & GL_DEPTH_BUFFER_BIT5_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT5_QCOM"; }
+    if (v & GL_DEPTH_BUFFER_BIT6_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT6_QCOM"; }
+    if (v & GL_DEPTH_BUFFER_BIT7_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_DEPTH_BUFFER_BIT7_QCOM"; }
+    if (v & GL_STENCIL_BUFFER_BIT0_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT0_QCOM"; }
+    if (v & GL_STENCIL_BUFFER_BIT1_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT1_QCOM"; }
+    if (v & GL_STENCIL_BUFFER_BIT2_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT2_QCOM"; }
+    if (v & GL_STENCIL_BUFFER_BIT3_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT3_QCOM"; }
+    if (v & GL_STENCIL_BUFFER_BIT4_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT4_QCOM"; }
+    if (v & GL_STENCIL_BUFFER_BIT5_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT5_QCOM"; }
+    if (v & GL_STENCIL_BUFFER_BIT6_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT6_QCOM"; }
+    if (v & GL_STENCIL_BUFFER_BIT7_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_STENCIL_BUFFER_BIT7_QCOM"; }
+    if (v & GL_MULTISAMPLE_BUFFER_BIT0_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_MULTISAMPLE_BUFFER_BIT0_QCOM"; }
+    if (v & GL_MULTISAMPLE_BUFFER_BIT1_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_MULTISAMPLE_BUFFER_BIT1_QCOM"; }
+    if (v & GL_MULTISAMPLE_BUFFER_BIT2_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_MULTISAMPLE_BUFFER_BIT2_QCOM"; }
+    if (v & GL_MULTISAMPLE_BUFFER_BIT3_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_MULTISAMPLE_BUFFER_BIT3_QCOM"; }
+    if (v & GL_MULTISAMPLE_BUFFER_BIT4_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_MULTISAMPLE_BUFFER_BIT4_QCOM"; }
+    if (v & GL_MULTISAMPLE_BUFFER_BIT5_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_MULTISAMPLE_BUFFER_BIT5_QCOM"; }
+    if (v & GL_MULTISAMPLE_BUFFER_BIT6_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_MULTISAMPLE_BUFFER_BIT6_QCOM"; }
+    if (v & GL_MULTISAMPLE_BUFFER_BIT7_QCOM)  { if (tmp.size()) tmp += " | "; tmp += "GL_MULTISAMPLE_BUFFER_BIT7_QCOM"; }
+    if (other || v==0)        { if (tmp.size()) tmp += " | "; tmp += size_t(other); }
 
     return tmp.str();
   }
@@ -330,6 +758,7 @@ def generateTokenSource(apis, args):
   code = []
 
   code.append('  const char * GLenumToString( GLenum e ) {')
+  code.append('    #if REGAL_ENUM_TO_STRING')
   code.append('    switch( e ) {')
 
   for i in apis:
@@ -366,13 +795,15 @@ def generateTokenSource(apis, args):
 
   code.append('      default: break;')
   code.append('    }')
-  code.append('  return "unknown_gl_enum";')
+  code.append('    #endif // REGAL_ENUM_TO_STRING')
+  code.append('    return "unknown_gl_enum";')
   code.append('  }')
 
   # GLerrorToString
 
   code.append('')
   code.append('  const char * GLerrorToString( GLenum e ) {')
+  code.append('    #if REGAL_ENUM_TO_STRING')
   code.append('    switch( e ) {')
   for i in apis:
     if i.name != 'gl':
@@ -385,7 +816,8 @@ def generateTokenSource(apis, args):
           code.append('      case %s: return "%s";'%(k.name,k.gluErrorString))
   code.append('      default: break;')
   code.append('    }')
-  code.append('  return NULL;')
+  code.append('    #endif // REGAL_ENUM_TO_STRING')
+  code.append('    return NULL;')
   code.append('  }')
 
   # GLX_VERSION
@@ -393,6 +825,7 @@ def generateTokenSource(apis, args):
   code.append('')
   code.append('#if REGAL_SYS_GLX')
   code.append('  const char * GLXenumToString(int v) {')
+  code.append('    #if REGAL_ENUM_TO_STRING')
   code.append('    switch( v ) {')
 
   for i in apis:
@@ -424,6 +857,7 @@ def generateTokenSource(apis, args):
 
   code.append('      default: break;')
   code.append('    }')
+  code.append('    #endif // REGAL_ENUM_TO_STRING')
   code.append('    return "unknown_glx_enum";')
   code.append('  }')
   code.append('#endif // REGAL_SYS_GLX')
@@ -433,6 +867,7 @@ def generateTokenSource(apis, args):
   code.append('')
   code.append('#if REGAL_SYS_EGL')
   code.append('  const char * EGLenumToString(int v) {')
+  code.append('    #if REGAL_ENUM_TO_STRING')
   code.append('    switch( v ) {')
 
   for i in apis:
@@ -469,6 +904,7 @@ def generateTokenSource(apis, args):
 
   code.append('      default: break;')
   code.append('    }')
+  code.append('    #endif // REGAL_ENUM_TO_STRING')
   code.append('    return "unknown_egl_enum";')
   code.append('  }')
   code.append('#endif // REGAL_SYS_EGL')
@@ -508,12 +944,36 @@ namespace Token {
   const char * internalFormatToString(GLint      v);
 
   std::string  GLtextureToString     (GLenum     v); // GL_TEXTUREi or 0xaaaa
+  std::string  GLmodeToString        (GLenum     v); // GL_PRIMITIVE or 0xaaaa
 
   // Bitfield strings
 
-  std::string GLclearToString       (GLbitfield v);
-  std::string GLbufferAccessToString(GLbitfield v);
-  std::string GLpushAttribToString  (GLbitfield v);
+  std::string GLblitFramebufferToString (GLbitfield v);
+  std::string GLbufferAccessToString    (GLbitfield v);
+  std::string GLbufferStorageToString   (GLbitfield v);
+  std::string GLclearToString           (GLbitfield v);
+  std::string GLclientWaitSyncToString  (GLbitfield v);
+  std::string GLfenceSyncToString       (GLbitfield v);
+  std::string GLmapBufferRangeToString  (GLbitfield v);
+  std::string GLmemoryBarrierToString   (GLbitfield v);
+  std::string GLpushAttribToString      (GLbitfield v);
+  std::string GLpushClientAttribToString(GLbitfield v);
+  std::string GLsampleMaskiToString     (GLbitfield v);
+  std::string GLuseProgramStagesToString(GLbitfield v);
+  std::string GLwaitSyncToString        (GLbitfield v);
+
+  std::string GLcreateSyncFromCLeventARBToString(GLbitfield v);
+
+  std::string GLimportSyncEXTToString(GLbitfield v);
+
+  std::string GLgetPathMetricsNVToString(GLbitfield v);
+  std::string GLpathGlyphsNVToString    (GLbitfield v);
+
+  std::string GLtexStorageSparseAMDToString(GLbitfield v);
+
+  std::string GLmapTexture2DINTELToString(GLbitfield v);
+
+  std::string GLstartTilingQCOMToString(GLbitfield v);
 
   std::string GLTexParameterToString(GLenum pname, const GLfloat  param );
   std::string GLTexParameterToString(GLenum pname, const GLint    param );

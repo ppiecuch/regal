@@ -24,7 +24,9 @@ include Makefile.zlib
 include Makefile.libpng
 include Makefile.snappy
 include Makefile.apitrace
+# include Makefile.glslopt
 include Makefile.regal
+include Makefile.regalw
 include Makefile.glu
 include Makefile.glut
 include Makefile.glew
@@ -34,11 +36,16 @@ include Makefile.glewinfo
 
 include Makefile.dreamtorus
 include Makefile.dreamtorus_static
+include Makefile.tiger
 
 # Testing
 
 include Makefile.gtest
 include Makefile.regaltest
+
+# Misc
+
+# include Makefile.expat
 
 all::
 

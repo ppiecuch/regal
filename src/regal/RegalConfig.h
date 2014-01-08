@@ -54,6 +54,12 @@ namespace Config
 
   extern ::std::string configFile;
 
+  extern ::std::string loadGL;       // REGAL_LOAD_GL
+  extern ::std::string loadES2;      // REGAL_LOAD_ES2
+//extern ::std::string loadGLX;      // REGAL_LOAD_GLX
+//extern ::std::string loadWGL;      // REGAL_LOAD_WGL
+  extern ::std::string loadEGL;      // REGAL_LOAD_EGL
+
   //
 
   extern bool forceES1Profile;
@@ -82,6 +88,7 @@ namespace Config
   extern bool enableStatistics;
   extern bool enableLog;
   extern bool enableDriver;
+  extern bool enableMissing;
 
   // Initial emulation layer enable/disable
 
@@ -97,6 +104,7 @@ namespace Config
   extern bool enableEmuRect;
   extern bool enableEmuBaseVertex;
   extern bool enableEmuIff;
+  extern bool enableEmuQuads;
   extern bool enableEmuSo;
   extern bool enableEmuVao;
   extern bool enableEmuFilter;
@@ -116,6 +124,7 @@ namespace Config
   extern bool forceEmuRect;
   extern bool forceEmuBaseVertex;
   extern bool forceEmuIff;
+  extern bool forceEmuQuads;
   extern bool forceEmuSo;
   extern bool forceEmuVao;
   extern bool forceEmuFilter;
@@ -140,6 +149,8 @@ namespace Config
   extern ::std::string frameSaveColorPrefix;	// Filename prefix for saved PNGs
   extern ::std::string frameSaveStencilPrefix;
   extern ::std::string frameSaveDepthPrefix;
+
+  extern bool frameCapture;                   // Capture files and md5sums for other functions too
 
   // Caching
 

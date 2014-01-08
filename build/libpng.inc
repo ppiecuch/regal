@@ -5,6 +5,7 @@
 
 # Sources
 
+LIBPNG.C :=
 LIBPNG.C += src/libpng/src/png.c
 LIBPNG.C += src/libpng/src/pngerror.c
 LIBPNG.C += src/libpng/src/pngget.c
@@ -20,6 +21,9 @@ LIBPNG.C += src/libpng/src/pngwio.c
 LIBPNG.C += src/libpng/src/pngwrite.c
 LIBPNG.C += src/libpng/src/pngwtran.c
 LIBPNG.C += src/libpng/src/pngwutil.c
+
+LIBPNG_ARM.C += src/libpng/src/arm/arm_init.c
+LIBPNG.S     += src/libpng/src/arm/filter_neon.S
 
 #
 

@@ -32,6 +32,7 @@ EXPORTS
   glBeginOcclusionQueryNV
   glBeginPerfMonitorAMD
   glBeginQuery
+  glBeginQueryANGLE
   glBeginQueryARB
   glBeginQueryEXT
   glBeginQueryIndexed
@@ -104,6 +105,7 @@ EXPORTS
   glBinormal3svEXT
   glBinormalPointerEXT
   glBitmap
+  glBlendBarrierNV
   glBlendColor
   glBlendColorEXT
   glBlendEquation
@@ -129,6 +131,7 @@ EXPORTS
   glBlendFuncSeparateiARB
   glBlendFunci
   glBlendFunciARB
+  glBlendParameteriNV
   glBlitFramebuffer
   glBlitFramebufferANGLE
   glBlitFramebufferEXT
@@ -301,6 +304,7 @@ EXPORTS
   glConvolutionParameteriv
   glConvolutionParameterivEXT
   glCopyBufferSubData
+  glCopyBufferSubDataNV
   glCopyColorSubTable
   glCopyColorSubTableEXT
   glCopyColorTable
@@ -387,6 +391,7 @@ EXPORTS
   glDeleteProgramsARB
   glDeleteProgramsNV
   glDeleteQueries
+  glDeleteQueriesANGLE
   glDeleteQueriesARB
   glDeleteQueriesEXT
   glDeleteRenderbuffers
@@ -505,6 +510,7 @@ EXPORTS
   glEndOcclusionQueryNV
   glEndPerfMonitorAMD
   glEndQuery
+  glEndQueryANGLE
   glEndQueryARB
   glEndQueryEXT
   glEndQueryIndexed
@@ -633,7 +639,6 @@ EXPORTS
   glFramebufferTexture3DOES
   glFramebufferTextureARB
   glFramebufferTextureEXT
-  glFramebufferTextureFace
   glFramebufferTextureFaceARB
   glFramebufferTextureFaceEXT
   glFramebufferTextureLayer
@@ -663,6 +668,7 @@ EXPORTS
   glGenProgramsARB
   glGenProgramsNV
   glGenQueries
+  glGenQueriesANGLE
   glGenQueriesARB
   glGenQueriesEXT
   glGenRenderbuffers
@@ -934,16 +940,21 @@ EXPORTS
   glGetProgramivNV
   glGetQueryIndexediv
   glGetQueryObjecti64v
+  glGetQueryObjecti64vANGLE
   glGetQueryObjecti64vEXT
   glGetQueryObjectiv
+  glGetQueryObjectivANGLE
   glGetQueryObjectivARB
   glGetQueryObjectivEXT
   glGetQueryObjectui64v
+  glGetQueryObjectui64vANGLE
   glGetQueryObjectui64vEXT
   glGetQueryObjectuiv
+  glGetQueryObjectuivANGLE
   glGetQueryObjectuivARB
   glGetQueryObjectuivEXT
   glGetQueryiv
+  glGetQueryivANGLE
   glGetQueryivARB
   glGetQueryivEXT
   glGetRenderbufferParameteriv
@@ -1159,6 +1170,7 @@ EXPORTS
   glIsProgramNV
   glIsProgramPipeline
   glIsQuery
+  glIsQueryANGLE
   glIsQueryARB
   glIsQueryEXT
   glIsRenderbuffer
@@ -1421,6 +1433,7 @@ EXPORTS
   glMultiTexSubImage2DEXT
   glMultiTexSubImage3DEXT
   glNamedBufferDataEXT
+  glNamedBufferStorageEXT
   glNamedBufferSubDataEXT
   glNamedCopyBufferSubDataEXT
   glNamedFramebufferParameteriEXT
@@ -1747,6 +1760,7 @@ EXPORTS
   glPushMatrix
   glPushName
   glQueryCounter
+  glQueryCounterANGLE
   glQueryCounterEXT
   glRasterPos2d
   glRasterPos2dv
@@ -2220,22 +2234,28 @@ EXPORTS
   glUniformMatrix2fvARB
   glUniformMatrix2x3dv
   glUniformMatrix2x3fv
+  glUniformMatrix2x3fvNV
   glUniformMatrix2x4dv
   glUniformMatrix2x4fv
+  glUniformMatrix2x4fvNV
   glUniformMatrix3dv
   glUniformMatrix3fv
   glUniformMatrix3fvARB
   glUniformMatrix3x2dv
   glUniformMatrix3x2fv
+  glUniformMatrix3x2fvNV
   glUniformMatrix3x4dv
   glUniformMatrix3x4fv
+  glUniformMatrix3x4fvNV
   glUniformMatrix4dv
   glUniformMatrix4fv
   glUniformMatrix4fvARB
   glUniformMatrix4x2dv
   glUniformMatrix4x2fv
+  glUniformMatrix4x2fvNV
   glUniformMatrix4x3dv
   glUniformMatrix4x3fv
+  glUniformMatrix4x3fvNV
   glUniformSubroutinesuiv
   glUniformui64NV
   glUniformui64vNV
@@ -2304,6 +2324,7 @@ EXPORTS
   glVertex4iv
   glVertex4s
   glVertex4sv
+  glVertexArrayBindVertexBufferEXT
   glVertexArrayColorOffsetEXT
   glVertexArrayEdgeFlagOffsetEXT
   glVertexArrayFogCoordOffsetEXT
@@ -2315,9 +2336,14 @@ EXPORTS
   glVertexArrayRangeNV
   glVertexArraySecondaryColorOffsetEXT
   glVertexArrayTexCoordOffsetEXT
+  glVertexArrayVertexAttribBindingEXT
+  glVertexArrayVertexAttribFormatEXT
+  glVertexArrayVertexAttribIFormatEXT
   glVertexArrayVertexAttribIOffsetEXT
+  glVertexArrayVertexAttribLFormatEXT
   glVertexArrayVertexAttribLOffsetEXT
   glVertexArrayVertexAttribOffsetEXT
+  glVertexArrayVertexBindingDivisorEXT
   glVertexArrayVertexOffsetEXT
   glVertexAttrib1d
   glVertexAttrib1dARB

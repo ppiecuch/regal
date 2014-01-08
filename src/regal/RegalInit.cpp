@@ -3,7 +3,7 @@
   Copyright (c) 2011-2012 Cass Everitt
   Copyright (c) 2012 Scott Nations
   Copyright (c) 2012 Mathias Schott
-  Copyright (c) 2012 Nigel Stewart
+  Copyright (c) 2012-2013 Nigel Stewart
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without modification,
@@ -51,6 +51,7 @@ using namespace std;
 #include "RegalThread.h"
 #include "RegalDispatcher.h"
 #include "RegalContextInfo.h"
+#include "RegalEmuInfo.h"
 #include "RegalPpa.h"
 #include "RegalMutex.h"
 
@@ -114,6 +115,7 @@ Init::Init()
 #if !REGAL_NO_JSON
   if (Config::configFile.length())
   {
+    Info("Reading Regal configuration from ",Config::configFile);
     bool ok = Json::Parser::parseFile(Config::configFile);
     if (!ok)
       Warning("Failed to parse configuration from ",Config::configFile);
@@ -186,6 +188,12 @@ Init::~Init()
   th2rcMutex = NULL;
 }
 
+bool
+Init::isInitialized()
+{
+  return _init!=NULL;
+}
+
 void
 Init::init()
 {
@@ -214,12 +222,12 @@ Init::getContext(RegalSystemContext sysCtx)
   SC2RC::iterator i = sc2rc.find(sysCtx);
   if (i!=sc2rc.end())
   {
-    Internal("Init::context", "lookup for sysCtx=",sysCtx);
+    Internal("Init::context", "lookup for sysCtx=",boost::print::optional(sysCtx,Logging::pointers));
     return i->second;
   }
   else
   {
-    Internal("Init::context", "factory for sysCtx=",sysCtx);
+    Internal("Init::context", "factory for sysCtx=",boost::print::optional(sysCtx,Logging::pointers));
     RegalContext *context = new RegalContext();
     RegalAssert(context);
     sc2rc[sysCtx] = context;
@@ -233,7 +241,7 @@ Init::setContext(RegalContext *context)
 {
   Thread::Thread thread = Thread::Self();
 
-  Internal("Init::setContext","thread=",::boost::print::hex(Thread::threadId())," context=",context," ",context ? context->info->version : "");
+  Internal("Init::setContext","thread=",boost::print::optional(::boost::print::hex(Thread::threadId()),Logging::thread)," context=",boost::print::optional(context,Logging::pointers)," ",context ? context->info->version : "");
 
   // std::map lookup
 
@@ -336,7 +344,7 @@ ThreadLocalInit threadLocalInit;
 void
 Init::setContextTLS(RegalContext *context)
 {
-  Internal("Init::setContextTLS","thread=",::boost::print::hex(Thread::threadId())," context=",context);
+  Internal("Init::setContextTLS","thread=",boost::print::optional(::boost::print::hex(Thread::threadId()),Logging::thread)," context=",boost::print::optional(context,Logging::pointers));
 
   Thread::ThreadLocal &instance = Thread::ThreadLocal::instance();
   instance.currentContext = context;
@@ -358,8 +366,6 @@ Init::checkForGLErrors(RegalContext *context)
 RegalErrorCallback
 Init::setErrorCallback(RegalErrorCallback callback)
 {
-  init();
-
   // TODO - warning or error for context==NULL ?
 
   RegalContext *context = REGAL_GET_CONTEXT();
@@ -380,8 +386,6 @@ Init::configure(const char *json)
 void
 Init::shareContext(RegalSystemContext a, RegalSystemContext b)
 {
-  init();
-
   RegalContext *contextA = getContext(a);
   RegalContext *contextB = getContext(b);
 
@@ -418,9 +422,7 @@ Init::makeCurrent(RegalSystemContext sysCtx, PPB_OpenGLES2 *ppb_interface)
 Init::makeCurrent(RegalSystemContext sysCtx)
 #endif
 {
-  init();
-
-  Internal("Init::makeCurrent","thread=",::boost::print::hex(Thread::threadId())," sysCtx=",sysCtx);
+  Internal("Init::makeCurrent","thread=",boost::print::optional(::boost::print::hex(Thread::threadId()),Logging::thread)," sysCtx=",boost::print::optional(sysCtx,Logging::pointers));
 
   if (sysCtx)
   {
@@ -511,10 +513,10 @@ Init::getContextListingHTML(std::string &text)
     {
       if (ctx->info)
       {
-        text += print_string("<b>Vendor     </b>:",ctx->info->regalVendor,br);
-        text += print_string("<b>Renderer   </b>:",ctx->info->regalRenderer,br);
-        text += print_string("<b>Version    </b>:",ctx->info->regalVersion,br);
-        text += print_string("<b>Extensions </b>:",ctx->info->regalExtensions,br);
+        text += print_string("<b>Vendor     </b>:",ctx->emuInfo->vendor,br);
+        text += print_string("<b>Renderer   </b>:",ctx->emuInfo->renderer,br);
+        text += print_string("<b>Version    </b>:",ctx->emuInfo->version,br);
+        text += print_string("<b>Extensions </b>:",ctx->emuInfo->extensions,br);
         text += br;
       }
 
@@ -559,16 +561,26 @@ REGAL_GLOBAL_BEGIN
 
 RegalErrorCallback RegalSetErrorCallback(RegalErrorCallback callback)
 {
+  ::REGAL_NAMESPACE_INTERNAL::Init::init();
+#if !REGAL_SYS_PPAPI
+  App("RegalSetErrorCallback", "(", reinterpret_cast<void *>(callback), ")");
+#endif
   return ::REGAL_NAMESPACE_INTERNAL::Init::setErrorCallback(callback);
 }
 
 void RegalConfigure(const char *json)
 {
+  ::REGAL_NAMESPACE_INTERNAL::Init::init();
+  App("RegalConfigure", "(", boost::print::quote(json,'"'), ")");
   ::REGAL_NAMESPACE_INTERNAL::Init::configure(json);
 }
 
 REGAL_DECL void RegalShareContext(RegalSystemContext a, RegalSystemContext b)
 {
+  ::REGAL_NAMESPACE_INTERNAL::Init::init();
+#if !REGAL_SYS_PPAPI
+  App("RegalShareContext", "(", static_cast<void *>(a), ",", static_cast<void *>(b), ")");
+#endif
   ::REGAL_NAMESPACE_INTERNAL::Init::shareContext(a,b);
 }
 
@@ -578,6 +590,10 @@ REGAL_DECL void RegalMakeCurrent(RegalSystemContext sysCtx, PPB_OpenGLES2 *ppb_i
 REGAL_DECL void RegalMakeCurrent(RegalSystemContext sysCtx)
 #endif
 {
+  ::REGAL_NAMESPACE_INTERNAL::Init::init();
+#if !REGAL_SYS_PPAPI
+  App("RegalMakeCurrent", "(", static_cast<void *>(sysCtx), ")");
+#endif
 #if REGAL_SYS_PPAPI
   ::REGAL_NAMESPACE_INTERNAL::Init::makeCurrent(sysCtx,ppb_interface);
 #else
@@ -587,6 +603,10 @@ REGAL_DECL void RegalMakeCurrent(RegalSystemContext sysCtx)
 
 REGAL_DECL void RegalDestroyContext(RegalSystemContext sysCtx)
 {
+  ::REGAL_NAMESPACE_INTERNAL::Init::init();
+#if !REGAL_SYS_PPAPI
+  App("RegalDestroyContext", "(", static_cast<void *>(sysCtx), ")");
+#endif
   ::REGAL_NAMESPACE_INTERNAL::Init::destroyContext(sysCtx);
 }
 

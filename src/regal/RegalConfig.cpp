@@ -53,6 +53,12 @@ namespace Config {
 
   ::std::string configFile("");  // Don't read/write configuration by default
 
+  ::std::string loadGL  ("");    // Default to auto-detect
+  ::std::string loadES2 ("");    // Default to auto-detect
+//::std::string loadGLX ("");    // Default to auto-detect
+//::std::string loadWGL ("");    // Default to auto-detect
+  ::std::string loadEGL ("");    // Default to auto-detect
+
   bool forceES1Profile     = REGAL_FORCE_ES1_PROFILE;
   bool forceES2Profile     = REGAL_FORCE_ES2_PROFILE;
   bool forceCoreProfile    = REGAL_FORCE_CORE_PROFILE;
@@ -70,6 +76,7 @@ namespace Config {
   bool enableStatistics    = false;
   bool enableLog           = REGAL_LOG;
   bool enableDriver        = REGAL_DRIVER;
+  bool enableMissing       = REGAL_MISSING;
 
   bool enableEmuHint       = REGAL_EMU_HINT;
   bool enableEmuPpa        = REGAL_EMU_PPA;
@@ -83,6 +90,7 @@ namespace Config {
   bool enableEmuRect       = REGAL_EMU_RECT;
   bool enableEmuBaseVertex = REGAL_EMU_BASEVERTEX;
   bool enableEmuIff        = REGAL_EMU_IFF;
+  bool enableEmuQuads      = REGAL_EMU_QUADS;
   bool enableEmuSo         = REGAL_EMU_SO;
   bool enableEmuVao        = REGAL_EMU_VAO;
   bool enableEmuFilter     = REGAL_EMU_FILTER;
@@ -100,6 +108,7 @@ namespace Config {
   bool forceEmuRect        = REGAL_FORCE_EMU_RECT;
   bool forceEmuBaseVertex  = REGAL_FORCE_EMU_BASEVERTEX;
   bool forceEmuIff         = REGAL_FORCE_EMU_IFF;
+  bool forceEmuQuads       = REGAL_FORCE_EMU_QUADS;
   bool forceEmuSo          = REGAL_FORCE_EMU_SO;
   bool forceEmuVao         = REGAL_FORCE_EMU_VAO;
   bool forceEmuFilter      = REGAL_FORCE_EMU_FILTER;
@@ -118,6 +127,8 @@ namespace Config {
   bool frameSaveColor             = false;
   bool frameSaveStencil           = false;
   bool frameSaveDepth             = false;
+
+  bool frameCapture               = false;
 
   ::std::string frameSaveColorPrefix  ("color_");
   ::std::string frameSaveStencilPrefix("stencil_");
@@ -149,6 +160,15 @@ namespace Config {
     Internal("Config::Init","()");
 
 #ifndef REGAL_NO_GETENV
+    getEnv( "REGAL_LOAD_GL",  loadGL);
+    getEnv( "REGAL_LOAD_ES2", loadES2);
+//  getEnv( "REGAL_LOAD_GLX", loadGLX);
+//  getEnv( "REGAL_LOAD_WGL", loadWGL);
+    getEnv( "REGAL_LOAD_EGL", loadEGL);
+
+    getEnv( "REGAL_SYS_ES2", sysES2, REGAL_SYS_ES2);
+    getEnv( "REGAL_SYS_GL",  sysGL,  REGAL_SYS_GL);
+
     getEnv( "REGAL_FORCE_ES1_PROFILE",  forceES1Profile,  !REGAL_FORCE_ES1_PROFILE  );
     getEnv( "REGAL_FORCE_ES2_PROFILE",  forceES2Profile,  !REGAL_FORCE_ES2_PROFILE  );
     getEnv( "REGAL_FORCE_CORE_PROFILE", forceCoreProfile, !REGAL_FORCE_CORE_PROFILE );
@@ -216,6 +236,7 @@ namespace Config {
     getEnv( "REGAL_STATISTICS", enableStatistics, REGAL_STATISTICS);
     getEnv( "REGAL_LOG",        enableLog,        REGAL_LOG);
     getEnv( "REGAL_DRIVER",     enableDriver,     REGAL_DRIVER);
+    getEnv( "REGAL_MISSING",    enableMissing,    REGAL_MISSING);
 
     getEnv( "REGAL_EMU_HINT",       enableEmuHint,       REGAL_EMU_HINT);
     getEnv( "REGAL_EMU_PPA",        enableEmuPpa,        REGAL_EMU_PPA);
@@ -229,6 +250,7 @@ namespace Config {
     getEnv( "REGAL_EMU_RECT",       enableEmuRect,       REGAL_EMU_RECT);
     getEnv( "REGAL_EMU_BASEVERTEX", enableEmuBaseVertex, REGAL_EMU_BASEVERTEX );
     getEnv( "REGAL_EMU_IFF",        enableEmuIff,        REGAL_EMU_IFF);
+    getEnv( "REGAL_EMU_QUADS",      enableEmuQuads,      REGAL_EMU_QUADS);
     getEnv( "REGAL_EMU_SO",         enableEmuSo,         REGAL_EMU_SO);
     getEnv( "REGAL_EMU_VAO",        enableEmuVao,        REGAL_EMU_VAO);
     getEnv( "REGAL_EMU_TEXC",       enableEmuTexC,       REGAL_EMU_TEXC);
@@ -246,6 +268,7 @@ namespace Config {
     getEnv( "REGAL_FORCE_EMU_RECT",       forceEmuRect,        REGAL_EMU_RECT       && !REGAL_FORCE_EMU_RECT);
     getEnv( "REGAL_FORCE_EMU_BASEVERTEX", forceEmuBaseVertex,  REGAL_EMU_BASEVERTEX && !REGAL_FORCE_EMU_BASEVERTEX);
     getEnv( "REGAL_FORCE_EMU_IFF",        forceEmuIff,         REGAL_EMU_IFF        && !REGAL_FORCE_EMU_IFF);
+    getEnv( "REGAL_FORCE_EMU_QUADS",      forceEmuQuads,       REGAL_EMU_QUADS      && !REGAL_FORCE_EMU_QUADS);
     getEnv( "REGAL_FORCE_EMU_SO",         forceEmuSo,          REGAL_EMU_SO         && !REGAL_FORCE_EMU_SO);
     getEnv( "REGAL_FORCE_EMU_VAO",        forceEmuVao,         REGAL_EMU_VAO        && !REGAL_FORCE_EMU_VAO);
     getEnv( "REGAL_FORCE_EMU_TEXC",       forceEmuTexC,        REGAL_EMU_TEXC       && !REGAL_FORCE_EMU_TEXC);
@@ -266,9 +289,11 @@ namespace Config {
 
     //
 
-    getEnv( "REGAL_SAVE_COLOR",   frameSaveColor);
-    getEnv( "REGAL_SAVE_STENCIL", frameSaveStencil);
-    getEnv( "REGAL_SAVE_DEPTH",   frameSaveDepth);
+    getEnv( "REGAL_SAVE_COLOR",    frameSaveColor);
+    getEnv( "REGAL_SAVE_STENCIL",  frameSaveStencil);
+    getEnv( "REGAL_SAVE_DEPTH",    frameSaveDepth);
+
+    getEnv( "REGAL_FRAME_CAPTURE", frameCapture);
 
     // Caching
 
@@ -354,6 +379,7 @@ namespace Config {
     Info("REGAL_EMULATION           ", enableEmulation     ? "enabled" : "disabled");
     Info("REGAL_LOG                 ", enableLog           ? "enabled" : "disabled");
     Info("REGAL_DRIVER              ", enableDriver        ? "enabled" : "disabled");
+    Info("REGAL_MISSING             ", enableMissing       ? "enabled" : "disabled");
 
     Info("REGAL_EMU_HINT            ", enableEmuHint       ? "enabled" : "disabled");
     Info("REGAL_EMU_PPA             ", enableEmuPpa        ? "enabled" : "disabled");
@@ -367,6 +393,7 @@ namespace Config {
     Info("REGAL_EMU_RECT            ", enableEmuRect       ? "enabled" : "disabled");
     Info("REGAL_EMU_BASEVERTEX      ", enableEmuBaseVertex ? "enabled" : "disabled");
     Info("REGAL_EMU_IFF             ", enableEmuIff        ? "enabled" : "disabled");
+    Info("REGAL_EMU_QUADS           ", enableEmuQuads      ? "enabled" : "disabled");
     Info("REGAL_EMU_SO              ", enableEmuSo         ? "enabled" : "disabled");
     Info("REGAL_EMU_VAO             ", enableEmuVao        ? "enabled" : "disabled");
     Info("REGAL_EMU_FILTER          ", enableEmuFilter     ? "enabled" : "disabled");
@@ -384,6 +411,7 @@ namespace Config {
     Info("REGAL_FORCE_EMU_RECT      ", forceEmuRect        ? "enabled" : "disabled");
     Info("REGAL_FORCE_EMU_BASEVERTEX", forceEmuBaseVertex  ? "enabled" : "disabled");
     Info("REGAL_FORCE_EMU_IFF       ", forceEmuIff         ? "enabled" : "disabled");
+    Info("REGAL_FORCE_EMU_QUADS     ", forceEmuQuads       ? "enabled" : "disabled");
     Info("REGAL_FORCE_EMU_SO        ", forceEmuSo          ? "enabled" : "disabled");
     Info("REGAL_FORCE_EMU_VAO       ", forceEmuVao         ? "enabled" : "disabled");
     Info("REGAL_FORCE_EMU_FILTER    ", forceEmuFilter      ? "enabled" : "disabled");
@@ -425,6 +453,14 @@ namespace Config {
 
       jo.member("configFile", configFile);
 
+      jo.object("load");
+        jo.member("GL",  loadGL);
+        jo.member("ES2", loadES2);
+//      jo.member("GLX", loadGLX);
+//      jo.member("WGL", loadWGL);
+        jo.member("EGL", loadEGL);
+      jo.end();
+
       jo.object("system");
         jo.member("ES1", sysES1);
         jo.member("ES2", sysES2);
@@ -450,6 +486,7 @@ namespace Config {
           jo.member("trace",      enableTrace);
           jo.member("log",        enableLog);
           jo.member("driver",     enableDriver);
+          jo.member("missing",    enableMissing);
         jo.end();
 
         jo.object("force");
@@ -471,6 +508,7 @@ namespace Config {
             jo.member("rect",   enableEmuRect);
             jo.member("bv",     enableEmuBaseVertex);
             jo.member("iff",    enableEmuIff);
+            jo.member("quads",  enableEmuQuads);
             jo.member("so",     enableEmuSo);
             jo.member("vao",    enableEmuVao);
             jo.member("texc",   enableEmuTexC);
@@ -490,6 +528,7 @@ namespace Config {
             jo.member("rect",   forceEmuRect);
             jo.member("bv",     forceEmuBaseVertex);
             jo.member("iff",    forceEmuIff);
+            jo.member("quads",  forceEmuQuads);
             jo.member("so",     forceEmuSo);
             jo.member("vao",    forceEmuVao);
             jo.member("texc",   forceEmuTexC);

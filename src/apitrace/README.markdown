@@ -104,7 +104,7 @@ Tracing manually
 
 ### Linux ###
 
-On 64 bits systems, you'll need to determine ether the application is 64 bits
+On 64 bits systems, you'll need to determine whether the application is 64 bits
 or 32 bits.  This can be done by doing
 
     file /path/to/application
@@ -125,9 +125,9 @@ For EGL applications you will need to use `egltrace.so` instead of
 
 The `LD_PRELOAD` mechanism should work with the majority applications.  There
 are some applications (e.g., Unigine Heaven, Android GPU emulator, etc.), that
-have global function pointers with the same name as GL entrypoints, living in a
+have global function pointers with the same name as OpenGL entrypoints, living in a
 shared object that wasn't linked with `-Bsymbolic` flag, so relocations to
-those globals function pointers get overwritten with the address to our wrapper
+those global function pointers get overwritten with the address to our wrapper
 library, and the application will segfault when trying to write to them.  For
 these applications it is possible to trace by using `glxtrace.so` as an
 ordinary `libGL.so` and injecting it via `LD_LIBRARY_PATH`:
@@ -148,14 +148,14 @@ See the `ld.so` man page for more information about `LD_PRELOAD` and
 ### Android ###
 
 To trace standalone native OpenGL ES applications, use
-`LD_PRELOAD=/path/to/egltrace.so /path/to/application` like described in the
+`LD_PRELOAD=/path/to/egltrace.so /path/to/application` as described in the
 previous section.  To trace Java applications, refer to Dalvik.markdown.
 
 ### Mac OS X ###
 
 Run the application you want to trace as
 
-    DYLD_LIBRARY_PATH=/path/to/apitrace/wrappers /path/to/application
+    DYLD_FRAMEWORK_PATH=/path/to/apitrace/wrappers /path/to/application
 
 Note that although Mac OS X has an `LD_PRELOAD` equivalent,
 `DYLD_INSERT_LIBRARIES`, it is mostly useless because it only works with
@@ -179,6 +179,18 @@ On 64 bits Windows, you'll need to determine ether the application is a 64 bits
 or 32 bits. 32 bits applications will have a `*32` suffix in the _Image Name_
 column of the _Processes_ tab of _Windows Task Manager_ window.
 
+You also need to know which graphics API is being used.  If you are unsure, the
+simplest way to determine what API an application uses is to:
+
+* download and run [Process Explorer](http://technet.microsoft.com/en-us/sysinternals/bb896653.aspx)
+
+* search and select the application's process in _Process Explorer_
+
+* list the DLLs by pressing `Ctrl + D`
+
+* sort DLLs alphabetically, and look for the DLLs such as `opengl32.dll`,
+  `d3d9.dll`, `d3d10.dll`, etc.
+
 Copy the appropriate `opengl32.dll`, `d3d8.dll`, or `d3d9.dll` from the
 wrappers directory to the directory with the application you want to trace.
 Then run the application as usual.
@@ -197,39 +209,60 @@ to hook only the APIs of interest.
 Emitting annotations to the trace
 ---------------------------------
 
-From OpenGL applications you can embed annotations in the trace file through the
-[`GL_GREMEDY_string_marker`](http://www.opengl.org/registry/specs/GREMEDY/string_marker.txt)
-and
-[`GL_GREMEDY_frame_terminator`](http://www.opengl.org/registry/specs/GREMEDY/frame_terminator.txt)
-GL extensions.
+From whitin OpenGL applications you can embed annotations in the trace file
+through the following extensions:
 
-**apitrace** will advertise and intercept these GL extensions independently of
-the GL implementation.  So all you have to do is to use these extensions when
-available.
+* [`GL_KHR_debug`](http://www.opengl.org/registry/specs/KHR/debug.txt)
+
+* [`GL_ARB_debug_output`](http://www.opengl.org/registry/specs/ARB/debug_output.txt)
+
+* [`GL_AMD_debug_output`](http://www.opengl.org/registry/specs/AMD/debug_output.txt)
+
+* [`GL_GREMEDY_string_marker`](http://www.opengl.org/registry/specs/GREMEDY/string_marker.txt)
+
+* [`GL_GREMEDY_frame_terminator`](http://www.opengl.org/registry/specs/GREMEDY/frame_terminator.txt)
+
+**apitrace** will advertise and intercept these OpenGL extensions regardless
+of whether the OpenGL implementation supports them or not.  So all you have
+to do is to use these extensions when available, and you can be sure they
+will be available when tracing inside **apitrace**.
 
 For example, if you use [GLEW](http://glew.sourceforge.net/) to dynamically
-detect and use GL extensions, you could easily accomplish this by doing:
+detect and use OpenGL extensions, you could easily accomplish this by doing:
 
     void foo() {
     
-      if (GLEW_GREMEDY_string_marker) {
-        glStringMarkerGREMEDY(0, __FUNCTION__ ": enter");
+      if (GLEW_KHR_debug) {
+        glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, -1, __FUNCTION__);
       }
       
       ...
       
-      if (GLEW_GREMEDY_string_marker) {
-        glStringMarkerGREMEDY(0, __FUNCTION__ ": leave");
+      if (GLEW_KHR_debug) {
+        glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
+                             0, GL_DEBUG_SEVERITY_MEDIUM, -1, "bla bla");
       }
       
+      ...
+      
+      if (GLEW_KHR_debug) {
+        glPopDebugGroup();
+      }
+    
     }
 
-This has the added advantage of working equally well with gDEBugger.
+This has the added advantage of working equally well with other OpenGL debugging tools.
+
+Also, provided that the OpenGL implementation supports `GL_KHR_debug`, labels
+defined via glObjectLabel() , and the labels of several objects (textures,
+framebuffers, samplers, etc. ) will appear in the GUI state dumps, in the
+parameters tab.
 
 
-From OpenGL ES applications you can embed annotations in the trace file through the
+For OpenGL ES applications you can embed annotations in the trace file through the
+[`GL_KHR_debug`](http://www.khronos.org/registry/gles/extensions/KHR/debug.txt) or 
 [`GL_EXT_debug_marker`](http://www.khronos.org/registry/gles/extensions/EXT/EXT_debug_marker.txt)
-extension.
+extensions.
 
 
 For Direct3D applications you can follow the standard procedure for
@@ -242,14 +275,14 @@ For Direct3D applications you can follow the standard procedure for
   `ID3DUserDefinedAnnotation::SetMarker` for D3D11.1 applications.
 
 
-Dump GL state at a particular call
+Dump OpenGL state at a particular call
 ----------------------------------
 
-You can get a dump of the bound GL state at call 12345 by doing:
+You can get a dump of the bound OpenGL state at call 12345 by doing:
 
     apitrace replay -D 12345 application.trace > 12345.json
 
-This is precisely the mechanism the GUI obtains its own state.
+This is precisely the mechanism the GUI uses to obtain its own state.
 
 You can compare two state dumps by doing:
 
@@ -295,14 +328,14 @@ You can truncate a trace by doing:
     apitrace trim --exact --calls 0-12345 -o trimed.trace application.trace
 
 If you need precise control over which calls to trim you can specify the
-individual call numbers a plaintext file, as described in the 'Call sets'
+individual call numbers in a plain text file, as described in the 'Call sets'
 section above.
 
 There is also experimental support for automatically trimming the calls
 necessary for a given frame or call:
 
-   apitrace trim --auto --calls=12345 -o trimed.trace application.trace
-   apitrace trim --auto --frames=12345 -o trimed.trace application.trace
+    apitrace trim --auto --calls=12345 -o trimed.trace application.trace
+    apitrace trim --auto --frames=12345 -o trimed.trace application.trace
 
 
 Profiling a trace
@@ -316,7 +349,7 @@ You can perform gpu and cpu profiling with the command line options:
 
  * `--ppd` record pixels drawn for each draw call.
 
-The results from this can then be read by hand or analysed with a script.
+The results from these can then be read by hand or analyzed with a script.
 
 `scripts/profileshader.py` will read the profile results and format them into a
 table which displays profiling results per shader.
@@ -359,7 +392,7 @@ With tracecheck.py it is possible to automate git bisect and pinpoint the
 commit responsible for a regression.
 
 Below is an example of using tracecheck.py to bisect a regression in the
-Mesa-based Intel 965 driver.  But the procedure could be applied to any GL
+Mesa-based Intel 965 driver.  But the procedure could be applied to any OpenGL
 driver hosted on a git repository.
 
 First, create a build script, named build-script.sh, containing:
@@ -374,7 +407,7 @@ First, create a build script, named build-script.sh, containing:
     make "$@"
 
 It is important that builds are both robust, and efficient.  Due to broken
-dependency discovery in Mesa's makefile system, it was necessary invoke `make
+dependency discovery in Mesa's makefile system, it was necessary to invoke `make
 clean` in every iteration step.  `ccache` should be installed to avoid
 recompiling unchanged source files.
 
@@ -399,8 +432,8 @@ The trace-check.py script will skip automatically when there are build
 failures.
 
 The `--gl-renderer` option will also cause a commit to be skipped if the
-`GL_RENDERER` is unexpected (e.g., when a software renderer or another GL
-driver is unintentionally loaded due to missing symbol in the DRI driver, or
+`GL_RENDERER` is unexpected (e.g., when a software renderer or another OpenGL
+driver is unintentionally loaded due to a missing symbol in the DRI driver, or
 another runtime fault).
 
 
@@ -411,19 +444,19 @@ In order to determine which draw call a regression first manifests one could
 generate snapshots for every draw call, using the `-S` option.  That is, however,
 very inefficient for big traces with many draw calls.
 
-A faster approach is to run both the bad and a good GL driver side-by-side.
-The latter can be either a previously known good build of the GL driver, or a
+A faster approach is to run both the bad and a good OpenGL driver side-by-side.
+The latter can be either a previously known good build of the OpenGL driver, or a
 reference software renderer.
 
 This can be achieved with retracediff.py script, which invokes glretrace with
-different environments, allowing to choose the desired GL driver by
+different environments, allowing to choose the desired OpenGL driver by
 manipulating variables such as `LD_LIBRARY_PATH`, `LIBGL_DRIVERS_DIR`, or
 `TRACE_LIBGL`.
 
 For example, on Linux:
 
     ./scripts/retracediff.py \
-        --ref-env LD_LIBRARY_PATH=/path/to/reference/GL/implementation \
+        --ref-env LD_LIBRARY_PATH=/path/to/reference/OpenGL/implementation \
         --retrace /path/to/glretrace \
         --diff-prefix=/path/to/output/diffs \
         application.trace

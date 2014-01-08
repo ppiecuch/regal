@@ -62,7 +62,7 @@ namespace Json { struct Output; }
 #endif
 
 #ifndef REGAL_LOG_APP
-# ifdef NDEBUG
+# if defined(NDEBUG) || REGAL_WRANGLER
 #  define REGAL_LOG_APP 0
 # else
 #  define REGAL_LOG_APP 1
@@ -70,7 +70,7 @@ namespace Json { struct Output; }
 #endif
 
 #ifndef REGAL_LOG_DRIVER
-# ifdef NDEBUG
+# if defined(NDEBUG) || REGAL_WRANGLER
 #  define REGAL_LOG_DRIVER 0
 # else
 #  define REGAL_LOG_DRIVER 1
@@ -78,7 +78,7 @@ namespace Json { struct Output; }
 #endif
 
 #ifndef REGAL_LOG_INTERNAL
-# ifdef NDEBUG
+# if defined(NDEBUG) || REGAL_WRANGLER
 #  define REGAL_LOG_INTERNAL 0
 # else
 #  define REGAL_LOG_INTERNAL 1
@@ -86,14 +86,10 @@ namespace Json { struct Output; }
 #endif
 
 #ifndef REGAL_LOG_HTTP
-# define REGAL_LOG_HTTP 1
-#endif
-
-#ifndef REGAL_LOG
-# ifdef NDEBUG
-#  define REGAL_LOG 0
+# if REGAL_WRANGLER
+#  define REGAL_LOG_HTTP 0
 # else
-#  define REGAL_LOG 1
+#  define REGAL_LOG_HTTP 1
 # endif
 #endif
 
@@ -122,7 +118,11 @@ namespace Json { struct Output; }
 #endif
 
 #ifndef REGAL_LOG_JSON
-# define REGAL_LOG_JSON 1
+# if REGAL_WRANGLER
+#  define REGAL_LOG_JSON 0
+# else
+#  define REGAL_LOG_JSON 1
+# endif
 #endif
 
 #ifndef REGAL_LOG_CALLBACK

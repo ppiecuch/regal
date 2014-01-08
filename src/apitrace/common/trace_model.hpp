@@ -36,6 +36,7 @@
 
 #include <map>
 #include <vector>
+#include <ostream>
 
 
 namespace trace {
@@ -388,6 +389,22 @@ struct RawStackFrame {
         offset(-1)
     {
     }
+
+    void dump(std::ostream &os) {
+        os << (this->module ? this->module : "?");
+        if (this->function != NULL) {
+            os << ": " << this->function;
+        }
+        if (this->offset >= 0) {
+            os << "+0x" << std::hex << this->offset << std::dec;
+        }
+        if (this->filename != NULL) {
+            os << ": " << this->filename;
+            if (this->linenumber >= 0) {
+                os << ":" << this->linenumber;
+            }
+        }
+    }
 };
 
 class StackFrame : public RawStackFrame {
@@ -498,6 +515,13 @@ enum {
      * Whether this call is verbose (i.e., not usually interesting).
      */
     CALL_FLAG_VERBOSE                  = (1 << 7),
+
+    /**
+     * String markers.
+     */
+    CALL_FLAG_MARKER                    = (1 << 8),
+    CALL_FLAG_MARKER_PUSH               = (1 << 9),
+    CALL_FLAG_MARKER_POP                = (1 << 10),
 };
 
 

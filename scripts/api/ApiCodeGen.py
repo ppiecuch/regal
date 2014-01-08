@@ -4,6 +4,8 @@ import os.path
 import re
 import sys
 
+from copy import deepcopy
+
 from inspect import isfunction
 
 from ApiUtil import validVersion
@@ -372,6 +374,26 @@ def stripAll(exp):
 #
 # CodeGen for:
 #
+#   '\n\n\nfoo\n\n\n' -> 'foo'
+#
+
+def stripVertical(exp):
+  if isinstance(exp,list):
+    tmp = deepcopy(exp)
+  else:
+    tmp = exp.split('\n')
+  while len(tmp)>0 and len(tmp[0].strip())==0:
+    tmp = tmp[1:]
+  while len(tmp)>0 and len(tmp[-1].strip())==0:
+    tmp = tmp[:-1]
+  if isinstance(exp,list):
+    return tmp
+  else:
+    return '\n'.join(tmp)
+
+#
+# CodeGen for:
+#
 #   #if FOO
 #   a
 #   #else /* FOO */
@@ -396,7 +418,7 @@ def wrapIf(exp, a, b = None):
   if isinstance(exp,dict):
     tmp = []
     first = True
-    for i in sorted([i for i in exp if len(i)]):      
+    for i in sorted([i for i in exp if len(i)]):
       if first:
         tmp.append('#if %s'%(i))
       else:
@@ -408,7 +430,7 @@ def wrapIf(exp, a, b = None):
         tmp.append('#else')
       tmp.append(exp[''])
     if not first:
-      tmp.append('#endif')      
+      tmp.append('#endif')
     return tmp
 
   tmp = ''
@@ -444,37 +466,41 @@ def wrapCIf(exp, a, b = None):
     if exp:
       tmp.append('if (%s)'%(exp))
       tmp.append('{')
-      tmp.extend(indent(a))
+      tmp.extend(indent(stripVertical(a)))
       tmp.append('}')
       if not b==None:
         tmp.append('else /* %s*/'%(exp))
         tmp.append('{')
-        tmp.extend(indent(b))
+        tmp.extend(indent(stripVertical(b)))
         tmp.append('}')
     else:
-      tmp.extend(a)
+      tmp.extend(stripVertical(a))
     return tmp
 
   tmp = ''
   if exp:
     tmp += 'if (%s)\n{\n'%(exp)
-    tmp += indent(a)
+    tmp += indent(stripVertical(a)) + '\n'
     tmp += '}\n'
     if not b==None:
       tmp += 'else /* %s*/\n{\n'%(exp)
-      tmp += indent(b)
+      tmp += indent(stripVertical(b)) + '\n'
       tmp += '}\n'
   else:
-    tmp += a
+    tmp += stripVertical(a) + '\n'
 
   return tmp
 
 def indent(code,ind = '  '):
-  c = code
+  t1 = code
   if not isinstance(code,list):
-    c = code.split('\n')
+    t1 = code.split('\n')
 
-  c = [ ('%s%s'%(ind,i)).rstrip() for i in c ]
+  t2 = []
+  for i in t1:
+    t2.extend(i.split('\n'))
+
+  c = [ ('%s%s'%(ind,i)).rstrip() for i in t2 ]
 
   if isinstance(code,list):
     return c
@@ -630,14 +656,15 @@ def unfoldCategory(code, format = '/* %s */', sortCategory = None, sortWithin = 
 #
 # CodeGen for:
 #
-#   [ 'a', 'b', 'c' ] ->
-#   'a\nb\nc\n'
+#   [ 'a', 'b', 'c' ] -> 'a\nb\nc\n'
+#   'abc'             -> 'abc'
 
 def listToString(code):
+  if isinstance(code,str) or isinstance(code,unicode):
+    return code
   if not len(code):
     return ''
-  else:
-    return '\n'.join(code) + '\n'
+  return '\n'.join(code) + '\n'
 
 #
 # CodeGen for simplifying expression in << sequence

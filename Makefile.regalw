@@ -1,0 +1,167 @@
+ifndef MAKEFILE_REGALW_INCLUDED
+MAKEFILE_REGALW_INCLUDED := 1
+
+.PHONY: regalw.lib regalw.clean
+
+include build/common.inc
+
+include build/regal.inc
+
+#
+# Regal Wrangler
+#
+
+REGALW.STATIC    ?= libRegalW.a
+REGALW.SHARED    ?= libRegal.so
+
+# Static library target not yet supported
+
+REGALW.STATIC :=
+
+# Shared library target not currently supported for NaCL or emscripten
+
+ifneq ($(filter nacl% emscripten%,$(SYSTEM)),)
+REGALW.SHARED :=
+endif
+
+
+ifdef REGALW.SHARED
+
+all:: regalw.lib
+
+clean:: regalw.clean
+
+REGALW.LDFLAGS        := -lstdc++ -pthread -lm
+REGALW.LIBS           :=
+
+REGALW.SRCS           := $(REGAL.CXX)
+REGALW.SRCS           += src/md5/src/md5.c
+REGALW.SRCS           += src/jsonsl/jsonsl.c
+
+REGALW.CFLAGS         += -DREGAL_WRANGLER=1
+REGALW.INCLUDE        := $(REGAL.INCLUDE)
+
+# Optional flags
+
+ifeq ($(MODE),release)
+REGALW.CFLAGS       += -DNDEBUG
+#REGALW.CFLAGS       += -DREGAL_NO_TLS=0       # 1 for single threaded
+endif
+
+#
+# Flags for custom mode
+#
+
+ifeq ($(MODE),custom)
+endif
+
+
+REGALW.CFLAGS         += -fvisibility=hidden
+
+REGALW.SRCS.NAMES     := $(notdir $(REGALW.SRCS))
+
+REGALW.HEADERS        :=
+REGALW.HEADERS        += include/GL/Regal.h
+REGALW.HEADERS        += src/regal/RegalPrivate.h
+
+REGALW.OBJS           := $(addprefix tmp/$(SYSTEM)/regalw/static/,$(REGALW.SRCS.NAMES))
+REGALW.OBJS           := $(REGALW.OBJS:.c=.o)
+REGALW.OBJS           := $(REGALW.OBJS:.cpp=.o)
+REGALW.DEPS           := $(REGALW.OBJS:.o=.d)
+
+REGALW.SOBJS          := $(addprefix tmp/$(SYSTEM)/regalw/shared/,$(REGALW.SRCS.NAMES))
+REGALW.SOBJS          := $(REGALW.SOBJS:.c=.o)
+REGALW.SOBJS          := $(REGALW.SOBJS:.cpp=.o)
+REGALW.SDEPS          := $(LIBS.SOBJS:.o=.d)
+
+-include $(REGALW.DEPS) $(REGALW.SDEPS)
+
+REGALW.LIBS           += $(LDFLAGS.X11)
+
+ifneq ($(filter linux%,$(SYSTEM)),)
+REGALW.SONAME     := libRegalW.so.$(SO_MAJOR)
+REGALW.DEVLNK     := libRegalW.so
+REGALW.SHARED     := libRegalW.so.$(SO_VERSION)
+REGALW.LDFLAGS.SO := $(LDFLAGS.SO) $(LDFLAGS.DYNAMIC) -Wl,-soname=$(REGALW.SONAME)
+endif
+
+ifneq ($(filter darwin%,$(SYSTEM)),)
+REGALW.SONAME     := libRegalW.$(SO_MAJOR).dylib
+REGALW.DEVLNK     := libRegalW.dylib
+REGALW.SHARED     := libRegalW.$(SO_VERSION).dylib
+REGALW.FRAMEWORK  := RegalWrangler
+REGALW.LDFLAGS.SO := $(LDFLAGS.SO) $(LDFLAGS.DYNAMIC) -current_version $(SO_VERSION) -compatibility_version $(SO_MAJOR)
+REGALW.LDFLAGS    += -Wl,-reexport-lGLU -L/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries
+endif
+
+ifdef REGALW.STATIC
+regalw.lib: lib/$(SYSTEM)/$(REGALW.STATIC)
+endif
+
+ifdef REGALW.SHARED
+regalw.lib: lib/$(SYSTEM)/$(REGALW.SHARED)
+endif
+
+regalw.clean:
+	$(RM) -r tmp/$(SYSTEM)/regalw/static
+	$(RM) -r tmp/$(SYSTEM)/regalw/shared
+ifdef REGALW.STATIC
+	$(RM) -r lib/$(SYSTEM)/$(REGALW.STATIC)
+endif
+ifdef REGALW.SHARED
+	$(RM) -r bin/$(SYSTEM)/$(REGALW.SHARED)
+endif
+
+lib/$(SYSTEM)/$(REGALW.STATIC): $(REGALW.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(REGALW.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+REGALW.SHARED.DEPEND :=
+
+ifdef REGALW.SHARED
+lib/$(SYSTEM)/$(REGALW.SHARED): $(REGALW.SHARED.DEPEND) $(REGALW.SOBJS)
+	$(LOG_LD)$(CCACHE) $(LD) $(LDFLAGS.EXTRA) $(REGALW.LDFLAGS.SO) -o $@ $(REGALW.SOBJS) $(REGALW.SHARED.DEPEND) $(REGALW.LIBS) $(REGALW.LDFLAGS)
+ifneq ($(LN),)
+	$(LN) $(REGALW.SHARED) lib/$(SYSTEM)/$(REGALW.SONAME)
+	$(LN) $(REGALW.SHARED) lib/$(SYSTEM)/$(REGALW.DEVLNK)
+ifneq ($(REGALW.FRAMEWORK),)
+	$(LN) $(REGALW.SHARED) lib/$(SYSTEM)/$(REGALW.FRAMEWORK)
+endif
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+endif
+
+tmp/$(SYSTEM)/regalw/static/%.o: src/regal/%.cpp $(REGALW.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(REGALW.CFLAGS) $(CFLAGS) $(CFLAGS.SO) $(REGALW.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regalw/shared/%.o: src/regal/%.cpp $(REGALW.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(REGALW.CFLAGS) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) $(REGALW.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regalw/static/%.o: src/md5/src/%.c $(REGALW.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGALW.CFLAGS) $(CFLAGS) $(CFLAGS.SO) $(REGALW.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regalw/shared/%.o: src/md5/src/%.c $(REGALW.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGALW.CFLAGS) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) $(REGALW.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regalw/static/%.o: src/jsonsl/%.c $(REGALW.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGALW.CFLAGS) $(CFLAGS) $(CFLAGS.SO) $(REGALW.INCLUDE) -o $@ -c $<
+
+tmp/$(SYSTEM)/regalw/shared/%.o: src/jsonsl/%.c $(REGALW.HEADERS)
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(REGALW.CFLAGS) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) $(REGALW.INCLUDE) -o $@ -c $<
+
+endif
+endif

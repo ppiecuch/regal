@@ -4964,14 +4964,6 @@ extern "C" {
     _next->call(&_next->glFramebufferTexture)(target, attachment, texture, level);
   }
 
-  void REGAL_CALL plugin_glFramebufferTextureFace(GLenum target, GLenum attachment, GLuint texture, GLint level, GLenum face)
-  {
-    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
-    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
-    RegalAssert(_next);
-    _next->call(&_next->glFramebufferTextureFace)(target, attachment, texture, level, face);
-  }
-
   void REGAL_CALL plugin_glGetBufferParameteri64v(GLenum target, GLenum pname, GLint64 *params)
   {
     ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
@@ -5354,6 +5346,96 @@ extern "C" {
     ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
     RegalAssert(_next);
     _next->call(&_next->glVertexAttribDivisorANGLE)(index, divisor);
+  }
+
+  /* GL_ANGLE_timer_query */
+
+  void REGAL_CALL plugin_glBeginQueryANGLE(GLenum target, GLuint id)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glBeginQueryANGLE)(target, id);
+  }
+
+  void REGAL_CALL plugin_glDeleteQueriesANGLE(GLsizei n, const GLuint *ids)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glDeleteQueriesANGLE)(n, ids);
+  }
+
+  void REGAL_CALL plugin_glEndQueryANGLE(GLenum target)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glEndQueryANGLE)(target);
+  }
+
+  void REGAL_CALL plugin_glGenQueriesANGLE(GLsizei n, GLuint *ids)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glGenQueriesANGLE)(n, ids);
+  }
+
+  void REGAL_CALL plugin_glGetQueryObjecti64vANGLE(GLuint id, GLenum pname, GLint64 *params)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryObjecti64vANGLE)(id, pname, params);
+  }
+
+  void REGAL_CALL plugin_glGetQueryObjectivANGLE(GLuint id, GLenum pname, GLint *params)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryObjectivANGLE)(id, pname, params);
+  }
+
+  void REGAL_CALL plugin_glGetQueryObjectui64vANGLE(GLuint id, GLenum pname, GLuint64 *params)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryObjectui64vANGLE)(id, pname, params);
+  }
+
+  void REGAL_CALL plugin_glGetQueryObjectuivANGLE(GLuint id, GLenum pname, GLuint *params)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryObjectuivANGLE)(id, pname, params);
+  }
+
+  void REGAL_CALL plugin_glGetQueryivANGLE(GLenum target, GLenum pname, GLint *params)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glGetQueryivANGLE)(target, pname, params);
+  }
+
+  GLboolean REGAL_CALL plugin_glIsQueryANGLE(GLuint id)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    return _next->call(&_next->glIsQueryANGLE)(id);
+  }
+
+  void REGAL_CALL plugin_glQueryCounterANGLE(GLuint id, GLenum target)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glQueryCounterANGLE)(id, target);
   }
 
   /* GL_ANGLE_translated_shader_source */
@@ -5990,6 +6072,14 @@ extern "C" {
     ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
     RegalAssert(_next);
     _next->call(&_next->glBufferStorage)(target, size, data, flags);
+  }
+
+  void REGAL_CALL plugin_glNamedBufferStorageEXT(GLuint buffer, GLsizeiptr size, const GLvoid *data, GLbitfield flags)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glNamedBufferStorageEXT)(buffer, size, data, flags);
   }
 
   /* GL_ARB_cl_event */
@@ -9518,6 +9608,54 @@ extern "C" {
     ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
     RegalAssert(_next);
     _next->call(&_next->glBindVertexBuffer)(bindingindex, buffer, offset, stride);
+  }
+
+  void REGAL_CALL plugin_glVertexArrayBindVertexBufferEXT(GLuint vaobj, GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayBindVertexBufferEXT)(vaobj, bindingindex, buffer, offset, stride);
+  }
+
+  void REGAL_CALL plugin_glVertexArrayVertexAttribBindingEXT(GLuint vaobj, GLuint attribindex, GLuint bindingindex)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexAttribBindingEXT)(vaobj, attribindex, bindingindex);
+  }
+
+  void REGAL_CALL plugin_glVertexArrayVertexAttribFormatEXT(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexAttribFormatEXT)(vaobj, attribindex, size, type, normalized, relativeoffset);
+  }
+
+  void REGAL_CALL plugin_glVertexArrayVertexAttribIFormatEXT(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexAttribIFormatEXT)(vaobj, attribindex, size, type, relativeoffset);
+  }
+
+  void REGAL_CALL plugin_glVertexArrayVertexAttribLFormatEXT(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexAttribLFormatEXT)(vaobj, attribindex, size, type, relativeoffset);
+  }
+
+  void REGAL_CALL plugin_glVertexArrayVertexBindingDivisorEXT(GLuint vaobj, GLuint bindingindex, GLuint divisor)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glVertexArrayVertexBindingDivisorEXT)(vaobj, bindingindex, divisor);
   }
 
   void REGAL_CALL plugin_glVertexAttribBinding(GLuint attribindex, GLuint bindingindex)
@@ -14922,7 +15060,7 @@ extern "C" {
 
   /* GL_EXT_pixel_transform */
 
-  void REGAL_CALL plugin_glGetPixelTransformParameterfvEXT(GLenum target, GLenum pname, const GLfloat *params)
+  void REGAL_CALL plugin_glGetPixelTransformParameterfvEXT(GLenum target, GLenum pname, GLfloat *params)
   {
     ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
     ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
@@ -14930,7 +15068,7 @@ extern "C" {
     _next->call(&_next->glGetPixelTransformParameterfvEXT)(target, pname, params);
   }
 
-  void REGAL_CALL plugin_glGetPixelTransformParameterivEXT(GLenum target, GLenum pname, const GLint *params)
+  void REGAL_CALL plugin_glGetPixelTransformParameterivEXT(GLenum target, GLenum pname, GLint *params)
   {
     ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
     ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
@@ -16772,6 +16910,24 @@ extern "C" {
     _next->call(&_next->glUniformHandleui64vNV)(location, count, value);
   }
 
+  /* GL_NV_blend_equation_advanced */
+
+  void REGAL_CALL plugin_glBlendBarrierNV(void)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glBlendBarrierNV)();
+  }
+
+  void REGAL_CALL plugin_glBlendParameteriNV(GLenum pname, GLint value)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glBlendParameteriNV)(pname, value);
+  }
+
   /* GL_NV_conditional_render */
 
   void REGAL_CALL plugin_glBeginConditionalRenderNV(GLuint id, GLenum mode)
@@ -16788,6 +16944,16 @@ extern "C" {
     ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
     RegalAssert(_next);
     _next->call(&_next->glEndConditionalRenderNV)();
+  }
+
+  /* GL_NV_copy_buffer */
+
+  void REGAL_CALL plugin_glCopyBufferSubDataNV(GLenum readtarget, GLenum writetarget, GLintptr readoffset, GLintptr writeoffset, GLsizeiptr size)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glCopyBufferSubDataNV)(readtarget, writetarget, readoffset, writeoffset, size);
   }
 
   /* GL_NV_copy_image */
@@ -17866,6 +18032,56 @@ extern "C" {
     ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
     RegalAssert(_next);
     _next->call(&_next->glVertexWeighthvNV)(weight);
+  }
+
+  /* GL_NV_non_square_matrices */
+
+  void REGAL_CALL plugin_glUniformMatrix2x3fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix2x3fvNV)(location, count, transpose, value);
+  }
+
+  void REGAL_CALL plugin_glUniformMatrix2x4fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix2x4fvNV)(location, count, transpose, value);
+  }
+
+  void REGAL_CALL plugin_glUniformMatrix3x2fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix3x2fvNV)(location, count, transpose, value);
+  }
+
+  void REGAL_CALL plugin_glUniformMatrix3x4fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix3x4fvNV)(location, count, transpose, value);
+  }
+
+  void REGAL_CALL plugin_glUniformMatrix4x2fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix4x2fvNV)(location, count, transpose, value);
+  }
+
+  void REGAL_CALL plugin_glUniformMatrix4x3fvNV(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+  {
+    ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal &_instance = ::REGAL_NAMESPACE_INTERNAL::Thread::ThreadLocal::instance();
+    ::REGAL_NAMESPACE_INTERNAL::DispatchTableGL *_next = _instance.nextDispatchTable;
+    RegalAssert(_next);
+    _next->call(&_next->glUniformMatrix4x3fvNV)(location, count, transpose, value);
   }
 
   /* GL_NV_occlusion_query */
@@ -25239,7 +25455,7 @@ REGAL_NAMESPACE_BEGIN
 
 namespace Plugin {
 
-  const char * const lookup_gl_Name[2671] = {
+  const char * const lookup_gl_Name[2697] = {
     "glAccum",
     "glActiveProgramEXT",
     "glActiveShaderProgram",
@@ -25272,6 +25488,7 @@ namespace Plugin {
     "glBeginOcclusionQueryNV",
     "glBeginPerfMonitorAMD",
     "glBeginQuery",
+    "glBeginQueryANGLE",
     "glBeginQueryARB",
     "glBeginQueryEXT",
     "glBeginQueryIndexed",
@@ -25344,6 +25561,7 @@ namespace Plugin {
     "glBinormal3svEXT",
     "glBinormalPointerEXT",
     "glBitmap",
+    "glBlendBarrierNV",
     "glBlendColor",
     "glBlendColorEXT",
     "glBlendEquation",
@@ -25369,6 +25587,7 @@ namespace Plugin {
     "glBlendFuncSeparateiARB",
     "glBlendFunci",
     "glBlendFunciARB",
+    "glBlendParameteriNV",
     "glBlitFramebuffer",
     "glBlitFramebufferANGLE",
     "glBlitFramebufferEXT",
@@ -25541,6 +25760,7 @@ namespace Plugin {
     "glConvolutionParameteriv",
     "glConvolutionParameterivEXT",
     "glCopyBufferSubData",
+    "glCopyBufferSubDataNV",
     "glCopyColorSubTable",
     "glCopyColorSubTableEXT",
     "glCopyColorTable",
@@ -25627,6 +25847,7 @@ namespace Plugin {
     "glDeleteProgramsARB",
     "glDeleteProgramsNV",
     "glDeleteQueries",
+    "glDeleteQueriesANGLE",
     "glDeleteQueriesARB",
     "glDeleteQueriesEXT",
     "glDeleteRenderbuffers",
@@ -25745,6 +25966,7 @@ namespace Plugin {
     "glEndOcclusionQueryNV",
     "glEndPerfMonitorAMD",
     "glEndQuery",
+    "glEndQueryANGLE",
     "glEndQueryARB",
     "glEndQueryEXT",
     "glEndQueryIndexed",
@@ -25872,7 +26094,6 @@ namespace Plugin {
     "glFramebufferTexture3DOES",
     "glFramebufferTextureARB",
     "glFramebufferTextureEXT",
-    "glFramebufferTextureFace",
     "glFramebufferTextureFaceARB",
     "glFramebufferTextureFaceEXT",
     "glFramebufferTextureLayer",
@@ -25902,6 +26123,7 @@ namespace Plugin {
     "glGenProgramsARB",
     "glGenProgramsNV",
     "glGenQueries",
+    "glGenQueriesANGLE",
     "glGenQueriesARB",
     "glGenQueriesEXT",
     "glGenRenderbuffers",
@@ -26172,16 +26394,21 @@ namespace Plugin {
     "glGetProgramivNV",
     "glGetQueryIndexediv",
     "glGetQueryObjecti64v",
+    "glGetQueryObjecti64vANGLE",
     "glGetQueryObjecti64vEXT",
     "glGetQueryObjectiv",
+    "glGetQueryObjectivANGLE",
     "glGetQueryObjectivARB",
     "glGetQueryObjectivEXT",
     "glGetQueryObjectui64v",
+    "glGetQueryObjectui64vANGLE",
     "glGetQueryObjectui64vEXT",
     "glGetQueryObjectuiv",
+    "glGetQueryObjectuivANGLE",
     "glGetQueryObjectuivARB",
     "glGetQueryObjectuivEXT",
     "glGetQueryiv",
+    "glGetQueryivANGLE",
     "glGetQueryivARB",
     "glGetQueryivEXT",
     "glGetRenderbufferParameteriv",
@@ -26397,6 +26624,7 @@ namespace Plugin {
     "glIsProgramNV",
     "glIsProgramPipeline",
     "glIsQuery",
+    "glIsQueryANGLE",
     "glIsQueryARB",
     "glIsQueryEXT",
     "glIsRenderbuffer",
@@ -26658,6 +26886,7 @@ namespace Plugin {
     "glMultiTexSubImage2DEXT",
     "glMultiTexSubImage3DEXT",
     "glNamedBufferDataEXT",
+    "glNamedBufferStorageEXT",
     "glNamedBufferSubDataEXT",
     "glNamedCopyBufferSubDataEXT",
     "glNamedFramebufferParameteriEXT",
@@ -26984,6 +27213,7 @@ namespace Plugin {
     "glPushMatrix",
     "glPushName",
     "glQueryCounter",
+    "glQueryCounterANGLE",
     "glQueryCounterEXT",
     "glRasterPos2d",
     "glRasterPos2dv",
@@ -27457,22 +27687,28 @@ namespace Plugin {
     "glUniformMatrix2fvARB",
     "glUniformMatrix2x3dv",
     "glUniformMatrix2x3fv",
+    "glUniformMatrix2x3fvNV",
     "glUniformMatrix2x4dv",
     "glUniformMatrix2x4fv",
+    "glUniformMatrix2x4fvNV",
     "glUniformMatrix3dv",
     "glUniformMatrix3fv",
     "glUniformMatrix3fvARB",
     "glUniformMatrix3x2dv",
     "glUniformMatrix3x2fv",
+    "glUniformMatrix3x2fvNV",
     "glUniformMatrix3x4dv",
     "glUniformMatrix3x4fv",
+    "glUniformMatrix3x4fvNV",
     "glUniformMatrix4dv",
     "glUniformMatrix4fv",
     "glUniformMatrix4fvARB",
     "glUniformMatrix4x2dv",
     "glUniformMatrix4x2fv",
+    "glUniformMatrix4x2fvNV",
     "glUniformMatrix4x3dv",
     "glUniformMatrix4x3fv",
+    "glUniformMatrix4x3fvNV",
     "glUniformSubroutinesuiv",
     "glUniformui64NV",
     "glUniformui64vNV",
@@ -27541,6 +27777,7 @@ namespace Plugin {
     "glVertex4iv",
     "glVertex4s",
     "glVertex4sv",
+    "glVertexArrayBindVertexBufferEXT",
     "glVertexArrayColorOffsetEXT",
     "glVertexArrayEdgeFlagOffsetEXT",
     "glVertexArrayFogCoordOffsetEXT",
@@ -27552,9 +27789,14 @@ namespace Plugin {
     "glVertexArrayRangeNV",
     "glVertexArraySecondaryColorOffsetEXT",
     "glVertexArrayTexCoordOffsetEXT",
+    "glVertexArrayVertexAttribBindingEXT",
+    "glVertexArrayVertexAttribFormatEXT",
+    "glVertexArrayVertexAttribIFormatEXT",
     "glVertexArrayVertexAttribIOffsetEXT",
+    "glVertexArrayVertexAttribLFormatEXT",
     "glVertexArrayVertexAttribLOffsetEXT",
     "glVertexArrayVertexAttribOffsetEXT",
+    "glVertexArrayVertexBindingDivisorEXT",
     "glVertexArrayVertexOffsetEXT",
     "glVertexAttrib1d",
     "glVertexAttrib1dARB",
@@ -27913,7 +28155,7 @@ namespace Plugin {
     NULL
   };
 
-  const void *lookup_gl_Value[2671] = {
+  const void *lookup_gl_Value[2697] = {
     (void *)(plugin_glAccum),
     (void *)(plugin_glActiveProgramEXT),
     (void *)(plugin_glActiveShaderProgram),
@@ -27946,6 +28188,7 @@ namespace Plugin {
     (void *)(plugin_glBeginOcclusionQueryNV),
     (void *)(plugin_glBeginPerfMonitorAMD),
     (void *)(plugin_glBeginQuery),
+    (void *)(plugin_glBeginQueryANGLE),
     (void *)(plugin_glBeginQueryARB),
     (void *)(plugin_glBeginQueryEXT),
     (void *)(plugin_glBeginQueryIndexed),
@@ -28018,6 +28261,7 @@ namespace Plugin {
     (void *)(plugin_glBinormal3svEXT),
     (void *)(plugin_glBinormalPointerEXT),
     (void *)(plugin_glBitmap),
+    (void *)(plugin_glBlendBarrierNV),
     (void *)(plugin_glBlendColor),
     (void *)(plugin_glBlendColorEXT),
     (void *)(plugin_glBlendEquation),
@@ -28043,6 +28287,7 @@ namespace Plugin {
     (void *)(plugin_glBlendFuncSeparateiARB),
     (void *)(plugin_glBlendFunci),
     (void *)(plugin_glBlendFunciARB),
+    (void *)(plugin_glBlendParameteriNV),
     (void *)(plugin_glBlitFramebuffer),
     (void *)(plugin_glBlitFramebufferANGLE),
     (void *)(plugin_glBlitFramebufferEXT),
@@ -28215,6 +28460,7 @@ namespace Plugin {
     (void *)(plugin_glConvolutionParameteriv),
     (void *)(plugin_glConvolutionParameterivEXT),
     (void *)(plugin_glCopyBufferSubData),
+    (void *)(plugin_glCopyBufferSubDataNV),
     (void *)(plugin_glCopyColorSubTable),
     (void *)(plugin_glCopyColorSubTableEXT),
     (void *)(plugin_glCopyColorTable),
@@ -28301,6 +28547,7 @@ namespace Plugin {
     (void *)(plugin_glDeleteProgramsARB),
     (void *)(plugin_glDeleteProgramsNV),
     (void *)(plugin_glDeleteQueries),
+    (void *)(plugin_glDeleteQueriesANGLE),
     (void *)(plugin_glDeleteQueriesARB),
     (void *)(plugin_glDeleteQueriesEXT),
     (void *)(plugin_glDeleteRenderbuffers),
@@ -28419,6 +28666,7 @@ namespace Plugin {
     (void *)(plugin_glEndOcclusionQueryNV),
     (void *)(plugin_glEndPerfMonitorAMD),
     (void *)(plugin_glEndQuery),
+    (void *)(plugin_glEndQueryANGLE),
     (void *)(plugin_glEndQueryARB),
     (void *)(plugin_glEndQueryEXT),
     (void *)(plugin_glEndQueryIndexed),
@@ -28546,7 +28794,6 @@ namespace Plugin {
     (void *)(plugin_glFramebufferTexture3DOES),
     (void *)(plugin_glFramebufferTextureARB),
     (void *)(plugin_glFramebufferTextureEXT),
-    (void *)(plugin_glFramebufferTextureFace),
     (void *)(plugin_glFramebufferTextureFaceARB),
     (void *)(plugin_glFramebufferTextureFaceEXT),
     (void *)(plugin_glFramebufferTextureLayer),
@@ -28576,6 +28823,7 @@ namespace Plugin {
     (void *)(plugin_glGenProgramsARB),
     (void *)(plugin_glGenProgramsNV),
     (void *)(plugin_glGenQueries),
+    (void *)(plugin_glGenQueriesANGLE),
     (void *)(plugin_glGenQueriesARB),
     (void *)(plugin_glGenQueriesEXT),
     (void *)(plugin_glGenRenderbuffers),
@@ -28846,16 +29094,21 @@ namespace Plugin {
     (void *)(plugin_glGetProgramivNV),
     (void *)(plugin_glGetQueryIndexediv),
     (void *)(plugin_glGetQueryObjecti64v),
+    (void *)(plugin_glGetQueryObjecti64vANGLE),
     (void *)(plugin_glGetQueryObjecti64vEXT),
     (void *)(plugin_glGetQueryObjectiv),
+    (void *)(plugin_glGetQueryObjectivANGLE),
     (void *)(plugin_glGetQueryObjectivARB),
     (void *)(plugin_glGetQueryObjectivEXT),
     (void *)(plugin_glGetQueryObjectui64v),
+    (void *)(plugin_glGetQueryObjectui64vANGLE),
     (void *)(plugin_glGetQueryObjectui64vEXT),
     (void *)(plugin_glGetQueryObjectuiv),
+    (void *)(plugin_glGetQueryObjectuivANGLE),
     (void *)(plugin_glGetQueryObjectuivARB),
     (void *)(plugin_glGetQueryObjectuivEXT),
     (void *)(plugin_glGetQueryiv),
+    (void *)(plugin_glGetQueryivANGLE),
     (void *)(plugin_glGetQueryivARB),
     (void *)(plugin_glGetQueryivEXT),
     (void *)(plugin_glGetRenderbufferParameteriv),
@@ -29071,6 +29324,7 @@ namespace Plugin {
     (void *)(plugin_glIsProgramNV),
     (void *)(plugin_glIsProgramPipeline),
     (void *)(plugin_glIsQuery),
+    (void *)(plugin_glIsQueryANGLE),
     (void *)(plugin_glIsQueryARB),
     (void *)(plugin_glIsQueryEXT),
     (void *)(plugin_glIsRenderbuffer),
@@ -29332,6 +29586,7 @@ namespace Plugin {
     (void *)(plugin_glMultiTexSubImage2DEXT),
     (void *)(plugin_glMultiTexSubImage3DEXT),
     (void *)(plugin_glNamedBufferDataEXT),
+    (void *)(plugin_glNamedBufferStorageEXT),
     (void *)(plugin_glNamedBufferSubDataEXT),
     (void *)(plugin_glNamedCopyBufferSubDataEXT),
     (void *)(plugin_glNamedFramebufferParameteriEXT),
@@ -29658,6 +29913,7 @@ namespace Plugin {
     (void *)(plugin_glPushMatrix),
     (void *)(plugin_glPushName),
     (void *)(plugin_glQueryCounter),
+    (void *)(plugin_glQueryCounterANGLE),
     (void *)(plugin_glQueryCounterEXT),
     (void *)(plugin_glRasterPos2d),
     (void *)(plugin_glRasterPos2dv),
@@ -30131,22 +30387,28 @@ namespace Plugin {
     (void *)(plugin_glUniformMatrix2fvARB),
     (void *)(plugin_glUniformMatrix2x3dv),
     (void *)(plugin_glUniformMatrix2x3fv),
+    (void *)(plugin_glUniformMatrix2x3fvNV),
     (void *)(plugin_glUniformMatrix2x4dv),
     (void *)(plugin_glUniformMatrix2x4fv),
+    (void *)(plugin_glUniformMatrix2x4fvNV),
     (void *)(plugin_glUniformMatrix3dv),
     (void *)(plugin_glUniformMatrix3fv),
     (void *)(plugin_glUniformMatrix3fvARB),
     (void *)(plugin_glUniformMatrix3x2dv),
     (void *)(plugin_glUniformMatrix3x2fv),
+    (void *)(plugin_glUniformMatrix3x2fvNV),
     (void *)(plugin_glUniformMatrix3x4dv),
     (void *)(plugin_glUniformMatrix3x4fv),
+    (void *)(plugin_glUniformMatrix3x4fvNV),
     (void *)(plugin_glUniformMatrix4dv),
     (void *)(plugin_glUniformMatrix4fv),
     (void *)(plugin_glUniformMatrix4fvARB),
     (void *)(plugin_glUniformMatrix4x2dv),
     (void *)(plugin_glUniformMatrix4x2fv),
+    (void *)(plugin_glUniformMatrix4x2fvNV),
     (void *)(plugin_glUniformMatrix4x3dv),
     (void *)(plugin_glUniformMatrix4x3fv),
+    (void *)(plugin_glUniformMatrix4x3fvNV),
     (void *)(plugin_glUniformSubroutinesuiv),
     (void *)(plugin_glUniformui64NV),
     (void *)(plugin_glUniformui64vNV),
@@ -30215,6 +30477,7 @@ namespace Plugin {
     (void *)(plugin_glVertex4iv),
     (void *)(plugin_glVertex4s),
     (void *)(plugin_glVertex4sv),
+    (void *)(plugin_glVertexArrayBindVertexBufferEXT),
     (void *)(plugin_glVertexArrayColorOffsetEXT),
     (void *)(plugin_glVertexArrayEdgeFlagOffsetEXT),
     (void *)(plugin_glVertexArrayFogCoordOffsetEXT),
@@ -30226,9 +30489,14 @@ namespace Plugin {
     (void *)(plugin_glVertexArrayRangeNV),
     (void *)(plugin_glVertexArraySecondaryColorOffsetEXT),
     (void *)(plugin_glVertexArrayTexCoordOffsetEXT),
+    (void *)(plugin_glVertexArrayVertexAttribBindingEXT),
+    (void *)(plugin_glVertexArrayVertexAttribFormatEXT),
+    (void *)(plugin_glVertexArrayVertexAttribIFormatEXT),
     (void *)(plugin_glVertexArrayVertexAttribIOffsetEXT),
+    (void *)(plugin_glVertexArrayVertexAttribLFormatEXT),
     (void *)(plugin_glVertexArrayVertexAttribLOffsetEXT),
     (void *)(plugin_glVertexArrayVertexAttribOffsetEXT),
+    (void *)(plugin_glVertexArrayVertexBindingDivisorEXT),
     (void *)(plugin_glVertexArrayVertexOffsetEXT),
     (void *)(plugin_glVertexAttrib1d),
     (void *)(plugin_glVertexAttrib1dARB),
@@ -31403,7 +31671,7 @@ extern "C" {
   {
     const char **res;
 
-    res = (const char **) std::bsearch(&name, lookup_gl_Name, 2669, sizeof(const char *), NameCmp);
+    res = (const char **) std::bsearch(&name, lookup_gl_Name, 2695, sizeof(const char *), NameCmp);
     if (res) return const_cast<void *>(lookup_gl_Value[(size_t) (res - lookup_gl_Name)]);
 
 #if REGAL_SYS_WGL

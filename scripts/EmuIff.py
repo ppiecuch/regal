@@ -38,15 +38,15 @@ iffFormulae = {
     },
     'ImmShadowVao' : {
         'entries' : [ 'glBindVertexArray.*', ],
-        'prefix' : [ '_context->iff->ShadowVao( _context, ${arg0} ); ', ],
+        'prefix' : [ '_context->iff->glBindVertexArray( _context, ${arg0} ); ', ],
     },
    'IsVertexArray' : {
         'entries' : [ 'glIsVertexArray(ARB|)' ],
         'impl' : [ 'return _context->iff->IsVertexArray( _context, ${arg0} );' ],
     },
-   'DeleteVertexArrays' : {
-        'entries' : [ 'glDeleteVertexArrays(ARB|)' ],
-        'impl' : [ '_context->iff->DeleteVertexArrays( _context, ${arg0}, ${arg1} );' ],
+   'DeleteStuff' : {
+        'entries' : [ 'glDelete(Buffers|VertexArrays)(ARB|)' ],
+        'impl' : [ '_context->iff->glDelete${m1}( _context, ${arg0}, ${arg1} );' ],
     },
     'ImmShadowClientActiveTexture' : {
         'entries' : [ 'glClientActiveTexture(ARB|)', ],
@@ -62,7 +62,7 @@ iffFormulae = {
     },
     'ImmAttr' : {
         'entries' : [ 'glVertexAttrib(1|2|3|4)(N|)(b|d|f|i|s|ub|us)(v|)(ARB|)' ],
-        'impl' : [ '_context->iff->Attr${m2}<${m1}>( _context, ${arg0plus} );', ],
+        'prefix' : [ '_context->iff->Attr${m2}<${m1}>( _context, ${arg0plus} );', ],
     },
     'ImmFixedAttrf' : {
         'entries' : [ 'gl(SecondaryColor|Color|Normal|FogCoord)(2|3|4)(d|f)(v|)(EXT|)?' ],
@@ -99,11 +99,7 @@ iffFormulae = {
 
     'FfnShadowARB' : {
         'entries' : [ 'glActiveTexture(ARB|)' ],
-        'impl' : [
-            'if( ! _context->iff->ShadowActiveTexture( ${arg0plus} ) ) {',
-            '    _context->dispatcher.emulation.glActiveTexture${m1}( ${arg0plus} );',
-            '}',
-            ],
+        'prefix' : [ '_context->iff->ShadowActiveTexture( ${arg0} ); ', ],
     },
     'FfnShadeModel' : {
         'entries' : [ 'glShadeModel' ],
@@ -169,7 +165,11 @@ iffFormulae = {
     },
     'FfnTexGen' : {
         'entries' : [ 'glTexGen(i|f|d)(v|)' ],
-        'impl' : [ '_context->iff->TexGen( ${arg0plus} );', ],
+        'impl' : [
+            'if ( ! _context->iff->TexGen( ${arg0plus} ) ) {',
+            '    _context->dispatcher.emulation.glTexGen${m1}${m2}( ${arg0plus} );',
+            '}',
+        ],
     },
     'FfnAlphaFunc' : {
         'entries' : [ 'glAlphaFunc' ],
@@ -182,6 +182,15 @@ iffFormulae = {
     'FfnFog' : {
         'entries' : [ 'glFog(f|i)(v|)' ],
         'impl' : [ '_context->iff->Fog( ${arg0plus} );', ],
+    },
+    'FfnGetBoolean' : {
+        'entries' : [ 'glGetBooleanv' ],
+        'impl' : [
+            '_context->iff->RestoreVao( _context );',
+            'if ( ! _context->iff->glGetBooleanv( _context, ${arg0plus} ) ) {',
+            '    _context->dispatcher.emulation.glGetBooleanv( ${arg0plus} );',
+            '}',
+        ],
     },
     'FfnGet' : {
         'entries' : [ 'glGet(Integer|Float|Double)v' ],
@@ -261,14 +270,5 @@ iffFormulae = {
     'CreateShader' : {
         'entries' : [ 'glCreateShader(ObjectARB)?', ],
         'impl' : [ 'return _context->iff->CreateShader( _context, ${arg0} );', ],
-    },
-    'Hint' : {
-        'entries' : [ 'glHint' ],
-        'impl' : [ ],
-    },
-    'TexSubImage' : {
-        'entries' : [ 'glTexSubImage2D' ],
-        'impl' : [ ],
     }
 }
-

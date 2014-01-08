@@ -53,10 +53,10 @@ using namespace std;
 #include <boost/print/string_list.hpp>
 using namespace boost::print;
 
+#include "RegalEmu.h"
 #include "RegalToken.h"
 #include "RegalContext.h"
 #include "RegalContextInfo.h"
-#include "RegalIff.h"             // For REGAL_MAX_VERTEX_ATTRIBS
 
 REGAL_GLOBAL_END
 
@@ -89,6 +89,8 @@ ContextInfo::ContextInfo()
   gl_version_4_0(false),
   gl_version_4_1(false),
   gl_version_4_2(false),
+  gl_version_4_3(false),
+  gl_version_4_4(false),
   gles_version_major(-1),
   gles_version_minor(-1),
   glsl_version_major(-1),
@@ -438,9 +440,11 @@ ContextInfo::ContextInfo()
   gl_nv_3dvision_settings(false),
   gl_nv_bgr(false),
   gl_nv_bindless_texture(false),
+  gl_nv_blend_equation_advanced(false),
   gl_nv_blend_square(false),
   gl_nv_compute_program5(false),
   gl_nv_conditional_render(false),
+  gl_nv_copy_buffer(false),
   gl_nv_copy_depth_to_color(false),
   gl_nv_copy_image(false),
   gl_nv_coverage_sample(false),
@@ -471,6 +475,7 @@ ContextInfo::ContextInfo()
   gl_nv_light_max_exponent(false),
   gl_nv_multisample_coverage(false),
   gl_nv_multisample_filter_hint(false),
+  gl_nv_non_square_matrices(false),
   gl_nv_occlusion_query(false),
   gl_nv_pack_subimage(false),
   gl_nv_packed_depth_stencil(false),
@@ -518,6 +523,7 @@ ContextInfo::ContextInfo()
   gl_nv_vertex_program3(false),
   gl_nv_vertex_program4(false),
   gl_nv_video_capture(false),
+  gl_oes_egl_image_external(false),
   gl_oes_blend_equation_separate(false),
   gl_oes_blend_func_separate(false),
   gl_oes_blend_subtract(false),
@@ -631,24 +637,6 @@ ContextInfo::ContextInfo()
   gl_win_phong_shading(false),
   gl_win_specular_fog(false),
   gl_win_swap_hint(false),
-  regal_arb_draw_buffers(false),
-  regal_arb_multitexture(false),
-  regal_arb_texture_cube_map(false),
-  regal_arb_texture_env_combine(false),
-  regal_arb_texture_env_dot3(false),
-  regal_arb_texture_storage(false),
-  regal_ati_draw_buffers(false),
-  regal_ext_blend_color(false),
-  regal_ext_blend_subtract(false),
-  regal_ext_direct_state_access(false),
-  regal_ext_framebuffer_blit(false),
-  regal_ext_framebuffer_object(false),
-  regal_ext_texture_cube_map(false),
-  regal_ext_texture_edge_clamp(false),
-  regal_ext_texture_env_combine(false),
-  regal_ext_texture_env_dot3(false),
-  regal_ibm_texture_mirrored_repeat(false),
-  regal_nv_blend_square(false),
 #if REGAL_SYS_WGL
   wgl_3dl_stereo_control(false),
   wgl_amd_gpu_association(false),
@@ -699,7 +687,7 @@ ContextInfo::ContextInfo()
   wgl_nv_video_capture(false),
   wgl_nv_video_output(false),
   wgl_oml_sync_control(false),
-#endif
+#endif /* REGAL_SYS_WGL */
 #if REGAL_SYS_GLX
   glx_3dfx_multisample(false),
   glx_amd_gpu_association(false),
@@ -758,7 +746,7 @@ ContextInfo::ContextInfo()
   glx_sgi_video_sync(false),
   glx_sun_get_transparent_index(false),
   glx_sun_video_resize(false),
-#endif
+#endif /* REGAL_SYS_GLX */
 #if REGAL_SYS_EGL
   egl_angle_query_surface_pointer(false),
   egl_angle_surface_d3d_texture_2d_share_handle(false),
@@ -788,10 +776,21 @@ ContextInfo::ContextInfo()
   egl_nv_post_sub_buffer(false),
   egl_nv_sync(false),
   egl_nv_system_time(false),
-#endif
+#endif /* REGAL_SYS_EGL */
 
-  maxVertexAttribs(0),
-  maxVaryings(0)
+  gl_max_attrib_stack_depth(0),
+  gl_max_client_attrib_stack_depth(0),
+  gl_max_combined_texture_image_units(0),
+  gl_max_debug_message_length(0),
+  gl_max_draw_buffers(0),
+  gl_max_texture_coords(0),
+  gl_max_texture_units(0),
+  gl_max_vertex_attrib_bindings(0),
+  gl_max_vertex_attribs(0),
+  gl_max_viewports(0),
+  gl_max_varying_floats(0),
+  gl_quads_follow_provoking_vertex_convention(GL_FALSE)
+
 {
    Internal("ContextInfo::ContextInfo","()");
 }
@@ -809,9 +808,20 @@ inline string getString(const RegalContext &context, const GLenum e)
   return str ? string(reinterpret_cast<const char *>(str)) : string();
 }
 
+inline void warnGLError(const RegalContext &context, const char *message)
+{
+  Internal("warnGLError ",message ? message : NULL);
+  RegalAssert(context.dispatcher.driver.glGetError);
+  GLenum err = context.dispatcher.driver.glGetError();
+  if (err!=GL_NO_ERROR)
+    Warning("glGetError returned ",GLerrorToString(err)," ",message ? message : NULL);
+}
+
 void
 ContextInfo::init(const RegalContext &context)
 {
+  warnGLError(context,"before Regal context initialization.");
+
   // OpenGL Version.
 
   vendor     = getString(context, GL_VENDOR);
@@ -829,24 +839,23 @@ ContextInfo::init(const RegalContext &context)
   gles_version_minor = 0;
 
   // Detect GL context version
+  //
+  // Note: We need to detect desktop ES contexts even if REGAL_SYS_ES1 or REGAL_SYS_ES2
+  //       are disabled.
 
-  #if REGAL_SYS_ES1
   es1 = starts_with(version, "OpenGL ES-CM");
   if (es1)
   {
     sscanf(version.c_str(), "OpenGL ES-CM %d.%d", &gles_version_major, &gles_version_minor);
   }
   else
-  #endif
   {
-    #if REGAL_SYS_ES2
     es2 = starts_with(version,"OpenGL ES ");
     if (es2)
     {
       sscanf(version.c_str(), "OpenGL ES %d.%d", &gles_version_major, &gles_version_minor);
     }
     else
-    #endif
     {
       sscanf(version.c_str(), "%d.%d", &gl_version_major, &gl_version_minor);
     }
@@ -895,9 +904,9 @@ ContextInfo::init(const RegalContext &context)
   }
   #endif
 
-  // Detect core context
+  // Detect core context for GL 3.2 onwards
 
-  if (!es1 && !es2 && gl_version_major>=3)
+  if (!es1 && !es2 && (gl_version_major>3 || (gl_version_major==3 && gl_version_minor>=2)))
   {
     GLint flags = 0;
     RegalAssert(context.dispatcher.driver.glGetIntegerv);
@@ -957,81 +966,15 @@ ContextInfo::init(const RegalContext &context)
     driverExtensions.split(extensions,' ');
   }
 
-  regalExtensionsSet.insert(driverExtensions.begin(),driverExtensions.end());
+  extensionsSet.insert(driverExtensions.begin(),driverExtensions.end());
 
   Info("OpenGL extensions: ",extensions);
 
-  // TODO - filter out extensions Regal doesn't support?
-
-#ifdef REGAL_GL_VENDOR
-  regalVendor = REGAL_EQUOTE(REGAL_GL_VENDOR);
-#else
-  regalVendor = vendor;
-#endif
-
-#ifdef REGAL_GL_RENDERER
-  regalRenderer = REGAL_EQUOTE(REGAL_GL_RENDERER);
-#else
-  regalRenderer = renderer;
-#endif
-
-#ifdef REGAL_GL_VERSION
-  regalVersion = REGAL_EQUOTE(REGAL_GL_VERSION);
-#else
-  regalVersion = version;
-#endif
-
-#ifdef REGAL_GL_EXTENSIONS
-  {
-    string_list<string> extList;
-    extList.split(REGAL_EQUOTE(REGAL_GL_EXTENSIONS),' ');
-    regalExtensionsSet.clear();
-    regalExtensionsSet.insert(extList.begin(),extList.end());
-  }
-#else
-  static const char *ourExtensions[9] = {
-    "GL_REGAL_log",
-    "GL_REGAL_enable",
-    "GL_REGAL_error_string",
-    "GL_REGAL_extension_query",
-    "GL_REGAL_ES1_0_compatibility",
-    "GL_REGAL_ES1_1_compatibility",
-    "GL_EXT_debug_marker",
-    "GL_GREMEDY_string_marker",
-    "GL_GREMEDY_frame_terminator"
-  };
-  regalExtensionsSet.insert(&ourExtensions[0],&ourExtensions[9]);
-#endif
-
-#ifndef REGAL_NO_GETENV
-  {
-    getEnv("REGAL_GL_VENDOR",   regalVendor);
-    getEnv("REGAL_GL_RENDERER", regalRenderer);
-    getEnv("REGAL_GL_VERSION",  regalVersion);
-
-    const char *extensionsEnv = getEnv("REGAL_GL_EXTENSIONS");
-    if (extensionsEnv)
-    {
-      string_list<string> extList;
-      extList.split(extensionsEnv,' ');
-      regalExtensionsSet.clear();
-      regalExtensionsSet.insert(extList.begin(),extList.end());
-    }
-  }
-#endif
-
-  // Form Regal extension string from the set
-
-  regalExtensions = ::boost::print::detail::join(regalExtensionsSet,string(" "));
-
-  Info("Regal vendor     : ",regalVendor);
-  Info("Regal renderer   : ",regalRenderer);
-  Info("Regal version    : ",regalVersion);
-  Info("Regal extensions : ",regalExtensions);
-
   if (!es1 && !es2)
   {
-    gl_version_4_2 = gl_version_major > 4 || (gl_version_major == 4 && gl_version_minor >= 2);
+    gl_version_4_4 = gl_version_major > 4 || (gl_version_major == 4 && gl_version_minor >= 4);
+    gl_version_4_3 = gl_version_4_4 || (gl_version_major == 4 && gl_version_minor == 3);
+    gl_version_4_2 = gl_version_4_3 || (gl_version_major == 4 && gl_version_minor == 2);
     gl_version_4_1 = gl_version_4_2 || (gl_version_major == 4 && gl_version_minor == 1);
     gl_version_4_0 = gl_version_4_1 || gl_version_major == 4;
     gl_version_3_3 = gl_version_4_0 || (gl_version_major == 3 && gl_version_minor == 3);
@@ -1063,701 +1006,764 @@ ContextInfo::init(const RegalContext &context)
   set<string> e;
   e.insert(driverExtensions.begin(),driverExtensions.end());
 
-  gl_3dfx_multisample = e.find("GL_3DFX_multisample")!=e.end();
-  gl_3dfx_tbuffer = e.find("GL_3DFX_tbuffer")!=e.end();
-  gl_3dfx_texture_compression_fxt1 = e.find("GL_3DFX_texture_compression_FXT1")!=e.end();
-  gl_amd_blend_minmax_factor = e.find("GL_AMD_blend_minmax_factor")!=e.end();
-  gl_amd_compressed_3dc_texture = e.find("GL_AMD_compressed_3DC_texture")!=e.end();
-  gl_amd_compressed_atc_texture = e.find("GL_AMD_compressed_ATC_texture")!=e.end();
-  gl_amd_debug_output = e.find("GL_AMD_debug_output")!=e.end();
-  gl_amd_depth_clamp_separate = e.find("GL_AMD_depth_clamp_separate")!=e.end();
-  gl_amd_draw_buffers_blend = e.find("GL_AMD_draw_buffers_blend")!=e.end();
-  gl_amd_interleaved_elements = e.find("GL_AMD_interleaved_elements")!=e.end();
-  gl_amd_multi_draw_indirect = e.find("GL_AMD_multi_draw_indirect")!=e.end();
-  gl_amd_name_gen_delete = e.find("GL_AMD_name_gen_delete")!=e.end();
-  gl_amd_performance_monitor = e.find("GL_AMD_performance_monitor")!=e.end();
-  gl_amd_pinned_memory = e.find("GL_AMD_pinned_memory")!=e.end();
-  gl_amd_program_binary_z400 = e.find("GL_AMD_program_binary_Z400")!=e.end();
-  gl_amd_query_buffer_object = e.find("GL_AMD_query_buffer_object")!=e.end();
-  gl_amd_sample_positions = e.find("GL_AMD_sample_positions")!=e.end();
-  gl_amd_seamless_cubemap_per_texture = e.find("GL_AMD_seamless_cubemap_per_texture")!=e.end();
-  gl_amd_sparse_texture = e.find("GL_AMD_sparse_texture")!=e.end();
-  gl_amd_stencil_operation_extended = e.find("GL_AMD_stencil_operation_extended")!=e.end();
-  gl_amd_vertex_shader_tessellator = e.find("GL_AMD_vertex_shader_tessellator")!=e.end();
-  gl_angle_framebuffer_blit = e.find("GL_ANGLE_framebuffer_blit")!=e.end();
-  gl_angle_framebuffer_multisample = e.find("GL_ANGLE_framebuffer_multisample")!=e.end();
-  gl_angle_instanced_arrays = e.find("GL_ANGLE_instanced_arrays")!=e.end();
-  gl_angle_pack_reverse_row_order = e.find("GL_ANGLE_pack_reverse_row_order")!=e.end();
-  gl_angle_program_binary = e.find("GL_ANGLE_program_binary")!=e.end();
-  gl_angle_texture_compression_dxt1 = e.find("GL_ANGLE_texture_compression_dxt1")!=e.end();
-  gl_angle_texture_compression_dxt3 = e.find("GL_ANGLE_texture_compression_dxt3")!=e.end();
-  gl_angle_texture_compression_dxt5 = e.find("GL_ANGLE_texture_compression_dxt5")!=e.end();
-  gl_angle_texture_usage = e.find("GL_ANGLE_texture_usage")!=e.end();
-  gl_angle_timer_query = e.find("GL_ANGLE_timer_query")!=e.end();
-  gl_angle_translated_shader_source = e.find("GL_ANGLE_translated_shader_source")!=e.end();
-  gl_apple_aux_depth_stencil = e.find("GL_APPLE_aux_depth_stencil")!=e.end();
-  gl_apple_client_storage = e.find("GL_APPLE_client_storage")!=e.end();
-  gl_apple_copy_texture_levels = e.find("GL_APPLE_copy_texture_levels")!=e.end();
-  gl_apple_element_array = e.find("GL_APPLE_element_array")!=e.end();
-  gl_apple_fence = e.find("GL_APPLE_fence")!=e.end();
-  gl_apple_float_pixels = e.find("GL_APPLE_float_pixels")!=e.end();
-  gl_apple_flush_buffer_range = e.find("GL_APPLE_flush_buffer_range")!=e.end();
-  gl_apple_flush_render = e.find("GL_APPLE_flush_render")!=e.end();
-  gl_apple_framebuffer_multisample = e.find("GL_APPLE_framebuffer_multisample")!=e.end();
-  gl_apple_object_purgeable = e.find("GL_APPLE_object_purgeable")!=e.end();
-  gl_apple_pixel_buffer = e.find("GL_APPLE_pixel_buffer")!=e.end();
-  gl_apple_rgb_422 = e.find("GL_APPLE_rgb_422")!=e.end();
-  gl_apple_row_bytes = e.find("GL_APPLE_row_bytes")!=e.end();
-  gl_apple_specular_vector = e.find("GL_APPLE_specular_vector")!=e.end();
-  gl_apple_sync = e.find("GL_APPLE_sync")!=e.end();
-  gl_apple_texture_max_level = e.find("GL_APPLE_texture_max_level")!=e.end();
-  gl_apple_texture_range = e.find("GL_APPLE_texture_range")!=e.end();
-  gl_apple_transform_hint = e.find("GL_APPLE_transform_hint")!=e.end();
-  gl_apple_vertex_array_object = e.find("GL_APPLE_vertex_array_object")!=e.end();
-  gl_apple_vertex_array_range = e.find("GL_APPLE_vertex_array_range")!=e.end();
-  gl_apple_vertex_program_evaluators = e.find("GL_APPLE_vertex_program_evaluators")!=e.end();
-  gl_apple_ycbcr_422 = e.find("GL_APPLE_ycbcr_422")!=e.end();
-  gl_arb_es2_compatibility = e.find("GL_ARB_ES2_compatibility")!=e.end();
-  gl_arb_es3_compatibility = e.find("GL_ARB_ES3_compatibility")!=e.end();
-  gl_arb_base_instance = e.find("GL_ARB_base_instance")!=e.end();
-  gl_arb_bindless_texture = e.find("GL_ARB_bindless_texture")!=e.end();
-  gl_arb_blend_func_extended = e.find("GL_ARB_blend_func_extended")!=e.end();
-  gl_arb_buffer_storage = e.find("GL_ARB_buffer_storage")!=e.end();
-  gl_arb_cl_event = e.find("GL_ARB_cl_event")!=e.end();
-  gl_arb_clear_buffer_object = e.find("GL_ARB_clear_buffer_object")!=e.end();
-  gl_arb_clear_texture = e.find("GL_ARB_clear_texture")!=e.end();
-  gl_arb_color_buffer_float = e.find("GL_ARB_color_buffer_float")!=e.end();
-  gl_arb_compressed_texture_pixel_storage = e.find("GL_ARB_compressed_texture_pixel_storage")!=e.end();
-  gl_arb_compute_shader = e.find("GL_ARB_compute_shader")!=e.end();
-  gl_arb_compute_variable_group_size = e.find("GL_ARB_compute_variable_group_size")!=e.end();
-  gl_arb_copy_buffer = e.find("GL_ARB_copy_buffer")!=e.end();
-  gl_arb_copy_image = e.find("GL_ARB_copy_image")!=e.end();
-  gl_arb_debug_output = e.find("GL_ARB_debug_output")!=e.end();
-  gl_arb_depth_buffer_float = e.find("GL_ARB_depth_buffer_float")!=e.end();
-  gl_arb_depth_clamp = e.find("GL_ARB_depth_clamp")!=e.end();
-  gl_arb_depth_texture = e.find("GL_ARB_depth_texture")!=e.end();
-  gl_arb_draw_buffers = e.find("GL_ARB_draw_buffers")!=e.end();
-  gl_arb_draw_buffers_blend = e.find("GL_ARB_draw_buffers_blend")!=e.end();
-  gl_arb_draw_elements_base_vertex = e.find("GL_ARB_draw_elements_base_vertex")!=e.end();
-  gl_arb_draw_indirect = e.find("GL_ARB_draw_indirect")!=e.end();
-  gl_arb_draw_instanced = e.find("GL_ARB_draw_instanced")!=e.end();
-  gl_arb_enhanced_layouts = e.find("GL_ARB_enhanced_layouts")!=e.end();
-  gl_arb_explicit_uniform_location = e.find("GL_ARB_explicit_uniform_location")!=e.end();
-  gl_arb_fragment_program = e.find("GL_ARB_fragment_program")!=e.end();
-  gl_arb_fragment_shader = e.find("GL_ARB_fragment_shader")!=e.end();
-  gl_arb_framebuffer_no_attachments = e.find("GL_ARB_framebuffer_no_attachments")!=e.end();
-  gl_arb_framebuffer_object = e.find("GL_ARB_framebuffer_object")!=e.end();
-  gl_arb_framebuffer_srgb = e.find("GL_ARB_framebuffer_sRGB")!=e.end();
-  gl_arb_geometry_shader4 = e.find("GL_ARB_geometry_shader4")!=e.end();
-  gl_arb_get_program_binary = e.find("GL_ARB_get_program_binary")!=e.end();
-  gl_arb_gpu_shader5 = e.find("GL_ARB_gpu_shader5")!=e.end();
-  gl_arb_gpu_shader_fp64 = e.find("GL_ARB_gpu_shader_fp64")!=e.end();
-  gl_arb_half_float_pixel = e.find("GL_ARB_half_float_pixel")!=e.end();
-  gl_arb_half_float_vertex = e.find("GL_ARB_half_float_vertex")!=e.end();
-  gl_arb_imaging = e.find("GL_ARB_imaging")!=e.end();
-  gl_arb_indirect_parameters = e.find("GL_ARB_indirect_parameters")!=e.end();
-  gl_arb_instanced_arrays = e.find("GL_ARB_instanced_arrays")!=e.end();
-  gl_arb_internalformat_query = e.find("GL_ARB_internalformat_query")!=e.end();
-  gl_arb_internalformat_query2 = e.find("GL_ARB_internalformat_query2")!=e.end();
-  gl_arb_invalidate_subdata = e.find("GL_ARB_invalidate_subdata")!=e.end();
-  gl_arb_map_buffer_alignment = e.find("GL_ARB_map_buffer_alignment")!=e.end();
-  gl_arb_map_buffer_range = e.find("GL_ARB_map_buffer_range")!=e.end();
-  gl_arb_matrix_palette = e.find("GL_ARB_matrix_palette")!=e.end();
-  gl_arb_multi_bind = e.find("GL_ARB_multi_bind")!=e.end();
-  gl_arb_multi_draw_indirect = e.find("GL_ARB_multi_draw_indirect")!=e.end();
-  gl_arb_multisample = e.find("GL_ARB_multisample")!=e.end();
-  gl_arb_multitexture = e.find("GL_ARB_multitexture")!=e.end();
-  gl_arb_occlusion_query = e.find("GL_ARB_occlusion_query")!=e.end();
-  gl_arb_occlusion_query2 = e.find("GL_ARB_occlusion_query2")!=e.end();
-  gl_arb_pixel_buffer_object = e.find("GL_ARB_pixel_buffer_object")!=e.end();
-  gl_arb_point_parameters = e.find("GL_ARB_point_parameters")!=e.end();
-  gl_arb_point_sprite = e.find("GL_ARB_point_sprite")!=e.end();
-  gl_arb_program_interface_query = e.find("GL_ARB_program_interface_query")!=e.end();
-  gl_arb_provoking_vertex = e.find("GL_ARB_provoking_vertex")!=e.end();
-  gl_arb_query_buffer_object = e.find("GL_ARB_query_buffer_object")!=e.end();
-  gl_arb_robustness = e.find("GL_ARB_robustness")!=e.end();
-  gl_arb_sample_shading = e.find("GL_ARB_sample_shading")!=e.end();
-  gl_arb_sampler_objects = e.find("GL_ARB_sampler_objects")!=e.end();
-  gl_arb_seamless_cube_map = e.find("GL_ARB_seamless_cube_map")!=e.end();
-  gl_arb_separate_shader_objects = e.find("GL_ARB_separate_shader_objects")!=e.end();
-  gl_arb_shader_atomic_counters = e.find("GL_ARB_shader_atomic_counters")!=e.end();
-  gl_arb_shader_image_load_store = e.find("GL_ARB_shader_image_load_store")!=e.end();
-  gl_arb_shader_objects = e.find("GL_ARB_shader_objects")!=e.end();
-  gl_arb_shader_storage_buffer_object = e.find("GL_ARB_shader_storage_buffer_object")!=e.end();
-  gl_arb_shader_subroutine = e.find("GL_ARB_shader_subroutine")!=e.end();
-  gl_arb_shading_language_100 = e.find("GL_ARB_shading_language_100")!=e.end();
-  gl_arb_shading_language_include = e.find("GL_ARB_shading_language_include")!=e.end();
-  gl_arb_shadow = e.find("GL_ARB_shadow")!=e.end();
-  gl_arb_shadow_ambient = e.find("GL_ARB_shadow_ambient")!=e.end();
-  gl_arb_sparse_texture = e.find("GL_ARB_sparse_texture")!=e.end();
-  gl_arb_stencil_texturing = e.find("GL_ARB_stencil_texturing")!=e.end();
-  gl_arb_sync = e.find("GL_ARB_sync")!=e.end();
-  gl_arb_tessellation_shader = e.find("GL_ARB_tessellation_shader")!=e.end();
-  gl_arb_texture_border_clamp = e.find("GL_ARB_texture_border_clamp")!=e.end();
-  gl_arb_texture_buffer_object = e.find("GL_ARB_texture_buffer_object")!=e.end();
-  gl_arb_texture_buffer_range = e.find("GL_ARB_texture_buffer_range")!=e.end();
-  gl_arb_texture_compression = e.find("GL_ARB_texture_compression")!=e.end();
-  gl_arb_texture_compression_bptc = e.find("GL_ARB_texture_compression_bptc")!=e.end();
-  gl_arb_texture_compression_rgtc = e.find("GL_ARB_texture_compression_rgtc")!=e.end();
-  gl_arb_texture_cube_map = e.find("GL_ARB_texture_cube_map")!=e.end();
-  gl_arb_texture_cube_map_array = e.find("GL_ARB_texture_cube_map_array")!=e.end();
-  gl_arb_texture_env_combine = e.find("GL_ARB_texture_env_combine")!=e.end();
-  gl_arb_texture_env_dot3 = e.find("GL_ARB_texture_env_dot3")!=e.end();
-  gl_arb_texture_float = e.find("GL_ARB_texture_float")!=e.end();
-  gl_arb_texture_gather = e.find("GL_ARB_texture_gather")!=e.end();
-  gl_arb_texture_mirror_clamp_to_edge = e.find("GL_ARB_texture_mirror_clamp_to_edge")!=e.end();
-  gl_arb_texture_mirrored_repeat = e.find("GL_ARB_texture_mirrored_repeat")!=e.end();
-  gl_arb_texture_multisample = e.find("GL_ARB_texture_multisample")!=e.end();
-  gl_arb_texture_rectangle = e.find("GL_ARB_texture_rectangle")!=e.end();
-  gl_arb_texture_rg = e.find("GL_ARB_texture_rg")!=e.end();
-  gl_arb_texture_rgb10_a2ui = e.find("GL_ARB_texture_rgb10_a2ui")!=e.end();
-  gl_arb_texture_storage = e.find("GL_ARB_texture_storage")!=e.end();
-  gl_arb_texture_storage_multisample = e.find("GL_ARB_texture_storage_multisample")!=e.end();
-  gl_arb_texture_swizzle = e.find("GL_ARB_texture_swizzle")!=e.end();
-  gl_arb_texture_view = e.find("GL_ARB_texture_view")!=e.end();
-  gl_arb_timer_query = e.find("GL_ARB_timer_query")!=e.end();
-  gl_arb_transform_feedback2 = e.find("GL_ARB_transform_feedback2")!=e.end();
-  gl_arb_transform_feedback3 = e.find("GL_ARB_transform_feedback3")!=e.end();
-  gl_arb_transform_feedback_instanced = e.find("GL_ARB_transform_feedback_instanced")!=e.end();
-  gl_arb_transpose_matrix = e.find("GL_ARB_transpose_matrix")!=e.end();
-  gl_arb_uniform_buffer_object = e.find("GL_ARB_uniform_buffer_object")!=e.end();
-  gl_arb_vertex_array_object = e.find("GL_ARB_vertex_array_object")!=e.end();
-  gl_arb_vertex_attrib_64bit = e.find("GL_ARB_vertex_attrib_64bit")!=e.end();
-  gl_arb_vertex_attrib_binding = e.find("GL_ARB_vertex_attrib_binding")!=e.end();
-  gl_arb_vertex_blend = e.find("GL_ARB_vertex_blend")!=e.end();
-  gl_arb_vertex_buffer_object = e.find("GL_ARB_vertex_buffer_object")!=e.end();
-  gl_arb_vertex_program = e.find("GL_ARB_vertex_program")!=e.end();
-  gl_arb_vertex_shader = e.find("GL_ARB_vertex_shader")!=e.end();
-  gl_arb_vertex_type_2_10_10_10_rev = e.find("GL_ARB_vertex_type_2_10_10_10_rev")!=e.end();
-  gl_arb_viewport_array = e.find("GL_ARB_viewport_array")!=e.end();
-  gl_arb_window_pos = e.find("GL_ARB_window_pos")!=e.end();
-  gl_arm_mali_program_binary = e.find("GL_ARM_mali_program_binary")!=e.end();
-  gl_arm_mali_shader_binary = e.find("GL_ARM_mali_shader_binary")!=e.end();
-  gl_ati_draw_buffers = e.find("GL_ATI_draw_buffers")!=e.end();
-  gl_ati_element_array = e.find("GL_ATI_element_array")!=e.end();
-  gl_ati_envmap_bumpmap = e.find("GL_ATI_envmap_bumpmap")!=e.end();
-  gl_ati_fragment_shader = e.find("GL_ATI_fragment_shader")!=e.end();
-  gl_ati_map_object_buffer = e.find("GL_ATI_map_object_buffer")!=e.end();
-  gl_ati_meminfo = e.find("GL_ATI_meminfo")!=e.end();
-  gl_ati_pn_triangles = e.find("GL_ATI_pn_triangles")!=e.end();
-  gl_ati_separate_stencil = e.find("GL_ATI_separate_stencil")!=e.end();
-  gl_ati_text_fragment_shader = e.find("GL_ATI_text_fragment_shader")!=e.end();
-  gl_ati_texture_compression_3dc = e.find("GL_ATI_texture_compression_3dc")!=e.end();
-  gl_ati_texture_env_combine3 = e.find("GL_ATI_texture_env_combine3")!=e.end();
-  gl_ati_texture_float = e.find("GL_ATI_texture_float")!=e.end();
-  gl_ati_texture_mirror_once = e.find("GL_ATI_texture_mirror_once")!=e.end();
-  gl_ati_vertex_array_object = e.find("GL_ATI_vertex_array_object")!=e.end();
-  gl_ati_vertex_attrib_array_object = e.find("GL_ATI_vertex_attrib_array_object")!=e.end();
-  gl_ati_vertex_streams = e.find("GL_ATI_vertex_streams")!=e.end();
-  gl_dmp_shader_binary = e.find("GL_DMP_shader_binary")!=e.end();
-  gl_ext_422_pixels = e.find("GL_EXT_422_pixels")!=e.end();
-  gl_ext_cg_shader = e.find("GL_EXT_Cg_shader")!=e.end();
-  gl_ext_abgr = e.find("GL_EXT_abgr")!=e.end();
-  gl_ext_bgra = e.find("GL_EXT_bgra")!=e.end();
-  gl_ext_bindable_uniform = e.find("GL_EXT_bindable_uniform")!=e.end();
-  gl_ext_blend_color = e.find("GL_EXT_blend_color")!=e.end();
-  gl_ext_blend_equation_separate = e.find("GL_EXT_blend_equation_separate")!=e.end();
-  gl_ext_blend_func_separate = e.find("GL_EXT_blend_func_separate")!=e.end();
-  gl_ext_blend_minmax = e.find("GL_EXT_blend_minmax")!=e.end();
-  gl_ext_blend_subtract = e.find("GL_EXT_blend_subtract")!=e.end();
-  gl_ext_clip_volume_hint = e.find("GL_EXT_clip_volume_hint")!=e.end();
-  gl_ext_cmyka = e.find("GL_EXT_cmyka")!=e.end();
-  gl_ext_color_buffer_half_float = e.find("GL_EXT_color_buffer_half_float")!=e.end();
-  gl_ext_color_subtable = e.find("GL_EXT_color_subtable")!=e.end();
-  gl_ext_compiled_vertex_array = e.find("GL_EXT_compiled_vertex_array")!=e.end();
-  gl_ext_convolution = e.find("GL_EXT_convolution")!=e.end();
-  gl_ext_coordinate_frame = e.find("GL_EXT_coordinate_frame")!=e.end();
-  gl_ext_copy_texture = e.find("GL_EXT_copy_texture")!=e.end();
-  gl_ext_cull_vertex = e.find("GL_EXT_cull_vertex")!=e.end();
-  gl_ext_debug_label = e.find("GL_EXT_debug_label")!=e.end();
-  gl_ext_debug_marker = e.find("GL_EXT_debug_marker")!=e.end();
-  gl_ext_depth_bounds_test = e.find("GL_EXT_depth_bounds_test")!=e.end();
-  gl_ext_direct_state_access = e.find("GL_EXT_direct_state_access")!=e.end();
-  gl_ext_discard_framebuffer = e.find("GL_EXT_discard_framebuffer")!=e.end();
-  gl_ext_disjoint_timer_query = e.find("GL_EXT_disjoint_timer_query")!=e.end();
-  gl_ext_draw_buffers2 = e.find("GL_EXT_draw_buffers2")!=e.end();
-  gl_ext_draw_instanced = e.find("GL_EXT_draw_instanced")!=e.end();
-  gl_ext_draw_range_elements = e.find("GL_EXT_draw_range_elements")!=e.end();
-  gl_ext_fog_coord = e.find("GL_EXT_fog_coord")!=e.end();
-  gl_ext_fragment_lighting = e.find("GL_EXT_fragment_lighting")!=e.end();
-  gl_ext_framebuffer_blit = e.find("GL_EXT_framebuffer_blit")!=e.end();
-  gl_ext_framebuffer_multisample = e.find("GL_EXT_framebuffer_multisample")!=e.end();
-  gl_ext_framebuffer_multisample_blit_scaled = e.find("GL_EXT_framebuffer_multisample_blit_scaled")!=e.end();
-  gl_ext_framebuffer_object = e.find("GL_EXT_framebuffer_object")!=e.end();
-  gl_ext_framebuffer_srgb = e.find("GL_EXT_framebuffer_sRGB")!=e.end();
-  gl_ext_geometry_shader4 = e.find("GL_EXT_geometry_shader4")!=e.end();
-  gl_ext_gpu_program_parameters = e.find("GL_EXT_gpu_program_parameters")!=e.end();
-  gl_ext_gpu_shader4 = e.find("GL_EXT_gpu_shader4")!=e.end();
-  gl_ext_histogram = e.find("GL_EXT_histogram")!=e.end();
-  gl_ext_index_func = e.find("GL_EXT_index_func")!=e.end();
-  gl_ext_index_material = e.find("GL_EXT_index_material")!=e.end();
-  gl_ext_light_texture = e.find("GL_EXT_light_texture")!=e.end();
-  gl_ext_map_buffer_range = e.find("GL_EXT_map_buffer_range")!=e.end();
-  gl_ext_multi_draw_arrays = e.find("GL_EXT_multi_draw_arrays")!=e.end();
-  gl_ext_multisample = e.find("GL_EXT_multisample")!=e.end();
-  gl_ext_multisampled_render_to_texture = e.find("GL_EXT_multisampled_render_to_texture")!=e.end();
-  gl_ext_multiview_draw_buffers = e.find("GL_EXT_multiview_draw_buffers")!=e.end();
-  gl_ext_occlusion_query_boolean = e.find("GL_EXT_occlusion_query_boolean")!=e.end();
-  gl_ext_packed_depth_stencil = e.find("GL_EXT_packed_depth_stencil")!=e.end();
-  gl_ext_packed_float = e.find("GL_EXT_packed_float")!=e.end();
-  gl_ext_packed_pixels = e.find("GL_EXT_packed_pixels")!=e.end();
-  gl_ext_paletted_texture = e.find("GL_EXT_paletted_texture")!=e.end();
-  gl_ext_pixel_buffer_object = e.find("GL_EXT_pixel_buffer_object")!=e.end();
-  gl_ext_pixel_transform = e.find("GL_EXT_pixel_transform")!=e.end();
-  gl_ext_point_parameters = e.find("GL_EXT_point_parameters")!=e.end();
-  gl_ext_polygon_offset = e.find("GL_EXT_polygon_offset")!=e.end();
-  gl_ext_provoking_vertex = e.find("GL_EXT_provoking_vertex")!=e.end();
-  gl_ext_read_format_bgra = e.find("GL_EXT_read_format_bgra")!=e.end();
-  gl_ext_rescale_normal = e.find("GL_EXT_rescale_normal")!=e.end();
-  gl_ext_robustness = e.find("GL_EXT_robustness")!=e.end();
-  gl_ext_srgb = e.find("GL_EXT_sRGB")!=e.end();
-  gl_ext_scene_marker = e.find("GL_EXT_scene_marker")!=e.end();
-  gl_ext_secondary_color = e.find("GL_EXT_secondary_color")!=e.end();
-  gl_ext_separate_shader_objects = e.find("GL_EXT_separate_shader_objects")!=e.end();
-  gl_ext_separate_specular_color = e.find("GL_EXT_separate_specular_color")!=e.end();
-  gl_ext_shader_framebuffer_fetch = e.find("GL_EXT_shader_framebuffer_fetch")!=e.end();
-  gl_ext_shader_image_load_store = e.find("GL_EXT_shader_image_load_store")!=e.end();
-  gl_ext_shadow_samplers = e.find("GL_EXT_shadow_samplers")!=e.end();
-  gl_ext_shared_texture_palette = e.find("GL_EXT_shared_texture_palette")!=e.end();
-  gl_ext_stencil_clear_tag = e.find("GL_EXT_stencil_clear_tag")!=e.end();
-  gl_ext_stencil_two_side = e.find("GL_EXT_stencil_two_side")!=e.end();
-  gl_ext_stencil_wrap = e.find("GL_EXT_stencil_wrap")!=e.end();
-  gl_ext_subtexture = e.find("GL_EXT_subtexture")!=e.end();
-  gl_ext_texture = e.find("GL_EXT_texture")!=e.end();
-  gl_ext_texture3d = e.find("GL_EXT_texture3D")!=e.end();
-  gl_ext_texture_array = e.find("GL_EXT_texture_array")!=e.end();
-  gl_ext_texture_buffer_object = e.find("GL_EXT_texture_buffer_object")!=e.end();
-  gl_ext_texture_compression_latc = e.find("GL_EXT_texture_compression_latc")!=e.end();
-  gl_ext_texture_compression_rgtc = e.find("GL_EXT_texture_compression_rgtc")!=e.end();
-  gl_ext_texture_compression_s3tc = e.find("GL_EXT_texture_compression_s3tc")!=e.end();
-  gl_ext_texture_cube_map = e.find("GL_EXT_texture_cube_map")!=e.end();
-  gl_ext_texture_edge_clamp = e.find("GL_EXT_texture_edge_clamp")!=e.end();
-  gl_ext_texture_env_combine = e.find("GL_EXT_texture_env_combine")!=e.end();
-  gl_ext_texture_env_dot3 = e.find("GL_EXT_texture_env_dot3")!=e.end();
-  gl_ext_texture_filter_anisotropic = e.find("GL_EXT_texture_filter_anisotropic")!=e.end();
-  gl_ext_texture_format_bgra8888 = e.find("GL_EXT_texture_format_BGRA8888")!=e.end();
-  gl_ext_texture_integer = e.find("GL_EXT_texture_integer")!=e.end();
-  gl_ext_texture_lod_bias = e.find("GL_EXT_texture_lod_bias")!=e.end();
-  gl_ext_texture_mirror_clamp = e.find("GL_EXT_texture_mirror_clamp")!=e.end();
-  gl_ext_texture_object = e.find("GL_EXT_texture_object")!=e.end();
-  gl_ext_texture_perturb_normal = e.find("GL_EXT_texture_perturb_normal")!=e.end();
-  gl_ext_texture_rectangle = e.find("GL_EXT_texture_rectangle")!=e.end();
-  gl_ext_texture_rg = e.find("GL_EXT_texture_rg")!=e.end();
-  gl_ext_texture_srgb = e.find("GL_EXT_texture_sRGB")!=e.end();
-  gl_ext_texture_srgb_decode = e.find("GL_EXT_texture_sRGB_decode")!=e.end();
-  gl_ext_texture_shared_exponent = e.find("GL_EXT_texture_shared_exponent")!=e.end();
-  gl_ext_texture_snorm = e.find("GL_EXT_texture_snorm")!=e.end();
-  gl_ext_texture_storage = e.find("GL_EXT_texture_storage")!=e.end();
-  gl_ext_texture_swizzle = e.find("GL_EXT_texture_swizzle")!=e.end();
-  gl_ext_texture_type_2_10_10_10_rev = e.find("GL_EXT_texture_type_2_10_10_10_REV")!=e.end();
-  gl_ext_timer_query = e.find("GL_EXT_timer_query")!=e.end();
-  gl_ext_transform_feedback = e.find("GL_EXT_transform_feedback")!=e.end();
-  gl_ext_unpack_subimage = e.find("GL_EXT_unpack_subimage")!=e.end();
-  gl_ext_vertex_array = e.find("GL_EXT_vertex_array")!=e.end();
-  gl_ext_vertex_attrib_64bit = e.find("GL_EXT_vertex_attrib_64bit")!=e.end();
-  gl_ext_vertex_shader = e.find("GL_EXT_vertex_shader")!=e.end();
-  gl_ext_vertex_weighting = e.find("GL_EXT_vertex_weighting")!=e.end();
-  gl_ext_x11_sync_object = e.find("GL_EXT_x11_sync_object")!=e.end();
-  gl_fj_shader_binary_gccso = e.find("GL_FJ_shader_binary_GCCSO")!=e.end();
-  gl_gremedy_frame_terminator = e.find("GL_GREMEDY_frame_terminator")!=e.end();
-  gl_gremedy_string_marker = e.find("GL_GREMEDY_string_marker")!=e.end();
-  gl_hp_image_transform = e.find("GL_HP_image_transform")!=e.end();
-  gl_hp_occlusion_test = e.find("GL_HP_occlusion_test")!=e.end();
-  gl_ibm_cull_vertex = e.find("GL_IBM_cull_vertex")!=e.end();
-  gl_ibm_multimode_draw_arrays = e.find("GL_IBM_multimode_draw_arrays")!=e.end();
-  gl_ibm_rasterpos_clip = e.find("GL_IBM_rasterpos_clip")!=e.end();
-  gl_ibm_static_data = e.find("GL_IBM_static_data")!=e.end();
-  gl_ibm_texture_mirrored_repeat = e.find("GL_IBM_texture_mirrored_repeat")!=e.end();
-  gl_ibm_vertex_array_lists = e.find("GL_IBM_vertex_array_lists")!=e.end();
-  gl_img_multisampled_render_to_texture = e.find("GL_IMG_multisampled_render_to_texture")!=e.end();
-  gl_img_program_binary = e.find("GL_IMG_program_binary")!=e.end();
-  gl_img_read_format = e.find("GL_IMG_read_format")!=e.end();
-  gl_img_shader_binary = e.find("GL_IMG_shader_binary")!=e.end();
-  gl_img_texture_compression_pvrtc = e.find("GL_IMG_texture_compression_pvrtc")!=e.end();
-  gl_img_texture_compression_pvrtc2 = e.find("GL_IMG_texture_compression_pvrtc2")!=e.end();
-  gl_img_texture_env_enhanced_fixed_function = e.find("GL_IMG_texture_env_enhanced_fixed_function")!=e.end();
-  gl_img_user_clip_plane = e.find("GL_IMG_user_clip_plane")!=e.end();
-  gl_ingr_blend_func_separate = e.find("GL_INGR_blend_func_separate")!=e.end();
-  gl_ingr_color_clamp = e.find("GL_INGR_color_clamp")!=e.end();
-  gl_ingr_interlace_read = e.find("GL_INGR_interlace_read")!=e.end();
-  gl_intel_map_texture = e.find("GL_INTEL_map_texture")!=e.end();
-  gl_intel_parallel_arrays = e.find("GL_INTEL_parallel_arrays")!=e.end();
-  gl_intel_texture_scissor = e.find("GL_INTEL_texture_scissor")!=e.end();
-  gl_khr_debug = e.find("GL_KHR_debug")!=e.end();
-  gl_khr_texture_compression_astc_ldr = e.find("GL_KHR_texture_compression_astc_ldr")!=e.end();
-  gl_ktx_buffer_region = e.find("GL_KTX_buffer_region")!=e.end();
-  gl_mesax_texture_stack = e.find("GL_MESAX_texture_stack")!=e.end();
-  gl_mesa_pack_invert = e.find("GL_MESA_pack_invert")!=e.end();
-  gl_mesa_resize_buffers = e.find("GL_MESA_resize_buffers")!=e.end();
-  gl_mesa_window_pos = e.find("GL_MESA_window_pos")!=e.end();
-  gl_mesa_ycbcr_texture = e.find("GL_MESA_ycbcr_texture")!=e.end();
-  gl_nvx_conditional_render = e.find("GL_NVX_conditional_render")!=e.end();
-  gl_nvx_gpu_memory_info = e.find("GL_NVX_gpu_memory_info")!=e.end();
-  gl_nv_3dvision_settings = e.find("GL_NV_3dvision_settings")!=e.end();
-  gl_nv_bgr = e.find("GL_NV_bgr")!=e.end();
-  gl_nv_bindless_texture = e.find("GL_NV_bindless_texture")!=e.end();
-  gl_nv_blend_square = e.find("GL_NV_blend_square")!=e.end();
-  gl_nv_compute_program5 = e.find("GL_NV_compute_program5")!=e.end();
-  gl_nv_conditional_render = e.find("GL_NV_conditional_render")!=e.end();
-  gl_nv_copy_depth_to_color = e.find("GL_NV_copy_depth_to_color")!=e.end();
-  gl_nv_copy_image = e.find("GL_NV_copy_image")!=e.end();
-  gl_nv_coverage_sample = e.find("GL_NV_coverage_sample")!=e.end();
-  gl_nv_deep_texture3d = e.find("GL_NV_deep_texture3D")!=e.end();
-  gl_nv_depth_buffer_float = e.find("GL_NV_depth_buffer_float")!=e.end();
-  gl_nv_depth_clamp = e.find("GL_NV_depth_clamp")!=e.end();
-  gl_nv_depth_nonlinear = e.find("GL_NV_depth_nonlinear")!=e.end();
-  gl_nv_depth_range_unclamped = e.find("GL_NV_depth_range_unclamped")!=e.end();
-  gl_nv_draw_buffers = e.find("GL_NV_draw_buffers")!=e.end();
-  gl_nv_draw_texture = e.find("GL_NV_draw_texture")!=e.end();
-  gl_nv_evaluators = e.find("GL_NV_evaluators")!=e.end();
-  gl_nv_explicit_multisample = e.find("GL_NV_explicit_multisample")!=e.end();
-  gl_nv_fbo_color_attachments = e.find("GL_NV_fbo_color_attachments")!=e.end();
-  gl_nv_fence = e.find("GL_NV_fence")!=e.end();
-  gl_nv_float_buffer = e.find("GL_NV_float_buffer")!=e.end();
-  gl_nv_fog_distance = e.find("GL_NV_fog_distance")!=e.end();
-  gl_nv_fragment_program = e.find("GL_NV_fragment_program")!=e.end();
-  gl_nv_fragment_program2 = e.find("GL_NV_fragment_program2")!=e.end();
-  gl_nv_framebuffer_blit = e.find("GL_NV_framebuffer_blit")!=e.end();
-  gl_nv_framebuffer_multisample = e.find("GL_NV_framebuffer_multisample")!=e.end();
-  gl_nv_framebuffer_multisample_coverage = e.find("GL_NV_framebuffer_multisample_coverage")!=e.end();
-  gl_nv_geometry_program4 = e.find("GL_NV_geometry_program4")!=e.end();
-  gl_nv_gpu_program4 = e.find("GL_NV_gpu_program4")!=e.end();
-  gl_nv_gpu_program5 = e.find("GL_NV_gpu_program5")!=e.end();
-  gl_nv_gpu_shader5 = e.find("GL_NV_gpu_shader5")!=e.end();
-  gl_nv_half_float = e.find("GL_NV_half_float")!=e.end();
-  gl_nv_instanced_arrays = e.find("GL_NV_instanced_arrays")!=e.end();
-  gl_nv_light_max_exponent = e.find("GL_NV_light_max_exponent")!=e.end();
-  gl_nv_multisample_coverage = e.find("GL_NV_multisample_coverage")!=e.end();
-  gl_nv_multisample_filter_hint = e.find("GL_NV_multisample_filter_hint")!=e.end();
-  gl_nv_occlusion_query = e.find("GL_NV_occlusion_query")!=e.end();
-  gl_nv_pack_subimage = e.find("GL_NV_pack_subimage")!=e.end();
-  gl_nv_packed_depth_stencil = e.find("GL_NV_packed_depth_stencil")!=e.end();
-  gl_nv_packed_float_linear = e.find("GL_NV_packed_float_linear")!=e.end();
-  gl_nv_parameter_buffer_object = e.find("GL_NV_parameter_buffer_object")!=e.end();
-  gl_nv_path_rendering = e.find("GL_NV_path_rendering")!=e.end();
-  gl_nv_pixel_buffer_object = e.find("GL_NV_pixel_buffer_object")!=e.end();
-  gl_nv_pixel_data_range = e.find("GL_NV_pixel_data_range")!=e.end();
-  gl_nv_platform_binary = e.find("GL_NV_platform_binary")!=e.end();
-  gl_nv_point_sprite = e.find("GL_NV_point_sprite")!=e.end();
-  gl_nv_present_video = e.find("GL_NV_present_video")!=e.end();
-  gl_nv_primitive_restart = e.find("GL_NV_primitive_restart")!=e.end();
-  gl_nv_read_buffer = e.find("GL_NV_read_buffer")!=e.end();
-  gl_nv_read_buffer_front = e.find("GL_NV_read_buffer_front")!=e.end();
-  gl_nv_register_combiners = e.find("GL_NV_register_combiners")!=e.end();
-  gl_nv_register_combiners2 = e.find("GL_NV_register_combiners2")!=e.end();
-  gl_nv_srgb_formats = e.find("GL_NV_sRGB_formats")!=e.end();
-  gl_nv_shader_buffer_load = e.find("GL_NV_shader_buffer_load")!=e.end();
-  gl_nv_shadow_samplers_array = e.find("GL_NV_shadow_samplers_array")!=e.end();
-  gl_nv_shadow_samplers_cube = e.find("GL_NV_shadow_samplers_cube")!=e.end();
-  gl_nv_tessellation_program5 = e.find("GL_NV_tessellation_program5")!=e.end();
-  gl_nv_texgen_emboss = e.find("GL_NV_texgen_emboss")!=e.end();
-  gl_nv_texgen_reflection = e.find("GL_NV_texgen_reflection")!=e.end();
-  gl_nv_texture_array = e.find("GL_NV_texture_array")!=e.end();
-  gl_nv_texture_barrier = e.find("GL_NV_texture_barrier")!=e.end();
-  gl_nv_texture_border_clamp = e.find("GL_NV_texture_border_clamp")!=e.end();
-  gl_nv_texture_compression_latc = e.find("GL_NV_texture_compression_latc")!=e.end();
-  gl_nv_texture_compression_s3tc = e.find("GL_NV_texture_compression_s3tc")!=e.end();
-  gl_nv_texture_env_combine4 = e.find("GL_NV_texture_env_combine4")!=e.end();
-  gl_nv_texture_expand_normal = e.find("GL_NV_texture_expand_normal")!=e.end();
-  gl_nv_texture_multisample = e.find("GL_NV_texture_multisample")!=e.end();
-  gl_nv_texture_rectangle = e.find("GL_NV_texture_rectangle")!=e.end();
-  gl_nv_texture_shader = e.find("GL_NV_texture_shader")!=e.end();
-  gl_nv_texture_shader2 = e.find("GL_NV_texture_shader2")!=e.end();
-  gl_nv_texture_shader3 = e.find("GL_NV_texture_shader3")!=e.end();
-  gl_nv_transform_feedback = e.find("GL_NV_transform_feedback")!=e.end();
-  gl_nv_transform_feedback2 = e.find("GL_NV_transform_feedback2")!=e.end();
-  gl_nv_vdpau_interop = e.find("GL_NV_vdpau_interop")!=e.end();
-  gl_nv_vertex_array_range = e.find("GL_NV_vertex_array_range")!=e.end();
-  gl_nv_vertex_array_range2 = e.find("GL_NV_vertex_array_range2")!=e.end();
-  gl_nv_vertex_attrib_integer_64bit = e.find("GL_NV_vertex_attrib_integer_64bit")!=e.end();
-  gl_nv_vertex_buffer_unified_memory = e.find("GL_NV_vertex_buffer_unified_memory")!=e.end();
-  gl_nv_vertex_program = e.find("GL_NV_vertex_program")!=e.end();
-  gl_nv_vertex_program2_option = e.find("GL_NV_vertex_program2_option")!=e.end();
-  gl_nv_vertex_program3 = e.find("GL_NV_vertex_program3")!=e.end();
-  gl_nv_vertex_program4 = e.find("GL_NV_vertex_program4")!=e.end();
-  gl_nv_video_capture = e.find("GL_NV_video_capture")!=e.end();
-  gl_oes_blend_equation_separate = e.find("GL_OES_blend_equation_separate")!=e.end();
-  gl_oes_blend_func_separate = e.find("GL_OES_blend_func_separate")!=e.end();
-  gl_oes_blend_subtract = e.find("GL_OES_blend_subtract")!=e.end();
-  gl_oes_compressed_etc1_rgb8_texture = e.find("GL_OES_compressed_ETC1_RGB8_texture")!=e.end();
-  gl_oes_compressed_paletted_texture = e.find("GL_OES_compressed_paletted_texture")!=e.end();
-  gl_oes_depth_texture = e.find("GL_OES_depth_texture")!=e.end();
-  gl_oes_draw_texture = e.find("GL_OES_draw_texture")!=e.end();
-  gl_oes_element_index_uint = e.find("GL_OES_element_index_uint")!=e.end();
-  gl_oes_fbo_render_mipmap = e.find("GL_OES_fbo_render_mipmap")!=e.end();
-  gl_oes_framebuffer_object = e.find("GL_OES_framebuffer_object")!=e.end();
-  gl_oes_get_program_binary = e.find("GL_OES_get_program_binary")!=e.end();
-  gl_oes_mapbuffer = e.find("GL_OES_mapbuffer")!=e.end();
-  gl_oes_matrix_get = e.find("GL_OES_matrix_get")!=e.end();
-  gl_oes_matrix_palette = e.find("GL_OES_matrix_palette")!=e.end();
-  gl_oes_packed_depth_stencil = e.find("GL_OES_packed_depth_stencil")!=e.end();
-  gl_oes_point_size_array = e.find("GL_OES_point_size_array")!=e.end();
-  gl_oes_point_sprite = e.find("GL_OES_point_sprite")!=e.end();
-  gl_oes_read_format = e.find("GL_OES_read_format")!=e.end();
-  gl_oes_required_internalformat = e.find("GL_OES_required_internalformat")!=e.end();
-  gl_oes_rgb8_rgba8 = e.find("GL_OES_rgb8_rgba8")!=e.end();
-  gl_oes_single_precision = e.find("GL_OES_single_precision")!=e.end();
-  gl_oes_standard_derivatives = e.find("GL_OES_standard_derivatives")!=e.end();
-  gl_oes_stencil1 = e.find("GL_OES_stencil1")!=e.end();
-  gl_oes_stencil4 = e.find("GL_OES_stencil4")!=e.end();
-  gl_oes_stencil8 = e.find("GL_OES_stencil8")!=e.end();
-  gl_oes_surfaceless_context = e.find("GL_OES_surfaceless_context")!=e.end();
-  gl_oes_texture_3d = e.find("GL_OES_texture_3D")!=e.end();
-  gl_oes_texture_cube_map = e.find("GL_OES_texture_cube_map")!=e.end();
-  gl_oes_texture_mirrored_repeat = e.find("GL_OES_texture_mirrored_repeat")!=e.end();
-  gl_oes_vertex_array_object = e.find("GL_OES_vertex_array_object")!=e.end();
-  gl_oes_vertex_half_float = e.find("GL_OES_vertex_half_float")!=e.end();
-  gl_oes_vertex_type_10_10_10_2 = e.find("GL_OES_vertex_type_10_10_10_2")!=e.end();
-  gl_oml_interlace = e.find("GL_OML_interlace")!=e.end();
-  gl_oml_resample = e.find("GL_OML_resample")!=e.end();
-  gl_oml_subsample = e.find("GL_OML_subsample")!=e.end();
-  gl_pgi_misc_hints = e.find("GL_PGI_misc_hints")!=e.end();
-  gl_pgi_vertex_hints = e.find("GL_PGI_vertex_hints")!=e.end();
-  gl_qcom_alpha_test = e.find("GL_QCOM_alpha_test")!=e.end();
-  gl_qcom_binning_control = e.find("GL_QCOM_binning_control")!=e.end();
-  gl_qcom_driver_control = e.find("GL_QCOM_driver_control")!=e.end();
-  gl_qcom_extended_get = e.find("GL_QCOM_extended_get")!=e.end();
-  gl_qcom_extended_get2 = e.find("GL_QCOM_extended_get2")!=e.end();
-  gl_qcom_perfmon_global_mode = e.find("GL_QCOM_perfmon_global_mode")!=e.end();
-  gl_qcom_tiled_rendering = e.find("GL_QCOM_tiled_rendering")!=e.end();
-  gl_qcom_writeonly_rendering = e.find("GL_QCOM_writeonly_rendering")!=e.end();
-  gl_regal_es1_0_compatibility = e.find("GL_REGAL_ES1_0_compatibility")!=e.end();
-  gl_regal_es1_1_compatibility = e.find("GL_REGAL_ES1_1_compatibility")!=e.end();
-  gl_regal_enable = e.find("GL_REGAL_enable")!=e.end();
-  gl_regal_error_string = e.find("GL_REGAL_error_string")!=e.end();
-  gl_regal_extension_query = e.find("GL_REGAL_extension_query")!=e.end();
-  gl_regal_log = e.find("GL_REGAL_log")!=e.end();
-  gl_rend_screen_coordinates = e.find("GL_REND_screen_coordinates")!=e.end();
-  gl_s3_s3tc = e.find("GL_S3_s3tc")!=e.end();
-  gl_sgis_color_range = e.find("GL_SGIS_color_range")!=e.end();
-  gl_sgis_detail_texture = e.find("GL_SGIS_detail_texture")!=e.end();
-  gl_sgis_fog_function = e.find("GL_SGIS_fog_function")!=e.end();
-  gl_sgis_generate_mipmap = e.find("GL_SGIS_generate_mipmap")!=e.end();
-  gl_sgis_multisample = e.find("GL_SGIS_multisample")!=e.end();
-  gl_sgis_pixel_texture = e.find("GL_SGIS_pixel_texture")!=e.end();
-  gl_sgis_point_line_texgen = e.find("GL_SGIS_point_line_texgen")!=e.end();
-  gl_sgis_point_parameters = e.find("GL_SGIS_point_parameters")!=e.end();
-  gl_sgis_sharpen_texture = e.find("GL_SGIS_sharpen_texture")!=e.end();
-  gl_sgis_texture4d = e.find("GL_SGIS_texture4D")!=e.end();
-  gl_sgis_texture_border_clamp = e.find("GL_SGIS_texture_border_clamp")!=e.end();
-  gl_sgis_texture_color_mask = e.find("GL_SGIS_texture_color_mask")!=e.end();
-  gl_sgis_texture_edge_clamp = e.find("GL_SGIS_texture_edge_clamp")!=e.end();
-  gl_sgis_texture_filter4 = e.find("GL_SGIS_texture_filter4")!=e.end();
-  gl_sgis_texture_lod = e.find("GL_SGIS_texture_lod")!=e.end();
-  gl_sgix_async = e.find("GL_SGIX_async")!=e.end();
-  gl_sgix_async_histogram = e.find("GL_SGIX_async_histogram")!=e.end();
-  gl_sgix_async_pixel = e.find("GL_SGIX_async_pixel")!=e.end();
-  gl_sgix_blend_alpha_minmax = e.find("GL_SGIX_blend_alpha_minmax")!=e.end();
-  gl_sgix_convolution_accuracy = e.find("GL_SGIX_convolution_accuracy")!=e.end();
-  gl_sgix_depth_texture = e.find("GL_SGIX_depth_texture")!=e.end();
-  gl_sgix_flush_raster = e.find("GL_SGIX_flush_raster")!=e.end();
-  gl_sgix_fog_offset = e.find("GL_SGIX_fog_offset")!=e.end();
-  gl_sgix_fog_texture = e.find("GL_SGIX_fog_texture")!=e.end();
-  gl_sgix_fragment_lighting = e.find("GL_SGIX_fragment_lighting")!=e.end();
-  gl_sgix_fragment_specular_lighting = e.find("GL_SGIX_fragment_specular_lighting")!=e.end();
-  gl_sgix_framezoom = e.find("GL_SGIX_framezoom")!=e.end();
-  gl_sgix_igloo_interface = e.find("GL_SGIX_igloo_interface")!=e.end();
-  gl_sgix_instruments = e.find("GL_SGIX_instruments")!=e.end();
-  gl_sgix_interlace = e.find("GL_SGIX_interlace")!=e.end();
-  gl_sgix_list_priority = e.find("GL_SGIX_list_priority")!=e.end();
-  gl_sgix_pixel_texture = e.find("GL_SGIX_pixel_texture")!=e.end();
-  gl_sgix_polynomial_ffd = e.find("GL_SGIX_polynomial_ffd")!=e.end();
-  gl_sgix_reference_plane = e.find("GL_SGIX_reference_plane")!=e.end();
-  gl_sgix_resample = e.find("GL_SGIX_resample")!=e.end();
-  gl_sgix_shadow = e.find("GL_SGIX_shadow")!=e.end();
-  gl_sgix_shadow_ambient = e.find("GL_SGIX_shadow_ambient")!=e.end();
-  gl_sgix_sprite = e.find("GL_SGIX_sprite")!=e.end();
-  gl_sgix_tag_sample_buffer = e.find("GL_SGIX_tag_sample_buffer")!=e.end();
-  gl_sgix_texture_coordinate_clamp = e.find("GL_SGIX_texture_coordinate_clamp")!=e.end();
-  gl_sgix_texture_multi_buffer = e.find("GL_SGIX_texture_multi_buffer")!=e.end();
-  gl_sgix_texture_range = e.find("GL_SGIX_texture_range")!=e.end();
-  gl_sgix_texture_scale_bias = e.find("GL_SGIX_texture_scale_bias")!=e.end();
-  gl_sgix_vertex_preclip_hint = e.find("GL_SGIX_vertex_preclip_hint")!=e.end();
-  gl_sgix_ycrcb = e.find("GL_SGIX_ycrcb")!=e.end();
-  gl_sgi_color_matrix = e.find("GL_SGI_color_matrix")!=e.end();
-  gl_sgi_color_table = e.find("GL_SGI_color_table")!=e.end();
-  gl_sgi_texture_color_table = e.find("GL_SGI_texture_color_table")!=e.end();
-  gl_sunx_constant_data = e.find("GL_SUNX_constant_data")!=e.end();
-  gl_sun_convolution_border_modes = e.find("GL_SUN_convolution_border_modes")!=e.end();
-  gl_sun_global_alpha = e.find("GL_SUN_global_alpha")!=e.end();
-  gl_sun_mesh_array = e.find("GL_SUN_mesh_array")!=e.end();
-  gl_sun_read_video_pixels = e.find("GL_SUN_read_video_pixels")!=e.end();
-  gl_sun_slice_accum = e.find("GL_SUN_slice_accum")!=e.end();
-  gl_sun_triangle_list = e.find("GL_SUN_triangle_list")!=e.end();
-  gl_sun_vertex = e.find("GL_SUN_vertex")!=e.end();
-  gl_viv_shader_binary = e.find("GL_VIV_shader_binary")!=e.end();
-  gl_win_phong_shading = e.find("GL_WIN_phong_shading")!=e.end();
-  gl_win_specular_fog = e.find("GL_WIN_specular_fog")!=e.end();
-  gl_win_swap_hint = e.find("GL_WIN_swap_hint")!=e.end();
+  gl_3dfx_multisample                                = stringSetFind(e,"GL_3DFX_multisample");
+  gl_3dfx_tbuffer                                    = stringSetFind(e,"GL_3DFX_tbuffer");
+  gl_3dfx_texture_compression_fxt1                   = stringSetFind(e,"GL_3DFX_texture_compression_FXT1");
+  gl_amd_blend_minmax_factor                         = stringSetFind(e,"GL_AMD_blend_minmax_factor");
+  gl_amd_compressed_3dc_texture                      = stringSetFind(e,"GL_AMD_compressed_3DC_texture");
+  gl_amd_compressed_atc_texture                      = stringSetFind(e,"GL_AMD_compressed_ATC_texture");
+  gl_amd_debug_output                                = stringSetFind(e,"GL_AMD_debug_output");
+  gl_amd_depth_clamp_separate                        = stringSetFind(e,"GL_AMD_depth_clamp_separate");
+  gl_amd_draw_buffers_blend                          = stringSetFind(e,"GL_AMD_draw_buffers_blend");
+  gl_amd_interleaved_elements                        = stringSetFind(e,"GL_AMD_interleaved_elements");
+  gl_amd_multi_draw_indirect                         = stringSetFind(e,"GL_AMD_multi_draw_indirect");
+  gl_amd_name_gen_delete                             = stringSetFind(e,"GL_AMD_name_gen_delete");
+  gl_amd_performance_monitor                         = stringSetFind(e,"GL_AMD_performance_monitor");
+  gl_amd_pinned_memory                               = stringSetFind(e,"GL_AMD_pinned_memory");
+  gl_amd_program_binary_z400                         = stringSetFind(e,"GL_AMD_program_binary_Z400");
+  gl_amd_query_buffer_object                         = stringSetFind(e,"GL_AMD_query_buffer_object");
+  gl_amd_sample_positions                            = stringSetFind(e,"GL_AMD_sample_positions");
+  gl_amd_seamless_cubemap_per_texture                = stringSetFind(e,"GL_AMD_seamless_cubemap_per_texture");
+  gl_amd_sparse_texture                              = stringSetFind(e,"GL_AMD_sparse_texture");
+  gl_amd_stencil_operation_extended                  = stringSetFind(e,"GL_AMD_stencil_operation_extended");
+  gl_amd_vertex_shader_tessellator                   = stringSetFind(e,"GL_AMD_vertex_shader_tessellator");
+  gl_angle_framebuffer_blit                          = stringSetFind(e,"GL_ANGLE_framebuffer_blit");
+  gl_angle_framebuffer_multisample                   = stringSetFind(e,"GL_ANGLE_framebuffer_multisample");
+  gl_angle_instanced_arrays                          = stringSetFind(e,"GL_ANGLE_instanced_arrays");
+  gl_angle_pack_reverse_row_order                    = stringSetFind(e,"GL_ANGLE_pack_reverse_row_order");
+  gl_angle_program_binary                            = stringSetFind(e,"GL_ANGLE_program_binary");
+  gl_angle_texture_compression_dxt1                  = stringSetFind(e,"GL_ANGLE_texture_compression_dxt1");
+  gl_angle_texture_compression_dxt3                  = stringSetFind(e,"GL_ANGLE_texture_compression_dxt3");
+  gl_angle_texture_compression_dxt5                  = stringSetFind(e,"GL_ANGLE_texture_compression_dxt5");
+  gl_angle_texture_usage                             = stringSetFind(e,"GL_ANGLE_texture_usage");
+  gl_angle_timer_query                               = stringSetFind(e,"GL_ANGLE_timer_query");
+  gl_angle_translated_shader_source                  = stringSetFind(e,"GL_ANGLE_translated_shader_source");
+  gl_apple_aux_depth_stencil                         = stringSetFind(e,"GL_APPLE_aux_depth_stencil");
+  gl_apple_client_storage                            = stringSetFind(e,"GL_APPLE_client_storage");
+  gl_apple_copy_texture_levels                       = stringSetFind(e,"GL_APPLE_copy_texture_levels");
+  gl_apple_element_array                             = stringSetFind(e,"GL_APPLE_element_array");
+  gl_apple_fence                                     = stringSetFind(e,"GL_APPLE_fence");
+  gl_apple_float_pixels                              = stringSetFind(e,"GL_APPLE_float_pixels");
+  gl_apple_flush_buffer_range                        = stringSetFind(e,"GL_APPLE_flush_buffer_range");
+  gl_apple_flush_render                              = stringSetFind(e,"GL_APPLE_flush_render");
+  gl_apple_framebuffer_multisample                   = stringSetFind(e,"GL_APPLE_framebuffer_multisample");
+  gl_apple_object_purgeable                          = stringSetFind(e,"GL_APPLE_object_purgeable");
+  gl_apple_pixel_buffer                              = stringSetFind(e,"GL_APPLE_pixel_buffer");
+  gl_apple_rgb_422                                   = stringSetFind(e,"GL_APPLE_rgb_422");
+  gl_apple_row_bytes                                 = stringSetFind(e,"GL_APPLE_row_bytes");
+  gl_apple_specular_vector                           = stringSetFind(e,"GL_APPLE_specular_vector");
+  gl_apple_sync                                      = stringSetFind(e,"GL_APPLE_sync");
+  gl_apple_texture_max_level                         = stringSetFind(e,"GL_APPLE_texture_max_level");
+  gl_apple_texture_range                             = stringSetFind(e,"GL_APPLE_texture_range");
+  gl_apple_transform_hint                            = stringSetFind(e,"GL_APPLE_transform_hint");
+  gl_apple_vertex_array_object                       = stringSetFind(e,"GL_APPLE_vertex_array_object");
+  gl_apple_vertex_array_range                        = stringSetFind(e,"GL_APPLE_vertex_array_range");
+  gl_apple_vertex_program_evaluators                 = stringSetFind(e,"GL_APPLE_vertex_program_evaluators");
+  gl_apple_ycbcr_422                                 = stringSetFind(e,"GL_APPLE_ycbcr_422");
+  gl_arb_es2_compatibility                           = stringSetFind(e,"GL_ARB_ES2_compatibility");
+  gl_arb_es3_compatibility                           = stringSetFind(e,"GL_ARB_ES3_compatibility");
+  gl_arb_base_instance                               = stringSetFind(e,"GL_ARB_base_instance");
+  gl_arb_bindless_texture                            = stringSetFind(e,"GL_ARB_bindless_texture");
+  gl_arb_blend_func_extended                         = stringSetFind(e,"GL_ARB_blend_func_extended");
+  gl_arb_buffer_storage                              = stringSetFind(e,"GL_ARB_buffer_storage");
+  gl_arb_cl_event                                    = stringSetFind(e,"GL_ARB_cl_event");
+  gl_arb_clear_buffer_object                         = stringSetFind(e,"GL_ARB_clear_buffer_object");
+  gl_arb_clear_texture                               = stringSetFind(e,"GL_ARB_clear_texture");
+  gl_arb_color_buffer_float                          = stringSetFind(e,"GL_ARB_color_buffer_float");
+  gl_arb_compressed_texture_pixel_storage            = stringSetFind(e,"GL_ARB_compressed_texture_pixel_storage");
+  gl_arb_compute_shader                              = stringSetFind(e,"GL_ARB_compute_shader");
+  gl_arb_compute_variable_group_size                 = stringSetFind(e,"GL_ARB_compute_variable_group_size");
+  gl_arb_copy_buffer                                 = stringSetFind(e,"GL_ARB_copy_buffer");
+  gl_arb_copy_image                                  = stringSetFind(e,"GL_ARB_copy_image");
+  gl_arb_debug_output                                = stringSetFind(e,"GL_ARB_debug_output");
+  gl_arb_depth_buffer_float                          = stringSetFind(e,"GL_ARB_depth_buffer_float");
+  gl_arb_depth_clamp                                 = stringSetFind(e,"GL_ARB_depth_clamp");
+  gl_arb_depth_texture                               = stringSetFind(e,"GL_ARB_depth_texture");
+  gl_arb_draw_buffers                                = stringSetFind(e,"GL_ARB_draw_buffers");
+  gl_arb_draw_buffers_blend                          = stringSetFind(e,"GL_ARB_draw_buffers_blend");
+  gl_arb_draw_elements_base_vertex                   = stringSetFind(e,"GL_ARB_draw_elements_base_vertex");
+  gl_arb_draw_indirect                               = stringSetFind(e,"GL_ARB_draw_indirect");
+  gl_arb_draw_instanced                              = stringSetFind(e,"GL_ARB_draw_instanced");
+  gl_arb_enhanced_layouts                            = stringSetFind(e,"GL_ARB_enhanced_layouts");
+  gl_arb_explicit_uniform_location                   = stringSetFind(e,"GL_ARB_explicit_uniform_location");
+  gl_arb_fragment_program                            = stringSetFind(e,"GL_ARB_fragment_program");
+  gl_arb_fragment_shader                             = stringSetFind(e,"GL_ARB_fragment_shader");
+  gl_arb_framebuffer_no_attachments                  = stringSetFind(e,"GL_ARB_framebuffer_no_attachments");
+  gl_arb_framebuffer_object                          = stringSetFind(e,"GL_ARB_framebuffer_object");
+  gl_arb_framebuffer_srgb                            = stringSetFind(e,"GL_ARB_framebuffer_sRGB");
+  gl_arb_geometry_shader4                            = stringSetFind(e,"GL_ARB_geometry_shader4");
+  gl_arb_get_program_binary                          = stringSetFind(e,"GL_ARB_get_program_binary");
+  gl_arb_gpu_shader5                                 = stringSetFind(e,"GL_ARB_gpu_shader5");
+  gl_arb_gpu_shader_fp64                             = stringSetFind(e,"GL_ARB_gpu_shader_fp64");
+  gl_arb_half_float_pixel                            = stringSetFind(e,"GL_ARB_half_float_pixel");
+  gl_arb_half_float_vertex                           = stringSetFind(e,"GL_ARB_half_float_vertex");
+  gl_arb_imaging                                     = stringSetFind(e,"GL_ARB_imaging");
+  gl_arb_indirect_parameters                         = stringSetFind(e,"GL_ARB_indirect_parameters");
+  gl_arb_instanced_arrays                            = stringSetFind(e,"GL_ARB_instanced_arrays");
+  gl_arb_internalformat_query                        = stringSetFind(e,"GL_ARB_internalformat_query");
+  gl_arb_internalformat_query2                       = stringSetFind(e,"GL_ARB_internalformat_query2");
+  gl_arb_invalidate_subdata                          = stringSetFind(e,"GL_ARB_invalidate_subdata");
+  gl_arb_map_buffer_alignment                        = stringSetFind(e,"GL_ARB_map_buffer_alignment");
+  gl_arb_map_buffer_range                            = stringSetFind(e,"GL_ARB_map_buffer_range");
+  gl_arb_matrix_palette                              = stringSetFind(e,"GL_ARB_matrix_palette");
+  gl_arb_multi_bind                                  = stringSetFind(e,"GL_ARB_multi_bind");
+  gl_arb_multi_draw_indirect                         = stringSetFind(e,"GL_ARB_multi_draw_indirect");
+  gl_arb_multisample                                 = stringSetFind(e,"GL_ARB_multisample");
+  gl_arb_multitexture                                = stringSetFind(e,"GL_ARB_multitexture");
+  gl_arb_occlusion_query                             = stringSetFind(e,"GL_ARB_occlusion_query");
+  gl_arb_occlusion_query2                            = stringSetFind(e,"GL_ARB_occlusion_query2");
+  gl_arb_pixel_buffer_object                         = stringSetFind(e,"GL_ARB_pixel_buffer_object");
+  gl_arb_point_parameters                            = stringSetFind(e,"GL_ARB_point_parameters");
+  gl_arb_point_sprite                                = stringSetFind(e,"GL_ARB_point_sprite");
+  gl_arb_program_interface_query                     = stringSetFind(e,"GL_ARB_program_interface_query");
+  gl_arb_provoking_vertex                            = stringSetFind(e,"GL_ARB_provoking_vertex");
+  gl_arb_query_buffer_object                         = stringSetFind(e,"GL_ARB_query_buffer_object");
+  gl_arb_robustness                                  = stringSetFind(e,"GL_ARB_robustness");
+  gl_arb_sample_shading                              = stringSetFind(e,"GL_ARB_sample_shading");
+  gl_arb_sampler_objects                             = stringSetFind(e,"GL_ARB_sampler_objects");
+  gl_arb_seamless_cube_map                           = stringSetFind(e,"GL_ARB_seamless_cube_map");
+  gl_arb_separate_shader_objects                     = stringSetFind(e,"GL_ARB_separate_shader_objects");
+  gl_arb_shader_atomic_counters                      = stringSetFind(e,"GL_ARB_shader_atomic_counters");
+  gl_arb_shader_image_load_store                     = stringSetFind(e,"GL_ARB_shader_image_load_store");
+  gl_arb_shader_objects                              = stringSetFind(e,"GL_ARB_shader_objects");
+  gl_arb_shader_storage_buffer_object                = stringSetFind(e,"GL_ARB_shader_storage_buffer_object");
+  gl_arb_shader_subroutine                           = stringSetFind(e,"GL_ARB_shader_subroutine");
+  gl_arb_shading_language_100                        = stringSetFind(e,"GL_ARB_shading_language_100");
+  gl_arb_shading_language_include                    = stringSetFind(e,"GL_ARB_shading_language_include");
+  gl_arb_shadow                                      = stringSetFind(e,"GL_ARB_shadow");
+  gl_arb_shadow_ambient                              = stringSetFind(e,"GL_ARB_shadow_ambient");
+  gl_arb_sparse_texture                              = stringSetFind(e,"GL_ARB_sparse_texture");
+  gl_arb_stencil_texturing                           = stringSetFind(e,"GL_ARB_stencil_texturing");
+  gl_arb_sync                                        = stringSetFind(e,"GL_ARB_sync");
+  gl_arb_tessellation_shader                         = stringSetFind(e,"GL_ARB_tessellation_shader");
+  gl_arb_texture_border_clamp                        = stringSetFind(e,"GL_ARB_texture_border_clamp");
+  gl_arb_texture_buffer_object                       = stringSetFind(e,"GL_ARB_texture_buffer_object");
+  gl_arb_texture_buffer_range                        = stringSetFind(e,"GL_ARB_texture_buffer_range");
+  gl_arb_texture_compression                         = stringSetFind(e,"GL_ARB_texture_compression");
+  gl_arb_texture_compression_bptc                    = stringSetFind(e,"GL_ARB_texture_compression_bptc");
+  gl_arb_texture_compression_rgtc                    = stringSetFind(e,"GL_ARB_texture_compression_rgtc");
+  gl_arb_texture_cube_map                            = stringSetFind(e,"GL_ARB_texture_cube_map");
+  gl_arb_texture_cube_map_array                      = stringSetFind(e,"GL_ARB_texture_cube_map_array");
+  gl_arb_texture_env_combine                         = stringSetFind(e,"GL_ARB_texture_env_combine");
+  gl_arb_texture_env_dot3                            = stringSetFind(e,"GL_ARB_texture_env_dot3");
+  gl_arb_texture_float                               = stringSetFind(e,"GL_ARB_texture_float");
+  gl_arb_texture_gather                              = stringSetFind(e,"GL_ARB_texture_gather");
+  gl_arb_texture_mirror_clamp_to_edge                = stringSetFind(e,"GL_ARB_texture_mirror_clamp_to_edge");
+  gl_arb_texture_mirrored_repeat                     = stringSetFind(e,"GL_ARB_texture_mirrored_repeat");
+  gl_arb_texture_multisample                         = stringSetFind(e,"GL_ARB_texture_multisample");
+  gl_arb_texture_rectangle                           = stringSetFind(e,"GL_ARB_texture_rectangle");
+  gl_arb_texture_rg                                  = stringSetFind(e,"GL_ARB_texture_rg");
+  gl_arb_texture_rgb10_a2ui                          = stringSetFind(e,"GL_ARB_texture_rgb10_a2ui");
+  gl_arb_texture_storage                             = stringSetFind(e,"GL_ARB_texture_storage");
+  gl_arb_texture_storage_multisample                 = stringSetFind(e,"GL_ARB_texture_storage_multisample");
+  gl_arb_texture_swizzle                             = stringSetFind(e,"GL_ARB_texture_swizzle");
+  gl_arb_texture_view                                = stringSetFind(e,"GL_ARB_texture_view");
+  gl_arb_timer_query                                 = stringSetFind(e,"GL_ARB_timer_query");
+  gl_arb_transform_feedback2                         = stringSetFind(e,"GL_ARB_transform_feedback2");
+  gl_arb_transform_feedback3                         = stringSetFind(e,"GL_ARB_transform_feedback3");
+  gl_arb_transform_feedback_instanced                = stringSetFind(e,"GL_ARB_transform_feedback_instanced");
+  gl_arb_transpose_matrix                            = stringSetFind(e,"GL_ARB_transpose_matrix");
+  gl_arb_uniform_buffer_object                       = stringSetFind(e,"GL_ARB_uniform_buffer_object");
+  gl_arb_vertex_array_object                         = stringSetFind(e,"GL_ARB_vertex_array_object");
+  gl_arb_vertex_attrib_64bit                         = stringSetFind(e,"GL_ARB_vertex_attrib_64bit");
+  gl_arb_vertex_attrib_binding                       = stringSetFind(e,"GL_ARB_vertex_attrib_binding");
+  gl_arb_vertex_blend                                = stringSetFind(e,"GL_ARB_vertex_blend");
+  gl_arb_vertex_buffer_object                        = stringSetFind(e,"GL_ARB_vertex_buffer_object");
+  gl_arb_vertex_program                              = stringSetFind(e,"GL_ARB_vertex_program");
+  gl_arb_vertex_shader                               = stringSetFind(e,"GL_ARB_vertex_shader");
+  gl_arb_vertex_type_2_10_10_10_rev                  = stringSetFind(e,"GL_ARB_vertex_type_2_10_10_10_rev");
+  gl_arb_viewport_array                              = stringSetFind(e,"GL_ARB_viewport_array");
+  gl_arb_window_pos                                  = stringSetFind(e,"GL_ARB_window_pos");
+  gl_arm_mali_program_binary                         = stringSetFind(e,"GL_ARM_mali_program_binary");
+  gl_arm_mali_shader_binary                          = stringSetFind(e,"GL_ARM_mali_shader_binary");
+  gl_ati_draw_buffers                                = stringSetFind(e,"GL_ATI_draw_buffers");
+  gl_ati_element_array                               = stringSetFind(e,"GL_ATI_element_array");
+  gl_ati_envmap_bumpmap                              = stringSetFind(e,"GL_ATI_envmap_bumpmap");
+  gl_ati_fragment_shader                             = stringSetFind(e,"GL_ATI_fragment_shader");
+  gl_ati_map_object_buffer                           = stringSetFind(e,"GL_ATI_map_object_buffer");
+  gl_ati_meminfo                                     = stringSetFind(e,"GL_ATI_meminfo");
+  gl_ati_pn_triangles                                = stringSetFind(e,"GL_ATI_pn_triangles");
+  gl_ati_separate_stencil                            = stringSetFind(e,"GL_ATI_separate_stencil");
+  gl_ati_text_fragment_shader                        = stringSetFind(e,"GL_ATI_text_fragment_shader");
+  gl_ati_texture_compression_3dc                     = stringSetFind(e,"GL_ATI_texture_compression_3dc");
+  gl_ati_texture_env_combine3                        = stringSetFind(e,"GL_ATI_texture_env_combine3");
+  gl_ati_texture_float                               = stringSetFind(e,"GL_ATI_texture_float");
+  gl_ati_texture_mirror_once                         = stringSetFind(e,"GL_ATI_texture_mirror_once");
+  gl_ati_vertex_array_object                         = stringSetFind(e,"GL_ATI_vertex_array_object");
+  gl_ati_vertex_attrib_array_object                  = stringSetFind(e,"GL_ATI_vertex_attrib_array_object");
+  gl_ati_vertex_streams                              = stringSetFind(e,"GL_ATI_vertex_streams");
+  gl_dmp_shader_binary                               = stringSetFind(e,"GL_DMP_shader_binary");
+  gl_ext_422_pixels                                  = stringSetFind(e,"GL_EXT_422_pixels");
+  gl_ext_cg_shader                                   = stringSetFind(e,"GL_EXT_Cg_shader");
+  gl_ext_abgr                                        = stringSetFind(e,"GL_EXT_abgr");
+  gl_ext_bgra                                        = stringSetFind(e,"GL_EXT_bgra");
+  gl_ext_bindable_uniform                            = stringSetFind(e,"GL_EXT_bindable_uniform");
+  gl_ext_blend_color                                 = stringSetFind(e,"GL_EXT_blend_color");
+  gl_ext_blend_equation_separate                     = stringSetFind(e,"GL_EXT_blend_equation_separate");
+  gl_ext_blend_func_separate                         = stringSetFind(e,"GL_EXT_blend_func_separate");
+  gl_ext_blend_minmax                                = stringSetFind(e,"GL_EXT_blend_minmax");
+  gl_ext_blend_subtract                              = stringSetFind(e,"GL_EXT_blend_subtract");
+  gl_ext_clip_volume_hint                            = stringSetFind(e,"GL_EXT_clip_volume_hint");
+  gl_ext_cmyka                                       = stringSetFind(e,"GL_EXT_cmyka");
+  gl_ext_color_buffer_half_float                     = stringSetFind(e,"GL_EXT_color_buffer_half_float");
+  gl_ext_color_subtable                              = stringSetFind(e,"GL_EXT_color_subtable");
+  gl_ext_compiled_vertex_array                       = stringSetFind(e,"GL_EXT_compiled_vertex_array");
+  gl_ext_convolution                                 = stringSetFind(e,"GL_EXT_convolution");
+  gl_ext_coordinate_frame                            = stringSetFind(e,"GL_EXT_coordinate_frame");
+  gl_ext_copy_texture                                = stringSetFind(e,"GL_EXT_copy_texture");
+  gl_ext_cull_vertex                                 = stringSetFind(e,"GL_EXT_cull_vertex");
+  gl_ext_debug_label                                 = stringSetFind(e,"GL_EXT_debug_label");
+  gl_ext_debug_marker                                = stringSetFind(e,"GL_EXT_debug_marker");
+  gl_ext_depth_bounds_test                           = stringSetFind(e,"GL_EXT_depth_bounds_test");
+  gl_ext_direct_state_access                         = stringSetFind(e,"GL_EXT_direct_state_access");
+  gl_ext_discard_framebuffer                         = stringSetFind(e,"GL_EXT_discard_framebuffer");
+  gl_ext_disjoint_timer_query                        = stringSetFind(e,"GL_EXT_disjoint_timer_query");
+  gl_ext_draw_buffers2                               = stringSetFind(e,"GL_EXT_draw_buffers2");
+  gl_ext_draw_instanced                              = stringSetFind(e,"GL_EXT_draw_instanced");
+  gl_ext_draw_range_elements                         = stringSetFind(e,"GL_EXT_draw_range_elements");
+  gl_ext_fog_coord                                   = stringSetFind(e,"GL_EXT_fog_coord");
+  gl_ext_fragment_lighting                           = stringSetFind(e,"GL_EXT_fragment_lighting");
+  gl_ext_framebuffer_blit                            = stringSetFind(e,"GL_EXT_framebuffer_blit");
+  gl_ext_framebuffer_multisample                     = stringSetFind(e,"GL_EXT_framebuffer_multisample");
+  gl_ext_framebuffer_multisample_blit_scaled         = stringSetFind(e,"GL_EXT_framebuffer_multisample_blit_scaled");
+  gl_ext_framebuffer_object                          = stringSetFind(e,"GL_EXT_framebuffer_object");
+  gl_ext_framebuffer_srgb                            = stringSetFind(e,"GL_EXT_framebuffer_sRGB");
+  gl_ext_geometry_shader4                            = stringSetFind(e,"GL_EXT_geometry_shader4");
+  gl_ext_gpu_program_parameters                      = stringSetFind(e,"GL_EXT_gpu_program_parameters");
+  gl_ext_gpu_shader4                                 = stringSetFind(e,"GL_EXT_gpu_shader4");
+  gl_ext_histogram                                   = stringSetFind(e,"GL_EXT_histogram");
+  gl_ext_index_func                                  = stringSetFind(e,"GL_EXT_index_func");
+  gl_ext_index_material                              = stringSetFind(e,"GL_EXT_index_material");
+  gl_ext_light_texture                               = stringSetFind(e,"GL_EXT_light_texture");
+  gl_ext_map_buffer_range                            = stringSetFind(e,"GL_EXT_map_buffer_range");
+  gl_ext_multi_draw_arrays                           = stringSetFind(e,"GL_EXT_multi_draw_arrays");
+  gl_ext_multisample                                 = stringSetFind(e,"GL_EXT_multisample");
+  gl_ext_multisampled_render_to_texture              = stringSetFind(e,"GL_EXT_multisampled_render_to_texture");
+  gl_ext_multiview_draw_buffers                      = stringSetFind(e,"GL_EXT_multiview_draw_buffers");
+  gl_ext_occlusion_query_boolean                     = stringSetFind(e,"GL_EXT_occlusion_query_boolean");
+  gl_ext_packed_depth_stencil                        = stringSetFind(e,"GL_EXT_packed_depth_stencil");
+  gl_ext_packed_float                                = stringSetFind(e,"GL_EXT_packed_float");
+  gl_ext_packed_pixels                               = stringSetFind(e,"GL_EXT_packed_pixels");
+  gl_ext_paletted_texture                            = stringSetFind(e,"GL_EXT_paletted_texture");
+  gl_ext_pixel_buffer_object                         = stringSetFind(e,"GL_EXT_pixel_buffer_object");
+  gl_ext_pixel_transform                             = stringSetFind(e,"GL_EXT_pixel_transform");
+  gl_ext_point_parameters                            = stringSetFind(e,"GL_EXT_point_parameters");
+  gl_ext_polygon_offset                              = stringSetFind(e,"GL_EXT_polygon_offset");
+  gl_ext_provoking_vertex                            = stringSetFind(e,"GL_EXT_provoking_vertex");
+  gl_ext_read_format_bgra                            = stringSetFind(e,"GL_EXT_read_format_bgra");
+  gl_ext_rescale_normal                              = stringSetFind(e,"GL_EXT_rescale_normal");
+  gl_ext_robustness                                  = stringSetFind(e,"GL_EXT_robustness");
+  gl_ext_srgb                                        = stringSetFind(e,"GL_EXT_sRGB");
+  gl_ext_scene_marker                                = stringSetFind(e,"GL_EXT_scene_marker");
+  gl_ext_secondary_color                             = stringSetFind(e,"GL_EXT_secondary_color");
+  gl_ext_separate_shader_objects                     = stringSetFind(e,"GL_EXT_separate_shader_objects");
+  gl_ext_separate_specular_color                     = stringSetFind(e,"GL_EXT_separate_specular_color");
+  gl_ext_shader_framebuffer_fetch                    = stringSetFind(e,"GL_EXT_shader_framebuffer_fetch");
+  gl_ext_shader_image_load_store                     = stringSetFind(e,"GL_EXT_shader_image_load_store");
+  gl_ext_shadow_samplers                             = stringSetFind(e,"GL_EXT_shadow_samplers");
+  gl_ext_shared_texture_palette                      = stringSetFind(e,"GL_EXT_shared_texture_palette");
+  gl_ext_stencil_clear_tag                           = stringSetFind(e,"GL_EXT_stencil_clear_tag");
+  gl_ext_stencil_two_side                            = stringSetFind(e,"GL_EXT_stencil_two_side");
+  gl_ext_stencil_wrap                                = stringSetFind(e,"GL_EXT_stencil_wrap");
+  gl_ext_subtexture                                  = stringSetFind(e,"GL_EXT_subtexture");
+  gl_ext_texture                                     = stringSetFind(e,"GL_EXT_texture");
+  gl_ext_texture3d                                   = stringSetFind(e,"GL_EXT_texture3D");
+  gl_ext_texture_array                               = stringSetFind(e,"GL_EXT_texture_array");
+  gl_ext_texture_buffer_object                       = stringSetFind(e,"GL_EXT_texture_buffer_object");
+  gl_ext_texture_compression_latc                    = stringSetFind(e,"GL_EXT_texture_compression_latc");
+  gl_ext_texture_compression_rgtc                    = stringSetFind(e,"GL_EXT_texture_compression_rgtc");
+  gl_ext_texture_compression_s3tc                    = stringSetFind(e,"GL_EXT_texture_compression_s3tc");
+  gl_ext_texture_cube_map                            = stringSetFind(e,"GL_EXT_texture_cube_map");
+  gl_ext_texture_edge_clamp                          = stringSetFind(e,"GL_EXT_texture_edge_clamp");
+  gl_ext_texture_env_combine                         = stringSetFind(e,"GL_EXT_texture_env_combine");
+  gl_ext_texture_env_dot3                            = stringSetFind(e,"GL_EXT_texture_env_dot3");
+  gl_ext_texture_filter_anisotropic                  = stringSetFind(e,"GL_EXT_texture_filter_anisotropic");
+  gl_ext_texture_format_bgra8888                     = stringSetFind(e,"GL_EXT_texture_format_BGRA8888");
+  gl_ext_texture_integer                             = stringSetFind(e,"GL_EXT_texture_integer");
+  gl_ext_texture_lod_bias                            = stringSetFind(e,"GL_EXT_texture_lod_bias");
+  gl_ext_texture_mirror_clamp                        = stringSetFind(e,"GL_EXT_texture_mirror_clamp");
+  gl_ext_texture_object                              = stringSetFind(e,"GL_EXT_texture_object");
+  gl_ext_texture_perturb_normal                      = stringSetFind(e,"GL_EXT_texture_perturb_normal");
+  gl_ext_texture_rectangle                           = stringSetFind(e,"GL_EXT_texture_rectangle");
+  gl_ext_texture_rg                                  = stringSetFind(e,"GL_EXT_texture_rg");
+  gl_ext_texture_srgb                                = stringSetFind(e,"GL_EXT_texture_sRGB");
+  gl_ext_texture_srgb_decode                         = stringSetFind(e,"GL_EXT_texture_sRGB_decode");
+  gl_ext_texture_shared_exponent                     = stringSetFind(e,"GL_EXT_texture_shared_exponent");
+  gl_ext_texture_snorm                               = stringSetFind(e,"GL_EXT_texture_snorm");
+  gl_ext_texture_storage                             = stringSetFind(e,"GL_EXT_texture_storage");
+  gl_ext_texture_swizzle                             = stringSetFind(e,"GL_EXT_texture_swizzle");
+  gl_ext_texture_type_2_10_10_10_rev                 = stringSetFind(e,"GL_EXT_texture_type_2_10_10_10_REV");
+  gl_ext_timer_query                                 = stringSetFind(e,"GL_EXT_timer_query");
+  gl_ext_transform_feedback                          = stringSetFind(e,"GL_EXT_transform_feedback");
+  gl_ext_unpack_subimage                             = stringSetFind(e,"GL_EXT_unpack_subimage");
+  gl_ext_vertex_array                                = stringSetFind(e,"GL_EXT_vertex_array");
+  gl_ext_vertex_attrib_64bit                         = stringSetFind(e,"GL_EXT_vertex_attrib_64bit");
+  gl_ext_vertex_shader                               = stringSetFind(e,"GL_EXT_vertex_shader");
+  gl_ext_vertex_weighting                            = stringSetFind(e,"GL_EXT_vertex_weighting");
+  gl_ext_x11_sync_object                             = stringSetFind(e,"GL_EXT_x11_sync_object");
+  gl_fj_shader_binary_gccso                          = stringSetFind(e,"GL_FJ_shader_binary_GCCSO");
+  gl_gremedy_frame_terminator                        = stringSetFind(e,"GL_GREMEDY_frame_terminator");
+  gl_gremedy_string_marker                           = stringSetFind(e,"GL_GREMEDY_string_marker");
+  gl_hp_image_transform                              = stringSetFind(e,"GL_HP_image_transform");
+  gl_hp_occlusion_test                               = stringSetFind(e,"GL_HP_occlusion_test");
+  gl_ibm_cull_vertex                                 = stringSetFind(e,"GL_IBM_cull_vertex");
+  gl_ibm_multimode_draw_arrays                       = stringSetFind(e,"GL_IBM_multimode_draw_arrays");
+  gl_ibm_rasterpos_clip                              = stringSetFind(e,"GL_IBM_rasterpos_clip");
+  gl_ibm_static_data                                 = stringSetFind(e,"GL_IBM_static_data");
+  gl_ibm_texture_mirrored_repeat                     = stringSetFind(e,"GL_IBM_texture_mirrored_repeat");
+  gl_ibm_vertex_array_lists                          = stringSetFind(e,"GL_IBM_vertex_array_lists");
+  gl_img_multisampled_render_to_texture              = stringSetFind(e,"GL_IMG_multisampled_render_to_texture");
+  gl_img_program_binary                              = stringSetFind(e,"GL_IMG_program_binary");
+  gl_img_read_format                                 = stringSetFind(e,"GL_IMG_read_format");
+  gl_img_shader_binary                               = stringSetFind(e,"GL_IMG_shader_binary");
+  gl_img_texture_compression_pvrtc                   = stringSetFind(e,"GL_IMG_texture_compression_pvrtc");
+  gl_img_texture_compression_pvrtc2                  = stringSetFind(e,"GL_IMG_texture_compression_pvrtc2");
+  gl_img_texture_env_enhanced_fixed_function         = stringSetFind(e,"GL_IMG_texture_env_enhanced_fixed_function");
+  gl_img_user_clip_plane                             = stringSetFind(e,"GL_IMG_user_clip_plane");
+  gl_ingr_blend_func_separate                        = stringSetFind(e,"GL_INGR_blend_func_separate");
+  gl_ingr_color_clamp                                = stringSetFind(e,"GL_INGR_color_clamp");
+  gl_ingr_interlace_read                             = stringSetFind(e,"GL_INGR_interlace_read");
+  gl_intel_map_texture                               = stringSetFind(e,"GL_INTEL_map_texture");
+  gl_intel_parallel_arrays                           = stringSetFind(e,"GL_INTEL_parallel_arrays");
+  gl_intel_texture_scissor                           = stringSetFind(e,"GL_INTEL_texture_scissor");
+  gl_khr_debug                                       = stringSetFind(e,"GL_KHR_debug");
+  gl_khr_texture_compression_astc_ldr                = stringSetFind(e,"GL_KHR_texture_compression_astc_ldr");
+  gl_ktx_buffer_region                               = stringSetFind(e,"GL_KTX_buffer_region");
+  gl_mesax_texture_stack                             = stringSetFind(e,"GL_MESAX_texture_stack");
+  gl_mesa_pack_invert                                = stringSetFind(e,"GL_MESA_pack_invert");
+  gl_mesa_resize_buffers                             = stringSetFind(e,"GL_MESA_resize_buffers");
+  gl_mesa_window_pos                                 = stringSetFind(e,"GL_MESA_window_pos");
+  gl_mesa_ycbcr_texture                              = stringSetFind(e,"GL_MESA_ycbcr_texture");
+  gl_nvx_conditional_render                          = stringSetFind(e,"GL_NVX_conditional_render");
+  gl_nvx_gpu_memory_info                             = stringSetFind(e,"GL_NVX_gpu_memory_info");
+  gl_nv_3dvision_settings                            = stringSetFind(e,"GL_NV_3dvision_settings");
+  gl_nv_bgr                                          = stringSetFind(e,"GL_NV_bgr");
+  gl_nv_bindless_texture                             = stringSetFind(e,"GL_NV_bindless_texture");
+  gl_nv_blend_equation_advanced                      = stringSetFind(e,"GL_NV_blend_equation_advanced");
+  gl_nv_blend_square                                 = stringSetFind(e,"GL_NV_blend_square");
+  gl_nv_compute_program5                             = stringSetFind(e,"GL_NV_compute_program5");
+  gl_nv_conditional_render                           = stringSetFind(e,"GL_NV_conditional_render");
+  gl_nv_copy_buffer                                  = stringSetFind(e,"GL_NV_copy_buffer");
+  gl_nv_copy_depth_to_color                          = stringSetFind(e,"GL_NV_copy_depth_to_color");
+  gl_nv_copy_image                                   = stringSetFind(e,"GL_NV_copy_image");
+  gl_nv_coverage_sample                              = stringSetFind(e,"GL_NV_coverage_sample");
+  gl_nv_deep_texture3d                               = stringSetFind(e,"GL_NV_deep_texture3D");
+  gl_nv_depth_buffer_float                           = stringSetFind(e,"GL_NV_depth_buffer_float");
+  gl_nv_depth_clamp                                  = stringSetFind(e,"GL_NV_depth_clamp");
+  gl_nv_depth_nonlinear                              = stringSetFind(e,"GL_NV_depth_nonlinear");
+  gl_nv_depth_range_unclamped                        = stringSetFind(e,"GL_NV_depth_range_unclamped");
+  gl_nv_draw_buffers                                 = stringSetFind(e,"GL_NV_draw_buffers");
+  gl_nv_draw_texture                                 = stringSetFind(e,"GL_NV_draw_texture");
+  gl_nv_evaluators                                   = stringSetFind(e,"GL_NV_evaluators");
+  gl_nv_explicit_multisample                         = stringSetFind(e,"GL_NV_explicit_multisample");
+  gl_nv_fbo_color_attachments                        = stringSetFind(e,"GL_NV_fbo_color_attachments");
+  gl_nv_fence                                        = stringSetFind(e,"GL_NV_fence");
+  gl_nv_float_buffer                                 = stringSetFind(e,"GL_NV_float_buffer");
+  gl_nv_fog_distance                                 = stringSetFind(e,"GL_NV_fog_distance");
+  gl_nv_fragment_program                             = stringSetFind(e,"GL_NV_fragment_program");
+  gl_nv_fragment_program2                            = stringSetFind(e,"GL_NV_fragment_program2");
+  gl_nv_framebuffer_blit                             = stringSetFind(e,"GL_NV_framebuffer_blit");
+  gl_nv_framebuffer_multisample                      = stringSetFind(e,"GL_NV_framebuffer_multisample");
+  gl_nv_framebuffer_multisample_coverage             = stringSetFind(e,"GL_NV_framebuffer_multisample_coverage");
+  gl_nv_geometry_program4                            = stringSetFind(e,"GL_NV_geometry_program4");
+  gl_nv_gpu_program4                                 = stringSetFind(e,"GL_NV_gpu_program4");
+  gl_nv_gpu_program5                                 = stringSetFind(e,"GL_NV_gpu_program5");
+  gl_nv_gpu_shader5                                  = stringSetFind(e,"GL_NV_gpu_shader5");
+  gl_nv_half_float                                   = stringSetFind(e,"GL_NV_half_float");
+  gl_nv_instanced_arrays                             = stringSetFind(e,"GL_NV_instanced_arrays");
+  gl_nv_light_max_exponent                           = stringSetFind(e,"GL_NV_light_max_exponent");
+  gl_nv_multisample_coverage                         = stringSetFind(e,"GL_NV_multisample_coverage");
+  gl_nv_multisample_filter_hint                      = stringSetFind(e,"GL_NV_multisample_filter_hint");
+  gl_nv_non_square_matrices                          = stringSetFind(e,"GL_NV_non_square_matrices");
+  gl_nv_occlusion_query                              = stringSetFind(e,"GL_NV_occlusion_query");
+  gl_nv_pack_subimage                                = stringSetFind(e,"GL_NV_pack_subimage");
+  gl_nv_packed_depth_stencil                         = stringSetFind(e,"GL_NV_packed_depth_stencil");
+  gl_nv_packed_float_linear                          = stringSetFind(e,"GL_NV_packed_float_linear");
+  gl_nv_parameter_buffer_object                      = stringSetFind(e,"GL_NV_parameter_buffer_object");
+  gl_nv_path_rendering                               = stringSetFind(e,"GL_NV_path_rendering");
+  gl_nv_pixel_buffer_object                          = stringSetFind(e,"GL_NV_pixel_buffer_object");
+  gl_nv_pixel_data_range                             = stringSetFind(e,"GL_NV_pixel_data_range");
+  gl_nv_platform_binary                              = stringSetFind(e,"GL_NV_platform_binary");
+  gl_nv_point_sprite                                 = stringSetFind(e,"GL_NV_point_sprite");
+  gl_nv_present_video                                = stringSetFind(e,"GL_NV_present_video");
+  gl_nv_primitive_restart                            = stringSetFind(e,"GL_NV_primitive_restart");
+  gl_nv_read_buffer                                  = stringSetFind(e,"GL_NV_read_buffer");
+  gl_nv_read_buffer_front                            = stringSetFind(e,"GL_NV_read_buffer_front");
+  gl_nv_register_combiners                           = stringSetFind(e,"GL_NV_register_combiners");
+  gl_nv_register_combiners2                          = stringSetFind(e,"GL_NV_register_combiners2");
+  gl_nv_srgb_formats                                 = stringSetFind(e,"GL_NV_sRGB_formats");
+  gl_nv_shader_buffer_load                           = stringSetFind(e,"GL_NV_shader_buffer_load");
+  gl_nv_shadow_samplers_array                        = stringSetFind(e,"GL_NV_shadow_samplers_array");
+  gl_nv_shadow_samplers_cube                         = stringSetFind(e,"GL_NV_shadow_samplers_cube");
+  gl_nv_tessellation_program5                        = stringSetFind(e,"GL_NV_tessellation_program5");
+  gl_nv_texgen_emboss                                = stringSetFind(e,"GL_NV_texgen_emboss");
+  gl_nv_texgen_reflection                            = stringSetFind(e,"GL_NV_texgen_reflection");
+  gl_nv_texture_array                                = stringSetFind(e,"GL_NV_texture_array");
+  gl_nv_texture_barrier                              = stringSetFind(e,"GL_NV_texture_barrier");
+  gl_nv_texture_border_clamp                         = stringSetFind(e,"GL_NV_texture_border_clamp");
+  gl_nv_texture_compression_latc                     = stringSetFind(e,"GL_NV_texture_compression_latc");
+  gl_nv_texture_compression_s3tc                     = stringSetFind(e,"GL_NV_texture_compression_s3tc");
+  gl_nv_texture_env_combine4                         = stringSetFind(e,"GL_NV_texture_env_combine4");
+  gl_nv_texture_expand_normal                        = stringSetFind(e,"GL_NV_texture_expand_normal");
+  gl_nv_texture_multisample                          = stringSetFind(e,"GL_NV_texture_multisample");
+  gl_nv_texture_rectangle                            = stringSetFind(e,"GL_NV_texture_rectangle");
+  gl_nv_texture_shader                               = stringSetFind(e,"GL_NV_texture_shader");
+  gl_nv_texture_shader2                              = stringSetFind(e,"GL_NV_texture_shader2");
+  gl_nv_texture_shader3                              = stringSetFind(e,"GL_NV_texture_shader3");
+  gl_nv_transform_feedback                           = stringSetFind(e,"GL_NV_transform_feedback");
+  gl_nv_transform_feedback2                          = stringSetFind(e,"GL_NV_transform_feedback2");
+  gl_nv_vdpau_interop                                = stringSetFind(e,"GL_NV_vdpau_interop");
+  gl_nv_vertex_array_range                           = stringSetFind(e,"GL_NV_vertex_array_range");
+  gl_nv_vertex_array_range2                          = stringSetFind(e,"GL_NV_vertex_array_range2");
+  gl_nv_vertex_attrib_integer_64bit                  = stringSetFind(e,"GL_NV_vertex_attrib_integer_64bit");
+  gl_nv_vertex_buffer_unified_memory                 = stringSetFind(e,"GL_NV_vertex_buffer_unified_memory");
+  gl_nv_vertex_program                               = stringSetFind(e,"GL_NV_vertex_program");
+  gl_nv_vertex_program2_option                       = stringSetFind(e,"GL_NV_vertex_program2_option");
+  gl_nv_vertex_program3                              = stringSetFind(e,"GL_NV_vertex_program3");
+  gl_nv_vertex_program4                              = stringSetFind(e,"GL_NV_vertex_program4");
+  gl_nv_video_capture                                = stringSetFind(e,"GL_NV_video_capture");
+  gl_oes_egl_image_external                          = stringSetFind(e,"GL_OES_EGL_image_external");
+  gl_oes_blend_equation_separate                     = stringSetFind(e,"GL_OES_blend_equation_separate");
+  gl_oes_blend_func_separate                         = stringSetFind(e,"GL_OES_blend_func_separate");
+  gl_oes_blend_subtract                              = stringSetFind(e,"GL_OES_blend_subtract");
+  gl_oes_compressed_etc1_rgb8_texture                = stringSetFind(e,"GL_OES_compressed_ETC1_RGB8_texture");
+  gl_oes_compressed_paletted_texture                 = stringSetFind(e,"GL_OES_compressed_paletted_texture");
+  gl_oes_depth_texture                               = stringSetFind(e,"GL_OES_depth_texture");
+  gl_oes_draw_texture                                = stringSetFind(e,"GL_OES_draw_texture");
+  gl_oes_element_index_uint                          = stringSetFind(e,"GL_OES_element_index_uint");
+  gl_oes_fbo_render_mipmap                           = stringSetFind(e,"GL_OES_fbo_render_mipmap");
+  gl_oes_framebuffer_object                          = stringSetFind(e,"GL_OES_framebuffer_object");
+  gl_oes_get_program_binary                          = stringSetFind(e,"GL_OES_get_program_binary");
+  gl_oes_mapbuffer                                   = stringSetFind(e,"GL_OES_mapbuffer");
+  gl_oes_matrix_get                                  = stringSetFind(e,"GL_OES_matrix_get");
+  gl_oes_matrix_palette                              = stringSetFind(e,"GL_OES_matrix_palette");
+  gl_oes_packed_depth_stencil                        = stringSetFind(e,"GL_OES_packed_depth_stencil");
+  gl_oes_point_size_array                            = stringSetFind(e,"GL_OES_point_size_array");
+  gl_oes_point_sprite                                = stringSetFind(e,"GL_OES_point_sprite");
+  gl_oes_read_format                                 = stringSetFind(e,"GL_OES_read_format");
+  gl_oes_required_internalformat                     = stringSetFind(e,"GL_OES_required_internalformat");
+  gl_oes_rgb8_rgba8                                  = stringSetFind(e,"GL_OES_rgb8_rgba8");
+  gl_oes_single_precision                            = stringSetFind(e,"GL_OES_single_precision");
+  gl_oes_standard_derivatives                        = stringSetFind(e,"GL_OES_standard_derivatives");
+  gl_oes_stencil1                                    = stringSetFind(e,"GL_OES_stencil1");
+  gl_oes_stencil4                                    = stringSetFind(e,"GL_OES_stencil4");
+  gl_oes_stencil8                                    = stringSetFind(e,"GL_OES_stencil8");
+  gl_oes_surfaceless_context                         = stringSetFind(e,"GL_OES_surfaceless_context");
+  gl_oes_texture_3d                                  = stringSetFind(e,"GL_OES_texture_3D");
+  gl_oes_texture_cube_map                            = stringSetFind(e,"GL_OES_texture_cube_map");
+  gl_oes_texture_mirrored_repeat                     = stringSetFind(e,"GL_OES_texture_mirrored_repeat");
+  gl_oes_vertex_array_object                         = stringSetFind(e,"GL_OES_vertex_array_object");
+  gl_oes_vertex_half_float                           = stringSetFind(e,"GL_OES_vertex_half_float");
+  gl_oes_vertex_type_10_10_10_2                      = stringSetFind(e,"GL_OES_vertex_type_10_10_10_2");
+  gl_oml_interlace                                   = stringSetFind(e,"GL_OML_interlace");
+  gl_oml_resample                                    = stringSetFind(e,"GL_OML_resample");
+  gl_oml_subsample                                   = stringSetFind(e,"GL_OML_subsample");
+  gl_pgi_misc_hints                                  = stringSetFind(e,"GL_PGI_misc_hints");
+  gl_pgi_vertex_hints                                = stringSetFind(e,"GL_PGI_vertex_hints");
+  gl_qcom_alpha_test                                 = stringSetFind(e,"GL_QCOM_alpha_test");
+  gl_qcom_binning_control                            = stringSetFind(e,"GL_QCOM_binning_control");
+  gl_qcom_driver_control                             = stringSetFind(e,"GL_QCOM_driver_control");
+  gl_qcom_extended_get                               = stringSetFind(e,"GL_QCOM_extended_get");
+  gl_qcom_extended_get2                              = stringSetFind(e,"GL_QCOM_extended_get2");
+  gl_qcom_perfmon_global_mode                        = stringSetFind(e,"GL_QCOM_perfmon_global_mode");
+  gl_qcom_tiled_rendering                            = stringSetFind(e,"GL_QCOM_tiled_rendering");
+  gl_qcom_writeonly_rendering                        = stringSetFind(e,"GL_QCOM_writeonly_rendering");
+  gl_regal_es1_0_compatibility                       = stringSetFind(e,"GL_REGAL_ES1_0_compatibility");
+  gl_regal_es1_1_compatibility                       = stringSetFind(e,"GL_REGAL_ES1_1_compatibility");
+  gl_regal_enable                                    = stringSetFind(e,"GL_REGAL_enable");
+  gl_regal_error_string                              = stringSetFind(e,"GL_REGAL_error_string");
+  gl_regal_extension_query                           = stringSetFind(e,"GL_REGAL_extension_query");
+  gl_regal_log                                       = stringSetFind(e,"GL_REGAL_log");
+  gl_rend_screen_coordinates                         = stringSetFind(e,"GL_REND_screen_coordinates");
+  gl_s3_s3tc                                         = stringSetFind(e,"GL_S3_s3tc");
+  gl_sgis_color_range                                = stringSetFind(e,"GL_SGIS_color_range");
+  gl_sgis_detail_texture                             = stringSetFind(e,"GL_SGIS_detail_texture");
+  gl_sgis_fog_function                               = stringSetFind(e,"GL_SGIS_fog_function");
+  gl_sgis_generate_mipmap                            = stringSetFind(e,"GL_SGIS_generate_mipmap");
+  gl_sgis_multisample                                = stringSetFind(e,"GL_SGIS_multisample");
+  gl_sgis_pixel_texture                              = stringSetFind(e,"GL_SGIS_pixel_texture");
+  gl_sgis_point_line_texgen                          = stringSetFind(e,"GL_SGIS_point_line_texgen");
+  gl_sgis_point_parameters                           = stringSetFind(e,"GL_SGIS_point_parameters");
+  gl_sgis_sharpen_texture                            = stringSetFind(e,"GL_SGIS_sharpen_texture");
+  gl_sgis_texture4d                                  = stringSetFind(e,"GL_SGIS_texture4D");
+  gl_sgis_texture_border_clamp                       = stringSetFind(e,"GL_SGIS_texture_border_clamp");
+  gl_sgis_texture_color_mask                         = stringSetFind(e,"GL_SGIS_texture_color_mask");
+  gl_sgis_texture_edge_clamp                         = stringSetFind(e,"GL_SGIS_texture_edge_clamp");
+  gl_sgis_texture_filter4                            = stringSetFind(e,"GL_SGIS_texture_filter4");
+  gl_sgis_texture_lod                                = stringSetFind(e,"GL_SGIS_texture_lod");
+  gl_sgix_async                                      = stringSetFind(e,"GL_SGIX_async");
+  gl_sgix_async_histogram                            = stringSetFind(e,"GL_SGIX_async_histogram");
+  gl_sgix_async_pixel                                = stringSetFind(e,"GL_SGIX_async_pixel");
+  gl_sgix_blend_alpha_minmax                         = stringSetFind(e,"GL_SGIX_blend_alpha_minmax");
+  gl_sgix_convolution_accuracy                       = stringSetFind(e,"GL_SGIX_convolution_accuracy");
+  gl_sgix_depth_texture                              = stringSetFind(e,"GL_SGIX_depth_texture");
+  gl_sgix_flush_raster                               = stringSetFind(e,"GL_SGIX_flush_raster");
+  gl_sgix_fog_offset                                 = stringSetFind(e,"GL_SGIX_fog_offset");
+  gl_sgix_fog_texture                                = stringSetFind(e,"GL_SGIX_fog_texture");
+  gl_sgix_fragment_lighting                          = stringSetFind(e,"GL_SGIX_fragment_lighting");
+  gl_sgix_fragment_specular_lighting                 = stringSetFind(e,"GL_SGIX_fragment_specular_lighting");
+  gl_sgix_framezoom                                  = stringSetFind(e,"GL_SGIX_framezoom");
+  gl_sgix_igloo_interface                            = stringSetFind(e,"GL_SGIX_igloo_interface");
+  gl_sgix_instruments                                = stringSetFind(e,"GL_SGIX_instruments");
+  gl_sgix_interlace                                  = stringSetFind(e,"GL_SGIX_interlace");
+  gl_sgix_list_priority                              = stringSetFind(e,"GL_SGIX_list_priority");
+  gl_sgix_pixel_texture                              = stringSetFind(e,"GL_SGIX_pixel_texture");
+  gl_sgix_polynomial_ffd                             = stringSetFind(e,"GL_SGIX_polynomial_ffd");
+  gl_sgix_reference_plane                            = stringSetFind(e,"GL_SGIX_reference_plane");
+  gl_sgix_resample                                   = stringSetFind(e,"GL_SGIX_resample");
+  gl_sgix_shadow                                     = stringSetFind(e,"GL_SGIX_shadow");
+  gl_sgix_shadow_ambient                             = stringSetFind(e,"GL_SGIX_shadow_ambient");
+  gl_sgix_sprite                                     = stringSetFind(e,"GL_SGIX_sprite");
+  gl_sgix_tag_sample_buffer                          = stringSetFind(e,"GL_SGIX_tag_sample_buffer");
+  gl_sgix_texture_coordinate_clamp                   = stringSetFind(e,"GL_SGIX_texture_coordinate_clamp");
+  gl_sgix_texture_multi_buffer                       = stringSetFind(e,"GL_SGIX_texture_multi_buffer");
+  gl_sgix_texture_range                              = stringSetFind(e,"GL_SGIX_texture_range");
+  gl_sgix_texture_scale_bias                         = stringSetFind(e,"GL_SGIX_texture_scale_bias");
+  gl_sgix_vertex_preclip_hint                        = stringSetFind(e,"GL_SGIX_vertex_preclip_hint");
+  gl_sgix_ycrcb                                      = stringSetFind(e,"GL_SGIX_ycrcb");
+  gl_sgi_color_matrix                                = stringSetFind(e,"GL_SGI_color_matrix");
+  gl_sgi_color_table                                 = stringSetFind(e,"GL_SGI_color_table");
+  gl_sgi_texture_color_table                         = stringSetFind(e,"GL_SGI_texture_color_table");
+  gl_sunx_constant_data                              = stringSetFind(e,"GL_SUNX_constant_data");
+  gl_sun_convolution_border_modes                    = stringSetFind(e,"GL_SUN_convolution_border_modes");
+  gl_sun_global_alpha                                = stringSetFind(e,"GL_SUN_global_alpha");
+  gl_sun_mesh_array                                  = stringSetFind(e,"GL_SUN_mesh_array");
+  gl_sun_read_video_pixels                           = stringSetFind(e,"GL_SUN_read_video_pixels");
+  gl_sun_slice_accum                                 = stringSetFind(e,"GL_SUN_slice_accum");
+  gl_sun_triangle_list                               = stringSetFind(e,"GL_SUN_triangle_list");
+  gl_sun_vertex                                      = stringSetFind(e,"GL_SUN_vertex");
+  gl_viv_shader_binary                               = stringSetFind(e,"GL_VIV_shader_binary");
+  gl_win_phong_shading                               = stringSetFind(e,"GL_WIN_phong_shading");
+  gl_win_specular_fog                                = stringSetFind(e,"GL_WIN_specular_fog");
+  gl_win_swap_hint                                   = stringSetFind(e,"GL_WIN_swap_hint");
 
 #if REGAL_SYS_WGL
-  wgl_3dl_stereo_control = e.find("WGL_3DL_stereo_control")!=e.end();
-  wgl_amd_gpu_association = e.find("WGL_AMD_gpu_association")!=e.end();
-  wgl_arb_buffer_region = e.find("WGL_ARB_buffer_region")!=e.end();
-  wgl_arb_create_context = e.find("WGL_ARB_create_context")!=e.end();
-  wgl_arb_create_context_profile = e.find("WGL_ARB_create_context_profile")!=e.end();
-  wgl_arb_create_context_robustness = e.find("WGL_ARB_create_context_robustness")!=e.end();
-  wgl_arb_extensions_string = e.find("WGL_ARB_extensions_string")!=e.end();
-  wgl_arb_framebuffer_srgb = e.find("WGL_ARB_framebuffer_sRGB")!=e.end();
-  wgl_arb_make_current_read = e.find("WGL_ARB_make_current_read")!=e.end();
-  wgl_arb_multisample = e.find("WGL_ARB_multisample")!=e.end();
-  wgl_arb_pbuffer = e.find("WGL_ARB_pbuffer")!=e.end();
-  wgl_arb_pixel_format = e.find("WGL_ARB_pixel_format")!=e.end();
-  wgl_arb_pixel_format_float = e.find("WGL_ARB_pixel_format_float")!=e.end();
-  wgl_arb_render_texture = e.find("WGL_ARB_render_texture")!=e.end();
-  wgl_arb_robustness_share_group_isolation = e.find("WGL_ARB_robustness_share_group_isolation")!=e.end();
-  wgl_ati_pixel_format_float = e.find("WGL_ATI_pixel_format_float")!=e.end();
-  wgl_ati_render_texture_rectangle = e.find("WGL_ATI_render_texture_rectangle")!=e.end();
-  wgl_ext_create_context_es2_profile = e.find("WGL_EXT_create_context_es2_profile")!=e.end();
-  wgl_ext_create_context_es_profile = e.find("WGL_EXT_create_context_es_profile")!=e.end();
-  wgl_ext_depth_float = e.find("WGL_EXT_depth_float")!=e.end();
-  wgl_ext_display_color_table = e.find("WGL_EXT_display_color_table")!=e.end();
-  wgl_ext_extensions_string = e.find("WGL_EXT_extensions_string")!=e.end();
-  wgl_ext_framebuffer_srgb = e.find("WGL_EXT_framebuffer_sRGB")!=e.end();
-  wgl_ext_make_current_read = e.find("WGL_EXT_make_current_read")!=e.end();
-  wgl_ext_multisample = e.find("WGL_EXT_multisample")!=e.end();
-  wgl_ext_pbuffer = e.find("WGL_EXT_pbuffer")!=e.end();
-  wgl_ext_pixel_format = e.find("WGL_EXT_pixel_format")!=e.end();
-  wgl_ext_pixel_format_packed_float = e.find("WGL_EXT_pixel_format_packed_float")!=e.end();
-  wgl_ext_swap_control = e.find("WGL_EXT_swap_control")!=e.end();
-  wgl_gdi = e.find("WGL_GDI")!=e.end();
-  wgl_i3d_digital_video_control = e.find("WGL_I3D_digital_video_control")!=e.end();
-  wgl_i3d_gamma = e.find("WGL_I3D_gamma")!=e.end();
-  wgl_i3d_genlock = e.find("WGL_I3D_genlock")!=e.end();
-  wgl_i3d_image_buffer = e.find("WGL_I3D_image_buffer")!=e.end();
-  wgl_i3d_swap_frame_lock = e.find("WGL_I3D_swap_frame_lock")!=e.end();
-  wgl_i3d_swap_frame_usage = e.find("WGL_I3D_swap_frame_usage")!=e.end();
-  wgl_nv_dx_interop = e.find("WGL_NV_DX_interop")!=e.end();
-  wgl_nv_copy_image = e.find("WGL_NV_copy_image")!=e.end();
-  wgl_nv_float_buffer = e.find("WGL_NV_float_buffer")!=e.end();
-  wgl_nv_gpu_affinity = e.find("WGL_NV_gpu_affinity")!=e.end();
-  wgl_nv_multisample_coverage = e.find("WGL_NV_multisample_coverage")!=e.end();
-  wgl_nv_present_video = e.find("WGL_NV_present_video")!=e.end();
-  wgl_nv_render_depth_texture = e.find("WGL_NV_render_depth_texture")!=e.end();
-  wgl_nv_render_texture_rectangle = e.find("WGL_NV_render_texture_rectangle")!=e.end();
-  wgl_nv_swap_group = e.find("WGL_NV_swap_group")!=e.end();
-  wgl_nv_vertex_array_range = e.find("WGL_NV_vertex_array_range")!=e.end();
-  wgl_nv_video_capture = e.find("WGL_NV_video_capture")!=e.end();
-  wgl_nv_video_output = e.find("WGL_NV_video_output")!=e.end();
-  wgl_oml_sync_control = e.find("WGL_OML_sync_control")!=e.end();
-#endif
+  wgl_3dl_stereo_control                             = stringSetFind(e,"WGL_3DL_stereo_control");
+  wgl_amd_gpu_association                            = stringSetFind(e,"WGL_AMD_gpu_association");
+  wgl_arb_buffer_region                              = stringSetFind(e,"WGL_ARB_buffer_region");
+  wgl_arb_create_context                             = stringSetFind(e,"WGL_ARB_create_context");
+  wgl_arb_create_context_profile                     = stringSetFind(e,"WGL_ARB_create_context_profile");
+  wgl_arb_create_context_robustness                  = stringSetFind(e,"WGL_ARB_create_context_robustness");
+  wgl_arb_extensions_string                          = stringSetFind(e,"WGL_ARB_extensions_string");
+  wgl_arb_framebuffer_srgb                           = stringSetFind(e,"WGL_ARB_framebuffer_sRGB");
+  wgl_arb_make_current_read                          = stringSetFind(e,"WGL_ARB_make_current_read");
+  wgl_arb_multisample                                = stringSetFind(e,"WGL_ARB_multisample");
+  wgl_arb_pbuffer                                    = stringSetFind(e,"WGL_ARB_pbuffer");
+  wgl_arb_pixel_format                               = stringSetFind(e,"WGL_ARB_pixel_format");
+  wgl_arb_pixel_format_float                         = stringSetFind(e,"WGL_ARB_pixel_format_float");
+  wgl_arb_render_texture                             = stringSetFind(e,"WGL_ARB_render_texture");
+  wgl_arb_robustness_share_group_isolation           = stringSetFind(e,"WGL_ARB_robustness_share_group_isolation");
+  wgl_ati_pixel_format_float                         = stringSetFind(e,"WGL_ATI_pixel_format_float");
+  wgl_ati_render_texture_rectangle                   = stringSetFind(e,"WGL_ATI_render_texture_rectangle");
+  wgl_ext_create_context_es2_profile                 = stringSetFind(e,"WGL_EXT_create_context_es2_profile");
+  wgl_ext_create_context_es_profile                  = stringSetFind(e,"WGL_EXT_create_context_es_profile");
+  wgl_ext_depth_float                                = stringSetFind(e,"WGL_EXT_depth_float");
+  wgl_ext_display_color_table                        = stringSetFind(e,"WGL_EXT_display_color_table");
+  wgl_ext_extensions_string                          = stringSetFind(e,"WGL_EXT_extensions_string");
+  wgl_ext_framebuffer_srgb                           = stringSetFind(e,"WGL_EXT_framebuffer_sRGB");
+  wgl_ext_make_current_read                          = stringSetFind(e,"WGL_EXT_make_current_read");
+  wgl_ext_multisample                                = stringSetFind(e,"WGL_EXT_multisample");
+  wgl_ext_pbuffer                                    = stringSetFind(e,"WGL_EXT_pbuffer");
+  wgl_ext_pixel_format                               = stringSetFind(e,"WGL_EXT_pixel_format");
+  wgl_ext_pixel_format_packed_float                  = stringSetFind(e,"WGL_EXT_pixel_format_packed_float");
+  wgl_ext_swap_control                               = stringSetFind(e,"WGL_EXT_swap_control");
+  wgl_gdi                                            = stringSetFind(e,"WGL_GDI");
+  wgl_i3d_digital_video_control                      = stringSetFind(e,"WGL_I3D_digital_video_control");
+  wgl_i3d_gamma                                      = stringSetFind(e,"WGL_I3D_gamma");
+  wgl_i3d_genlock                                    = stringSetFind(e,"WGL_I3D_genlock");
+  wgl_i3d_image_buffer                               = stringSetFind(e,"WGL_I3D_image_buffer");
+  wgl_i3d_swap_frame_lock                            = stringSetFind(e,"WGL_I3D_swap_frame_lock");
+  wgl_i3d_swap_frame_usage                           = stringSetFind(e,"WGL_I3D_swap_frame_usage");
+  wgl_nv_dx_interop                                  = stringSetFind(e,"WGL_NV_DX_interop");
+  wgl_nv_copy_image                                  = stringSetFind(e,"WGL_NV_copy_image");
+  wgl_nv_float_buffer                                = stringSetFind(e,"WGL_NV_float_buffer");
+  wgl_nv_gpu_affinity                                = stringSetFind(e,"WGL_NV_gpu_affinity");
+  wgl_nv_multisample_coverage                        = stringSetFind(e,"WGL_NV_multisample_coverage");
+  wgl_nv_present_video                               = stringSetFind(e,"WGL_NV_present_video");
+  wgl_nv_render_depth_texture                        = stringSetFind(e,"WGL_NV_render_depth_texture");
+  wgl_nv_render_texture_rectangle                    = stringSetFind(e,"WGL_NV_render_texture_rectangle");
+  wgl_nv_swap_group                                  = stringSetFind(e,"WGL_NV_swap_group");
+  wgl_nv_vertex_array_range                          = stringSetFind(e,"WGL_NV_vertex_array_range");
+  wgl_nv_video_capture                               = stringSetFind(e,"WGL_NV_video_capture");
+  wgl_nv_video_output                                = stringSetFind(e,"WGL_NV_video_output");
+  wgl_oml_sync_control                               = stringSetFind(e,"WGL_OML_sync_control");
+#endif /* REGAL_SYS_WGL */
 
 #if REGAL_SYS_GLX
-  glx_3dfx_multisample = e.find("GLX_3DFX_multisample")!=e.end();
-  glx_amd_gpu_association = e.find("GLX_AMD_gpu_association")!=e.end();
-  glx_arb_create_context = e.find("GLX_ARB_create_context")!=e.end();
-  glx_arb_create_context_profile = e.find("GLX_ARB_create_context_profile")!=e.end();
-  glx_arb_create_context_robustness = e.find("GLX_ARB_create_context_robustness")!=e.end();
-  glx_arb_fbconfig_float = e.find("GLX_ARB_fbconfig_float")!=e.end();
-  glx_arb_framebuffer_srgb = e.find("GLX_ARB_framebuffer_sRGB")!=e.end();
-  glx_arb_get_proc_address = e.find("GLX_ARB_get_proc_address")!=e.end();
-  glx_arb_multisample = e.find("GLX_ARB_multisample")!=e.end();
-  glx_arb_robustness_share_group_isolation = e.find("GLX_ARB_robustness_share_group_isolation")!=e.end();
-  glx_arb_vertex_buffer_object = e.find("GLX_ARB_vertex_buffer_object")!=e.end();
-  glx_ati_pixel_format_float = e.find("GLX_ATI_pixel_format_float")!=e.end();
-  glx_ati_render_texture = e.find("GLX_ATI_render_texture")!=e.end();
-  glx_ext_create_context_es2_profile = e.find("GLX_EXT_create_context_es2_profile")!=e.end();
-  glx_ext_create_context_es_profile = e.find("GLX_EXT_create_context_es_profile")!=e.end();
-  glx_ext_fbconfig_packed_float = e.find("GLX_EXT_fbconfig_packed_float")!=e.end();
-  glx_ext_framebuffer_srgb = e.find("GLX_EXT_framebuffer_sRGB")!=e.end();
-  glx_ext_import_context = e.find("GLX_EXT_import_context")!=e.end();
-  glx_ext_swap_control = e.find("GLX_EXT_swap_control")!=e.end();
-  glx_ext_swap_control_tear = e.find("GLX_EXT_swap_control_tear")!=e.end();
-  glx_ext_texture_from_pixmap = e.find("GLX_EXT_texture_from_pixmap")!=e.end();
-  glx_ext_visual_info = e.find("GLX_EXT_visual_info")!=e.end();
-  glx_ext_visual_rating = e.find("GLX_EXT_visual_rating")!=e.end();
-  glx_intel_swap_event = e.find("GLX_INTEL_swap_event")!=e.end();
-  glx_mesa_agp_offset = e.find("GLX_MESA_agp_offset")!=e.end();
-  glx_mesa_copy_sub_buffer = e.find("GLX_MESA_copy_sub_buffer")!=e.end();
-  glx_mesa_pixmap_colormap = e.find("GLX_MESA_pixmap_colormap")!=e.end();
-  glx_mesa_release_buffers = e.find("GLX_MESA_release_buffers")!=e.end();
-  glx_mesa_set_3dfx_mode = e.find("GLX_MESA_set_3dfx_mode")!=e.end();
-  glx_mesa_swap_control = e.find("GLX_MESA_swap_control")!=e.end();
-  glx_nv_copy_image = e.find("GLX_NV_copy_image")!=e.end();
-  glx_nv_float_buffer = e.find("GLX_NV_float_buffer")!=e.end();
-  glx_nv_multisample_coverage = e.find("GLX_NV_multisample_coverage")!=e.end();
-  glx_nv_present_video = e.find("GLX_NV_present_video")!=e.end();
-  glx_nv_swap_group = e.find("GLX_NV_swap_group")!=e.end();
-  glx_nv_vertex_array_range = e.find("GLX_NV_vertex_array_range")!=e.end();
-  glx_nv_video_capture = e.find("GLX_NV_video_capture")!=e.end();
-  glx_nv_video_output = e.find("GLX_NV_video_output")!=e.end();
-  glx_oml_swap_method = e.find("GLX_OML_swap_method")!=e.end();
-  glx_oml_sync_control = e.find("GLX_OML_sync_control")!=e.end();
-  glx_sgis_blended_overlay = e.find("GLX_SGIS_blended_overlay")!=e.end();
-  glx_sgis_color_range = e.find("GLX_SGIS_color_range")!=e.end();
-  glx_sgis_multisample = e.find("GLX_SGIS_multisample")!=e.end();
-  glx_sgis_shared_multisample = e.find("GLX_SGIS_shared_multisample")!=e.end();
-  glx_sgix_fbconfig = e.find("GLX_SGIX_fbconfig")!=e.end();
-  glx_sgix_hyperpipe = e.find("GLX_SGIX_hyperpipe")!=e.end();
-  glx_sgix_pbuffer = e.find("GLX_SGIX_pbuffer")!=e.end();
-  glx_sgix_swap_barrier = e.find("GLX_SGIX_swap_barrier")!=e.end();
-  glx_sgix_swap_group = e.find("GLX_SGIX_swap_group")!=e.end();
-  glx_sgix_video_resize = e.find("GLX_SGIX_video_resize")!=e.end();
-  glx_sgix_visual_select_group = e.find("GLX_SGIX_visual_select_group")!=e.end();
-  glx_sgi_cushion = e.find("GLX_SGI_cushion")!=e.end();
-  glx_sgi_make_current_read = e.find("GLX_SGI_make_current_read")!=e.end();
-  glx_sgi_swap_control = e.find("GLX_SGI_swap_control")!=e.end();
-  glx_sgi_video_sync = e.find("GLX_SGI_video_sync")!=e.end();
-  glx_sun_get_transparent_index = e.find("GLX_SUN_get_transparent_index")!=e.end();
-  glx_sun_video_resize = e.find("GLX_SUN_video_resize")!=e.end();
-#endif
+  glx_3dfx_multisample                               = stringSetFind(e,"GLX_3DFX_multisample");
+  glx_amd_gpu_association                            = stringSetFind(e,"GLX_AMD_gpu_association");
+  glx_arb_create_context                             = stringSetFind(e,"GLX_ARB_create_context");
+  glx_arb_create_context_profile                     = stringSetFind(e,"GLX_ARB_create_context_profile");
+  glx_arb_create_context_robustness                  = stringSetFind(e,"GLX_ARB_create_context_robustness");
+  glx_arb_fbconfig_float                             = stringSetFind(e,"GLX_ARB_fbconfig_float");
+  glx_arb_framebuffer_srgb                           = stringSetFind(e,"GLX_ARB_framebuffer_sRGB");
+  glx_arb_get_proc_address                           = stringSetFind(e,"GLX_ARB_get_proc_address");
+  glx_arb_multisample                                = stringSetFind(e,"GLX_ARB_multisample");
+  glx_arb_robustness_share_group_isolation           = stringSetFind(e,"GLX_ARB_robustness_share_group_isolation");
+  glx_arb_vertex_buffer_object                       = stringSetFind(e,"GLX_ARB_vertex_buffer_object");
+  glx_ati_pixel_format_float                         = stringSetFind(e,"GLX_ATI_pixel_format_float");
+  glx_ati_render_texture                             = stringSetFind(e,"GLX_ATI_render_texture");
+  glx_ext_create_context_es2_profile                 = stringSetFind(e,"GLX_EXT_create_context_es2_profile");
+  glx_ext_create_context_es_profile                  = stringSetFind(e,"GLX_EXT_create_context_es_profile");
+  glx_ext_fbconfig_packed_float                      = stringSetFind(e,"GLX_EXT_fbconfig_packed_float");
+  glx_ext_framebuffer_srgb                           = stringSetFind(e,"GLX_EXT_framebuffer_sRGB");
+  glx_ext_import_context                             = stringSetFind(e,"GLX_EXT_import_context");
+  glx_ext_swap_control                               = stringSetFind(e,"GLX_EXT_swap_control");
+  glx_ext_swap_control_tear                          = stringSetFind(e,"GLX_EXT_swap_control_tear");
+  glx_ext_texture_from_pixmap                        = stringSetFind(e,"GLX_EXT_texture_from_pixmap");
+  glx_ext_visual_info                                = stringSetFind(e,"GLX_EXT_visual_info");
+  glx_ext_visual_rating                              = stringSetFind(e,"GLX_EXT_visual_rating");
+  glx_intel_swap_event                               = stringSetFind(e,"GLX_INTEL_swap_event");
+  glx_mesa_agp_offset                                = stringSetFind(e,"GLX_MESA_agp_offset");
+  glx_mesa_copy_sub_buffer                           = stringSetFind(e,"GLX_MESA_copy_sub_buffer");
+  glx_mesa_pixmap_colormap                           = stringSetFind(e,"GLX_MESA_pixmap_colormap");
+  glx_mesa_release_buffers                           = stringSetFind(e,"GLX_MESA_release_buffers");
+  glx_mesa_set_3dfx_mode                             = stringSetFind(e,"GLX_MESA_set_3dfx_mode");
+  glx_mesa_swap_control                              = stringSetFind(e,"GLX_MESA_swap_control");
+  glx_nv_copy_image                                  = stringSetFind(e,"GLX_NV_copy_image");
+  glx_nv_float_buffer                                = stringSetFind(e,"GLX_NV_float_buffer");
+  glx_nv_multisample_coverage                        = stringSetFind(e,"GLX_NV_multisample_coverage");
+  glx_nv_present_video                               = stringSetFind(e,"GLX_NV_present_video");
+  glx_nv_swap_group                                  = stringSetFind(e,"GLX_NV_swap_group");
+  glx_nv_vertex_array_range                          = stringSetFind(e,"GLX_NV_vertex_array_range");
+  glx_nv_video_capture                               = stringSetFind(e,"GLX_NV_video_capture");
+  glx_nv_video_output                                = stringSetFind(e,"GLX_NV_video_output");
+  glx_oml_swap_method                                = stringSetFind(e,"GLX_OML_swap_method");
+  glx_oml_sync_control                               = stringSetFind(e,"GLX_OML_sync_control");
+  glx_sgis_blended_overlay                           = stringSetFind(e,"GLX_SGIS_blended_overlay");
+  glx_sgis_color_range                               = stringSetFind(e,"GLX_SGIS_color_range");
+  glx_sgis_multisample                               = stringSetFind(e,"GLX_SGIS_multisample");
+  glx_sgis_shared_multisample                        = stringSetFind(e,"GLX_SGIS_shared_multisample");
+  glx_sgix_fbconfig                                  = stringSetFind(e,"GLX_SGIX_fbconfig");
+  glx_sgix_hyperpipe                                 = stringSetFind(e,"GLX_SGIX_hyperpipe");
+  glx_sgix_pbuffer                                   = stringSetFind(e,"GLX_SGIX_pbuffer");
+  glx_sgix_swap_barrier                              = stringSetFind(e,"GLX_SGIX_swap_barrier");
+  glx_sgix_swap_group                                = stringSetFind(e,"GLX_SGIX_swap_group");
+  glx_sgix_video_resize                              = stringSetFind(e,"GLX_SGIX_video_resize");
+  glx_sgix_visual_select_group                       = stringSetFind(e,"GLX_SGIX_visual_select_group");
+  glx_sgi_cushion                                    = stringSetFind(e,"GLX_SGI_cushion");
+  glx_sgi_make_current_read                          = stringSetFind(e,"GLX_SGI_make_current_read");
+  glx_sgi_swap_control                               = stringSetFind(e,"GLX_SGI_swap_control");
+  glx_sgi_video_sync                                 = stringSetFind(e,"GLX_SGI_video_sync");
+  glx_sun_get_transparent_index                      = stringSetFind(e,"GLX_SUN_get_transparent_index");
+  glx_sun_video_resize                               = stringSetFind(e,"GLX_SUN_video_resize");
+#endif /* REGAL_SYS_GLX */
 
 #if REGAL_SYS_EGL
-  egl_angle_query_surface_pointer = e.find("EGL_ANGLE_query_surface_pointer")!=e.end();
-  egl_angle_surface_d3d_texture_2d_share_handle = e.find("EGL_ANGLE_surface_d3d_texture_2d_share_handle")!=e.end();
-  egl_ext_create_context_robustness = e.find("EGL_EXT_create_context_robustness")!=e.end();
-  egl_ext_multiview_window = e.find("EGL_EXT_multiview_window")!=e.end();
-  egl_hi_colorformats = e.find("EGL_HI_colorformats")!=e.end();
-  egl_img_context_priority = e.find("EGL_IMG_context_priority")!=e.end();
-  egl_khr_config_attribs = e.find("EGL_KHR_config_attribs")!=e.end();
-  egl_khr_create_context = e.find("EGL_KHR_create_context")!=e.end();
-  egl_khr_fence_sync = e.find("EGL_KHR_fence_sync")!=e.end();
-  egl_khr_gl_texture_cubemap_image = e.find("EGL_KHR_gl_texture_cubemap_image")!=e.end();
-  egl_khr_image_base = e.find("EGL_KHR_image_base")!=e.end();
-  egl_khr_image_pixmap = e.find("EGL_KHR_image_pixmap")!=e.end();
-  egl_khr_lock_surface = e.find("EGL_KHR_lock_surface")!=e.end();
-  egl_khr_lock_surface2 = e.find("EGL_KHR_lock_surface2")!=e.end();
-  egl_khr_reusable_sync = e.find("EGL_KHR_reusable_sync")!=e.end();
-  egl_khr_stream = e.find("EGL_KHR_stream")!=e.end();
-  egl_khr_stream_consumer_gltexture = e.find("EGL_KHR_stream_consumer_gltexture")!=e.end();
-  egl_khr_stream_cross_process_fd = e.find("EGL_KHR_stream_cross_process_fd")!=e.end();
-  egl_khr_stream_fifo = e.find("EGL_KHR_stream_fifo")!=e.end();
-  egl_khr_stream_producer_eglsurface = e.find("EGL_KHR_stream_producer_eglsurface")!=e.end();
-  egl_khr_vg_parent_image = e.find("EGL_KHR_vg_parent_image")!=e.end();
-  egl_khr_wait_sync = e.find("EGL_KHR_wait_sync")!=e.end();
-  egl_mesa_drm_image = e.find("EGL_MESA_drm_image")!=e.end();
-  egl_nv_coverage_sample = e.find("EGL_NV_coverage_sample")!=e.end();
-  egl_nv_coverage_sample_resolve = e.find("EGL_NV_coverage_sample_resolve")!=e.end();
-  egl_nv_post_sub_buffer = e.find("EGL_NV_post_sub_buffer")!=e.end();
-  egl_nv_sync = e.find("EGL_NV_sync")!=e.end();
-  egl_nv_system_time = e.find("EGL_NV_system_time")!=e.end();
-#endif
+  egl_angle_query_surface_pointer                    = stringSetFind(e,"EGL_ANGLE_query_surface_pointer");
+  egl_angle_surface_d3d_texture_2d_share_handle      = stringSetFind(e,"EGL_ANGLE_surface_d3d_texture_2d_share_handle");
+  egl_ext_create_context_robustness                  = stringSetFind(e,"EGL_EXT_create_context_robustness");
+  egl_ext_multiview_window                           = stringSetFind(e,"EGL_EXT_multiview_window");
+  egl_hi_colorformats                                = stringSetFind(e,"EGL_HI_colorformats");
+  egl_img_context_priority                           = stringSetFind(e,"EGL_IMG_context_priority");
+  egl_khr_config_attribs                             = stringSetFind(e,"EGL_KHR_config_attribs");
+  egl_khr_create_context                             = stringSetFind(e,"EGL_KHR_create_context");
+  egl_khr_fence_sync                                 = stringSetFind(e,"EGL_KHR_fence_sync");
+  egl_khr_gl_texture_cubemap_image                   = stringSetFind(e,"EGL_KHR_gl_texture_cubemap_image");
+  egl_khr_image_base                                 = stringSetFind(e,"EGL_KHR_image_base");
+  egl_khr_image_pixmap                               = stringSetFind(e,"EGL_KHR_image_pixmap");
+  egl_khr_lock_surface                               = stringSetFind(e,"EGL_KHR_lock_surface");
+  egl_khr_lock_surface2                              = stringSetFind(e,"EGL_KHR_lock_surface2");
+  egl_khr_reusable_sync                              = stringSetFind(e,"EGL_KHR_reusable_sync");
+  egl_khr_stream                                     = stringSetFind(e,"EGL_KHR_stream");
+  egl_khr_stream_consumer_gltexture                  = stringSetFind(e,"EGL_KHR_stream_consumer_gltexture");
+  egl_khr_stream_cross_process_fd                    = stringSetFind(e,"EGL_KHR_stream_cross_process_fd");
+  egl_khr_stream_fifo                                = stringSetFind(e,"EGL_KHR_stream_fifo");
+  egl_khr_stream_producer_eglsurface                 = stringSetFind(e,"EGL_KHR_stream_producer_eglsurface");
+  egl_khr_vg_parent_image                            = stringSetFind(e,"EGL_KHR_vg_parent_image");
+  egl_khr_wait_sync                                  = stringSetFind(e,"EGL_KHR_wait_sync");
+  egl_mesa_drm_image                                 = stringSetFind(e,"EGL_MESA_drm_image");
+  egl_nv_coverage_sample                             = stringSetFind(e,"EGL_NV_coverage_sample");
+  egl_nv_coverage_sample_resolve                     = stringSetFind(e,"EGL_NV_coverage_sample_resolve");
+  egl_nv_post_sub_buffer                             = stringSetFind(e,"EGL_NV_post_sub_buffer");
+  egl_nv_sync                                        = stringSetFind(e,"EGL_NV_sync");
+  egl_nv_system_time                                 = stringSetFind(e,"EGL_NV_system_time");
+#endif /* REGAL_SYS_EGL */
 
   RegalAssert(context.dispatcher.driver.glGetIntegerv);
+  RegalAssert(context.dispatcher.driver.glGetBooleanv);
+
+  gl_max_attrib_stack_depth = 0;
+  gl_max_client_attrib_stack_depth = 0;
+  gl_max_combined_texture_image_units = 0;
+  gl_max_debug_message_length = 1024;
+  gl_max_draw_buffers = 0;
+  gl_max_texture_coords = 0;
+  gl_max_texture_units = 0;
+  gl_max_vertex_attrib_bindings = 0;
+  gl_max_vertex_attribs = 0;
+  gl_max_viewports = 0;
+  gl_max_varying_floats = 0;
+
+  // Looking at the various specs and RegalEmu.h I came up with this table:
+  //
+  //                                        GL       Core  ES1  ES2  ES3  Regal
+  // GL_MAX_ATTRIB_STACK_DEPTH              16        rem  n/a  n/a  n/a    16
+  // GL_MAX_CLIENT_ATTRIB_STACK_DEPTH       16        rem  n/a  n/a  n/a    16
+  // GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS    96        96    -    8   32     96
+  // GL_MAX_DRAW_BUFFERS                     8         8    -    -    4      8
+  // GL_MAX_TEXTURE_COORDS                   8        rem   -    -    -     16
+  // GL_MAX_TEXTURE_UNITS                    2        rem   +    -    -      4
+  // GL_MAX_VARYING_VECTORS                 15        15    -    8   15      -
+  // GL_MAX_VARYING_FLOATS                  32 (2.0)  dep   -    -    -      -
+  // GL_MAX_VERTEX_ATTRIBS                  16        16    -    8   16     16
+  // GL_MAX_VERTEX_ATTRIB_BINDINGS          16        16    -    -    -     16
+  // GL_MAX_VIEWPORTS                       16        16    -    -    -     16
+
+  if (compat)
+  {
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_ATTRIB_STACK_DEPTH, reinterpret_cast<GLint *>(&gl_max_attrib_stack_depth));
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_CLIENT_ATTRIB_STACK_DEPTH, reinterpret_cast<GLint *>(&gl_max_client_attrib_stack_depth));
+  }
+
+  if (!es1)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&gl_max_combined_texture_image_units));
+
+  if (core || compat)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_DRAW_BUFFERS, reinterpret_cast<GLint *>(&gl_max_draw_buffers));
+
+  if (compat)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_TEXTURE_COORDS, reinterpret_cast<GLint *>(&gl_max_texture_coords));
+
+  if (es1 || compat)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_TEXTURE_UNITS, reinterpret_cast<GLint *>(&gl_max_texture_units));
+
+  if (es2 || core)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VARYING_VECTORS, reinterpret_cast<GLint *>(&gl_max_varying_floats));
+  else if (compat)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VARYING_FLOATS, reinterpret_cast<GLint *>(&gl_max_varying_floats));
+
   if (es1)
-  {
-    maxVertexAttribs = 8;
-    maxVaryings = 0;
-  }
+    gl_max_vertex_attribs = 8;  //<> one of these things is not like the other...
   else
-  {
-    context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&maxVertexAttribs));
-    context.dispatcher.driver.glGetIntegerv( es2 ? GL_MAX_VARYING_VECTORS : GL_MAX_VARYING_FLOATS, reinterpret_cast<GLint *>(&maxVaryings));
-  }
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&gl_max_vertex_attribs));
 
-  Info("OpenGL v attribs : ",maxVertexAttribs);
-  Info("OpenGL varyings  : ",maxVaryings);
+  if ((core || compat) && (gl_version_4_3 || gl_arb_vertex_attrib_binding))
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIB_BINDINGS, reinterpret_cast<GLint *>(&gl_max_vertex_attrib_bindings));
 
-  if (maxVertexAttribs > REGAL_EMU_IFF_VERTEX_ATTRIBS)
-      maxVertexAttribs = REGAL_EMU_IFF_VERTEX_ATTRIBS;
+  if ((core || compat) && (gl_version_4_1 || gl_arb_viewport_array))
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VIEWPORTS, reinterpret_cast<GLint *>(&gl_max_viewports));
 
-  // Qualcomm fails with float4 attribs with 256 byte stride, so artificially limit to 8 attribs (n*16 is used
-  // as the stride in RegalIFF).  WebGL (and Pepper) explicitly disallows stride > 255 as well.
+  if (gl_arb_debug_output)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_DEBUG_MESSAGE_LENGTH_ARB, reinterpret_cast<GLint *>(&gl_max_debug_message_length));
+  else if (gl_khr_debug)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_DEBUG_MESSAGE_LENGTH, reinterpret_cast<GLint *>(&gl_max_debug_message_length));
+  else if (gl_amd_debug_output)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_DEBUG_MESSAGE_LENGTH_AMD, reinterpret_cast<GLint *>(&gl_max_debug_message_length));
 
-  if (vendor == "Qualcomm" || vendor == "Chromium" || webgl)
-    maxVertexAttribs = 8;
+  if ((compat) && (gl_version_3_2 || gl_arb_provoking_vertex || gl_ext_provoking_vertex))
+    context.dispatcher.driver.glGetBooleanv( GL_QUADS_FOLLOW_PROVOKING_VERTEX_CONVENTION, &gl_quads_follow_provoking_vertex_convention);
 
-  Info("Regal  v attribs : ",maxVertexAttribs);
+  Info("OpenGL v attribs : ",gl_max_vertex_attribs);
+  Info("OpenGL varyings  : ",gl_max_varying_floats);
+
+  warnGLError(context,"querying context information.");
+}
+
+bool
+ContextInfo::stringSetFind(const std::set<std::string> &stringSet, const std::string &val)
+{
+  return stringSet.find(val)!=stringSet.end();
 }
 
 bool
@@ -1765,689 +1771,681 @@ ContextInfo::getExtension(const char *ext) const
 {
   Internal("ContextInfo::getExtension ",boost::print::quote(ext,'"'));
 
-  if (!strcmp(ext,"GL_3DFX_multisample")) return gl_3dfx_multisample;
-  if (!strcmp(ext,"GL_3DFX_tbuffer")) return gl_3dfx_tbuffer;
-  if (!strcmp(ext,"GL_3DFX_texture_compression_FXT1")) return gl_3dfx_texture_compression_fxt1;
-  if (!strcmp(ext,"GL_AMD_blend_minmax_factor")) return gl_amd_blend_minmax_factor;
-  if (!strcmp(ext,"GL_AMD_compressed_3DC_texture")) return gl_amd_compressed_3dc_texture;
-  if (!strcmp(ext,"GL_AMD_compressed_ATC_texture")) return gl_amd_compressed_atc_texture;
-  if (!strcmp(ext,"GL_AMD_debug_output")) return gl_amd_debug_output;
-  if (!strcmp(ext,"GL_AMD_depth_clamp_separate")) return gl_amd_depth_clamp_separate;
-  if (!strcmp(ext,"GL_AMD_draw_buffers_blend")) return gl_amd_draw_buffers_blend;
-  if (!strcmp(ext,"GL_AMD_interleaved_elements")) return gl_amd_interleaved_elements;
-  if (!strcmp(ext,"GL_AMD_multi_draw_indirect")) return gl_amd_multi_draw_indirect;
-  if (!strcmp(ext,"GL_AMD_name_gen_delete")) return gl_amd_name_gen_delete;
-  if (!strcmp(ext,"GL_AMD_performance_monitor")) return gl_amd_performance_monitor;
-  if (!strcmp(ext,"GL_AMD_pinned_memory")) return gl_amd_pinned_memory;
-  if (!strcmp(ext,"GL_AMD_program_binary_Z400")) return gl_amd_program_binary_z400;
-  if (!strcmp(ext,"GL_AMD_query_buffer_object")) return gl_amd_query_buffer_object;
-  if (!strcmp(ext,"GL_AMD_sample_positions")) return gl_amd_sample_positions;
-  if (!strcmp(ext,"GL_AMD_seamless_cubemap_per_texture")) return gl_amd_seamless_cubemap_per_texture;
-  if (!strcmp(ext,"GL_AMD_sparse_texture")) return gl_amd_sparse_texture;
-  if (!strcmp(ext,"GL_AMD_stencil_operation_extended")) return gl_amd_stencil_operation_extended;
-  if (!strcmp(ext,"GL_AMD_vertex_shader_tessellator")) return gl_amd_vertex_shader_tessellator;
-  if (!strcmp(ext,"GL_ANGLE_framebuffer_blit")) return gl_angle_framebuffer_blit;
-  if (!strcmp(ext,"GL_ANGLE_framebuffer_multisample")) return gl_angle_framebuffer_multisample;
-  if (!strcmp(ext,"GL_ANGLE_instanced_arrays")) return gl_angle_instanced_arrays;
-  if (!strcmp(ext,"GL_ANGLE_pack_reverse_row_order")) return gl_angle_pack_reverse_row_order;
-  if (!strcmp(ext,"GL_ANGLE_program_binary")) return gl_angle_program_binary;
-  if (!strcmp(ext,"GL_ANGLE_texture_compression_dxt1")) return gl_angle_texture_compression_dxt1;
-  if (!strcmp(ext,"GL_ANGLE_texture_compression_dxt3")) return gl_angle_texture_compression_dxt3;
-  if (!strcmp(ext,"GL_ANGLE_texture_compression_dxt5")) return gl_angle_texture_compression_dxt5;
-  if (!strcmp(ext,"GL_ANGLE_texture_usage")) return gl_angle_texture_usage;
-  if (!strcmp(ext,"GL_ANGLE_timer_query")) return gl_angle_timer_query;
-  if (!strcmp(ext,"GL_ANGLE_translated_shader_source")) return gl_angle_translated_shader_source;
-  if (!strcmp(ext,"GL_APPLE_aux_depth_stencil")) return gl_apple_aux_depth_stencil;
-  if (!strcmp(ext,"GL_APPLE_client_storage")) return gl_apple_client_storage;
-  if (!strcmp(ext,"GL_APPLE_copy_texture_levels")) return gl_apple_copy_texture_levels;
-  if (!strcmp(ext,"GL_APPLE_element_array")) return gl_apple_element_array;
-  if (!strcmp(ext,"GL_APPLE_fence")) return gl_apple_fence;
-  if (!strcmp(ext,"GL_APPLE_float_pixels")) return gl_apple_float_pixels;
-  if (!strcmp(ext,"GL_APPLE_flush_buffer_range")) return gl_apple_flush_buffer_range;
-  if (!strcmp(ext,"GL_APPLE_flush_render")) return gl_apple_flush_render;
-  if (!strcmp(ext,"GL_APPLE_framebuffer_multisample")) return gl_apple_framebuffer_multisample;
-  if (!strcmp(ext,"GL_APPLE_object_purgeable")) return gl_apple_object_purgeable;
-  if (!strcmp(ext,"GL_APPLE_pixel_buffer")) return gl_apple_pixel_buffer;
-  if (!strcmp(ext,"GL_APPLE_rgb_422")) return gl_apple_rgb_422;
-  if (!strcmp(ext,"GL_APPLE_row_bytes")) return gl_apple_row_bytes;
-  if (!strcmp(ext,"GL_APPLE_specular_vector")) return gl_apple_specular_vector;
-  if (!strcmp(ext,"GL_APPLE_sync")) return gl_apple_sync;
-  if (!strcmp(ext,"GL_APPLE_texture_max_level")) return gl_apple_texture_max_level;
-  if (!strcmp(ext,"GL_APPLE_texture_range")) return gl_apple_texture_range;
-  if (!strcmp(ext,"GL_APPLE_transform_hint")) return gl_apple_transform_hint;
-  if (!strcmp(ext,"GL_APPLE_vertex_array_object")) return gl_apple_vertex_array_object;
-  if (!strcmp(ext,"GL_APPLE_vertex_array_range")) return gl_apple_vertex_array_range;
-  if (!strcmp(ext,"GL_APPLE_vertex_program_evaluators")) return gl_apple_vertex_program_evaluators;
-  if (!strcmp(ext,"GL_APPLE_ycbcr_422")) return gl_apple_ycbcr_422;
-  if (!strcmp(ext,"GL_ARB_ES2_compatibility")) return gl_arb_es2_compatibility;
-  if (!strcmp(ext,"GL_ARB_ES3_compatibility")) return gl_arb_es3_compatibility;
-  if (!strcmp(ext,"GL_ARB_base_instance")) return gl_arb_base_instance;
-  if (!strcmp(ext,"GL_ARB_bindless_texture")) return gl_arb_bindless_texture;
-  if (!strcmp(ext,"GL_ARB_blend_func_extended")) return gl_arb_blend_func_extended;
-  if (!strcmp(ext,"GL_ARB_buffer_storage")) return gl_arb_buffer_storage;
-  if (!strcmp(ext,"GL_ARB_cl_event")) return gl_arb_cl_event;
-  if (!strcmp(ext,"GL_ARB_clear_buffer_object")) return gl_arb_clear_buffer_object;
-  if (!strcmp(ext,"GL_ARB_clear_texture")) return gl_arb_clear_texture;
-  if (!strcmp(ext,"GL_ARB_color_buffer_float")) return gl_arb_color_buffer_float;
-  if (!strcmp(ext,"GL_ARB_compressed_texture_pixel_storage")) return gl_arb_compressed_texture_pixel_storage;
-  if (!strcmp(ext,"GL_ARB_compute_shader")) return gl_arb_compute_shader;
-  if (!strcmp(ext,"GL_ARB_compute_variable_group_size")) return gl_arb_compute_variable_group_size;
-  if (!strcmp(ext,"GL_ARB_copy_buffer")) return gl_arb_copy_buffer;
-  if (!strcmp(ext,"GL_ARB_copy_image")) return gl_arb_copy_image;
-  if (!strcmp(ext,"GL_ARB_debug_output")) return gl_arb_debug_output;
-  if (!strcmp(ext,"GL_ARB_depth_buffer_float")) return gl_arb_depth_buffer_float;
-  if (!strcmp(ext,"GL_ARB_depth_clamp")) return gl_arb_depth_clamp;
-  if (!strcmp(ext,"GL_ARB_depth_texture")) return gl_arb_depth_texture;
-  if (!strcmp(ext,"GL_ARB_draw_buffers")) return regal_arb_draw_buffers || gl_arb_draw_buffers;
-  if (!strcmp(ext,"GL_ARB_draw_buffers_blend")) return gl_arb_draw_buffers_blend;
-  if (!strcmp(ext,"GL_ARB_draw_elements_base_vertex")) return gl_arb_draw_elements_base_vertex;
-  if (!strcmp(ext,"GL_ARB_draw_indirect")) return gl_arb_draw_indirect;
-  if (!strcmp(ext,"GL_ARB_draw_instanced")) return gl_arb_draw_instanced;
-  if (!strcmp(ext,"GL_ARB_enhanced_layouts")) return gl_arb_enhanced_layouts;
-  if (!strcmp(ext,"GL_ARB_explicit_uniform_location")) return gl_arb_explicit_uniform_location;
-  if (!strcmp(ext,"GL_ARB_fragment_program")) return gl_arb_fragment_program;
-  if (!strcmp(ext,"GL_ARB_fragment_shader")) return gl_arb_fragment_shader;
-  if (!strcmp(ext,"GL_ARB_framebuffer_no_attachments")) return gl_arb_framebuffer_no_attachments;
-  if (!strcmp(ext,"GL_ARB_framebuffer_object")) return gl_arb_framebuffer_object;
-  if (!strcmp(ext,"GL_ARB_framebuffer_sRGB")) return gl_arb_framebuffer_srgb;
-  if (!strcmp(ext,"GL_ARB_geometry_shader4")) return gl_arb_geometry_shader4;
-  if (!strcmp(ext,"GL_ARB_get_program_binary")) return gl_arb_get_program_binary;
-  if (!strcmp(ext,"GL_ARB_gpu_shader5")) return gl_arb_gpu_shader5;
-  if (!strcmp(ext,"GL_ARB_gpu_shader_fp64")) return gl_arb_gpu_shader_fp64;
-  if (!strcmp(ext,"GL_ARB_half_float_pixel")) return gl_arb_half_float_pixel;
-  if (!strcmp(ext,"GL_ARB_half_float_vertex")) return gl_arb_half_float_vertex;
-  if (!strcmp(ext,"GL_ARB_imaging")) return gl_arb_imaging;
-  if (!strcmp(ext,"GL_ARB_indirect_parameters")) return gl_arb_indirect_parameters;
-  if (!strcmp(ext,"GL_ARB_instanced_arrays")) return gl_arb_instanced_arrays;
-  if (!strcmp(ext,"GL_ARB_internalformat_query")) return gl_arb_internalformat_query;
-  if (!strcmp(ext,"GL_ARB_internalformat_query2")) return gl_arb_internalformat_query2;
-  if (!strcmp(ext,"GL_ARB_invalidate_subdata")) return gl_arb_invalidate_subdata;
-  if (!strcmp(ext,"GL_ARB_map_buffer_alignment")) return gl_arb_map_buffer_alignment;
-  if (!strcmp(ext,"GL_ARB_map_buffer_range")) return gl_arb_map_buffer_range;
-  if (!strcmp(ext,"GL_ARB_matrix_palette")) return gl_arb_matrix_palette;
-  if (!strcmp(ext,"GL_ARB_multi_bind")) return gl_arb_multi_bind;
-  if (!strcmp(ext,"GL_ARB_multi_draw_indirect")) return gl_arb_multi_draw_indirect;
-  if (!strcmp(ext,"GL_ARB_multisample")) return gl_arb_multisample;
-  if (!strcmp(ext,"GL_ARB_multitexture")) return regal_arb_multitexture || gl_arb_multitexture;
-  if (!strcmp(ext,"GL_ARB_occlusion_query")) return gl_arb_occlusion_query;
-  if (!strcmp(ext,"GL_ARB_occlusion_query2")) return gl_arb_occlusion_query2;
-  if (!strcmp(ext,"GL_ARB_pixel_buffer_object")) return gl_arb_pixel_buffer_object;
-  if (!strcmp(ext,"GL_ARB_point_parameters")) return gl_arb_point_parameters;
-  if (!strcmp(ext,"GL_ARB_point_sprite")) return gl_arb_point_sprite;
-  if (!strcmp(ext,"GL_ARB_program_interface_query")) return gl_arb_program_interface_query;
-  if (!strcmp(ext,"GL_ARB_provoking_vertex")) return gl_arb_provoking_vertex;
-  if (!strcmp(ext,"GL_ARB_query_buffer_object")) return gl_arb_query_buffer_object;
-  if (!strcmp(ext,"GL_ARB_robustness")) return gl_arb_robustness;
-  if (!strcmp(ext,"GL_ARB_sample_shading")) return gl_arb_sample_shading;
-  if (!strcmp(ext,"GL_ARB_sampler_objects")) return gl_arb_sampler_objects;
-  if (!strcmp(ext,"GL_ARB_seamless_cube_map")) return gl_arb_seamless_cube_map;
-  if (!strcmp(ext,"GL_ARB_separate_shader_objects")) return gl_arb_separate_shader_objects;
-  if (!strcmp(ext,"GL_ARB_shader_atomic_counters")) return gl_arb_shader_atomic_counters;
-  if (!strcmp(ext,"GL_ARB_shader_image_load_store")) return gl_arb_shader_image_load_store;
-  if (!strcmp(ext,"GL_ARB_shader_objects")) return gl_arb_shader_objects;
-  if (!strcmp(ext,"GL_ARB_shader_storage_buffer_object")) return gl_arb_shader_storage_buffer_object;
-  if (!strcmp(ext,"GL_ARB_shader_subroutine")) return gl_arb_shader_subroutine;
-  if (!strcmp(ext,"GL_ARB_shading_language_100")) return gl_arb_shading_language_100;
-  if (!strcmp(ext,"GL_ARB_shading_language_include")) return gl_arb_shading_language_include;
-  if (!strcmp(ext,"GL_ARB_shadow")) return gl_arb_shadow;
-  if (!strcmp(ext,"GL_ARB_shadow_ambient")) return gl_arb_shadow_ambient;
-  if (!strcmp(ext,"GL_ARB_sparse_texture")) return gl_arb_sparse_texture;
-  if (!strcmp(ext,"GL_ARB_stencil_texturing")) return gl_arb_stencil_texturing;
-  if (!strcmp(ext,"GL_ARB_sync")) return gl_arb_sync;
-  if (!strcmp(ext,"GL_ARB_tessellation_shader")) return gl_arb_tessellation_shader;
-  if (!strcmp(ext,"GL_ARB_texture_border_clamp")) return gl_arb_texture_border_clamp;
-  if (!strcmp(ext,"GL_ARB_texture_buffer_object")) return gl_arb_texture_buffer_object;
-  if (!strcmp(ext,"GL_ARB_texture_buffer_range")) return gl_arb_texture_buffer_range;
-  if (!strcmp(ext,"GL_ARB_texture_compression")) return gl_arb_texture_compression;
-  if (!strcmp(ext,"GL_ARB_texture_compression_bptc")) return gl_arb_texture_compression_bptc;
-  if (!strcmp(ext,"GL_ARB_texture_compression_rgtc")) return gl_arb_texture_compression_rgtc;
-  if (!strcmp(ext,"GL_ARB_texture_cube_map")) return regal_arb_texture_cube_map || gl_arb_texture_cube_map;
-  if (!strcmp(ext,"GL_ARB_texture_cube_map_array")) return gl_arb_texture_cube_map_array;
-  if (!strcmp(ext,"GL_ARB_texture_env_combine")) return regal_arb_texture_env_combine || gl_arb_texture_env_combine;
-  if (!strcmp(ext,"GL_ARB_texture_env_dot3")) return regal_arb_texture_env_dot3 || gl_arb_texture_env_dot3;
-  if (!strcmp(ext,"GL_ARB_texture_float")) return gl_arb_texture_float;
-  if (!strcmp(ext,"GL_ARB_texture_gather")) return gl_arb_texture_gather;
-  if (!strcmp(ext,"GL_ARB_texture_mirror_clamp_to_edge")) return gl_arb_texture_mirror_clamp_to_edge;
-  if (!strcmp(ext,"GL_ARB_texture_mirrored_repeat")) return gl_arb_texture_mirrored_repeat;
-  if (!strcmp(ext,"GL_ARB_texture_multisample")) return gl_arb_texture_multisample;
-  if (!strcmp(ext,"GL_ARB_texture_rectangle")) return gl_arb_texture_rectangle;
-  if (!strcmp(ext,"GL_ARB_texture_rg")) return gl_arb_texture_rg;
-  if (!strcmp(ext,"GL_ARB_texture_rgb10_a2ui")) return gl_arb_texture_rgb10_a2ui;
-  if (!strcmp(ext,"GL_ARB_texture_storage")) return regal_arb_texture_storage || gl_arb_texture_storage;
-  if (!strcmp(ext,"GL_ARB_texture_storage_multisample")) return gl_arb_texture_storage_multisample;
-  if (!strcmp(ext,"GL_ARB_texture_swizzle")) return gl_arb_texture_swizzle;
-  if (!strcmp(ext,"GL_ARB_texture_view")) return gl_arb_texture_view;
-  if (!strcmp(ext,"GL_ARB_timer_query")) return gl_arb_timer_query;
-  if (!strcmp(ext,"GL_ARB_transform_feedback2")) return gl_arb_transform_feedback2;
-  if (!strcmp(ext,"GL_ARB_transform_feedback3")) return gl_arb_transform_feedback3;
-  if (!strcmp(ext,"GL_ARB_transform_feedback_instanced")) return gl_arb_transform_feedback_instanced;
-  if (!strcmp(ext,"GL_ARB_transpose_matrix")) return gl_arb_transpose_matrix;
-  if (!strcmp(ext,"GL_ARB_uniform_buffer_object")) return gl_arb_uniform_buffer_object;
-  if (!strcmp(ext,"GL_ARB_vertex_array_object")) return gl_arb_vertex_array_object;
-  if (!strcmp(ext,"GL_ARB_vertex_attrib_64bit")) return gl_arb_vertex_attrib_64bit;
-  if (!strcmp(ext,"GL_ARB_vertex_attrib_binding")) return gl_arb_vertex_attrib_binding;
-  if (!strcmp(ext,"GL_ARB_vertex_blend")) return gl_arb_vertex_blend;
-  if (!strcmp(ext,"GL_ARB_vertex_buffer_object")) return gl_arb_vertex_buffer_object;
-  if (!strcmp(ext,"GL_ARB_vertex_program")) return gl_arb_vertex_program;
-  if (!strcmp(ext,"GL_ARB_vertex_shader")) return gl_arb_vertex_shader;
-  if (!strcmp(ext,"GL_ARB_vertex_type_2_10_10_10_rev")) return gl_arb_vertex_type_2_10_10_10_rev;
-  if (!strcmp(ext,"GL_ARB_viewport_array")) return gl_arb_viewport_array;
-  if (!strcmp(ext,"GL_ARB_window_pos")) return gl_arb_window_pos;
-  if (!strcmp(ext,"GL_ARM_mali_program_binary")) return gl_arm_mali_program_binary;
-  if (!strcmp(ext,"GL_ARM_mali_shader_binary")) return gl_arm_mali_shader_binary;
-  if (!strcmp(ext,"GL_ATI_draw_buffers")) return regal_ati_draw_buffers || gl_ati_draw_buffers;
-  if (!strcmp(ext,"GL_ATI_element_array")) return gl_ati_element_array;
-  if (!strcmp(ext,"GL_ATI_envmap_bumpmap")) return gl_ati_envmap_bumpmap;
-  if (!strcmp(ext,"GL_ATI_fragment_shader")) return gl_ati_fragment_shader;
-  if (!strcmp(ext,"GL_ATI_map_object_buffer")) return gl_ati_map_object_buffer;
-  if (!strcmp(ext,"GL_ATI_meminfo")) return gl_ati_meminfo;
-  if (!strcmp(ext,"GL_ATI_pn_triangles")) return gl_ati_pn_triangles;
-  if (!strcmp(ext,"GL_ATI_separate_stencil")) return gl_ati_separate_stencil;
-  if (!strcmp(ext,"GL_ATI_text_fragment_shader")) return gl_ati_text_fragment_shader;
-  if (!strcmp(ext,"GL_ATI_texture_compression_3dc")) return gl_ati_texture_compression_3dc;
-  if (!strcmp(ext,"GL_ATI_texture_env_combine3")) return gl_ati_texture_env_combine3;
-  if (!strcmp(ext,"GL_ATI_texture_float")) return gl_ati_texture_float;
-  if (!strcmp(ext,"GL_ATI_texture_mirror_once")) return gl_ati_texture_mirror_once;
-  if (!strcmp(ext,"GL_ATI_vertex_array_object")) return gl_ati_vertex_array_object;
-  if (!strcmp(ext,"GL_ATI_vertex_attrib_array_object")) return gl_ati_vertex_attrib_array_object;
-  if (!strcmp(ext,"GL_ATI_vertex_streams")) return gl_ati_vertex_streams;
-  if (!strcmp(ext,"GL_DMP_shader_binary")) return gl_dmp_shader_binary;
-  if (!strcmp(ext,"GL_EXT_422_pixels")) return gl_ext_422_pixels;
-  if (!strcmp(ext,"GL_EXT_Cg_shader")) return gl_ext_cg_shader;
-  if (!strcmp(ext,"GL_EXT_abgr")) return gl_ext_abgr;
-  if (!strcmp(ext,"GL_EXT_bgra")) return gl_ext_bgra;
-  if (!strcmp(ext,"GL_EXT_bindable_uniform")) return gl_ext_bindable_uniform;
-  if (!strcmp(ext,"GL_EXT_blend_color")) return regal_ext_blend_color || gl_ext_blend_color;
-  if (!strcmp(ext,"GL_EXT_blend_equation_separate")) return gl_ext_blend_equation_separate;
-  if (!strcmp(ext,"GL_EXT_blend_func_separate")) return gl_ext_blend_func_separate;
-  if (!strcmp(ext,"GL_EXT_blend_minmax")) return gl_ext_blend_minmax;
-  if (!strcmp(ext,"GL_EXT_blend_subtract")) return regal_ext_blend_subtract || gl_ext_blend_subtract;
-  if (!strcmp(ext,"GL_EXT_clip_volume_hint")) return gl_ext_clip_volume_hint;
-  if (!strcmp(ext,"GL_EXT_cmyka")) return gl_ext_cmyka;
-  if (!strcmp(ext,"GL_EXT_color_buffer_half_float")) return gl_ext_color_buffer_half_float;
-  if (!strcmp(ext,"GL_EXT_color_subtable")) return gl_ext_color_subtable;
-  if (!strcmp(ext,"GL_EXT_compiled_vertex_array")) return gl_ext_compiled_vertex_array;
-  if (!strcmp(ext,"GL_EXT_convolution")) return gl_ext_convolution;
-  if (!strcmp(ext,"GL_EXT_coordinate_frame")) return gl_ext_coordinate_frame;
-  if (!strcmp(ext,"GL_EXT_copy_texture")) return gl_ext_copy_texture;
-  if (!strcmp(ext,"GL_EXT_cull_vertex")) return gl_ext_cull_vertex;
-  if (!strcmp(ext,"GL_EXT_debug_label")) return gl_ext_debug_label;
-  if (!strcmp(ext,"GL_EXT_debug_marker")) return true;
-  if (!strcmp(ext,"GL_EXT_depth_bounds_test")) return gl_ext_depth_bounds_test;
-  if (!strcmp(ext,"GL_EXT_direct_state_access")) return regal_ext_direct_state_access || gl_ext_direct_state_access;
-  if (!strcmp(ext,"GL_EXT_discard_framebuffer")) return gl_ext_discard_framebuffer;
-  if (!strcmp(ext,"GL_EXT_disjoint_timer_query")) return gl_ext_disjoint_timer_query;
-  if (!strcmp(ext,"GL_EXT_draw_buffers2")) return gl_ext_draw_buffers2;
-  if (!strcmp(ext,"GL_EXT_draw_instanced")) return gl_ext_draw_instanced;
-  if (!strcmp(ext,"GL_EXT_draw_range_elements")) return gl_ext_draw_range_elements;
-  if (!strcmp(ext,"GL_EXT_fog_coord")) return gl_ext_fog_coord;
-  if (!strcmp(ext,"GL_EXT_fragment_lighting")) return gl_ext_fragment_lighting;
-  if (!strcmp(ext,"GL_EXT_framebuffer_blit")) return regal_ext_framebuffer_blit || gl_ext_framebuffer_blit;
-  if (!strcmp(ext,"GL_EXT_framebuffer_multisample")) return gl_ext_framebuffer_multisample;
+  if (!strcmp(ext,"GL_3DFX_multisample"))                      return gl_3dfx_multisample;
+  if (!strcmp(ext,"GL_3DFX_tbuffer"))                          return gl_3dfx_tbuffer;
+  if (!strcmp(ext,"GL_3DFX_texture_compression_FXT1"))         return gl_3dfx_texture_compression_fxt1;
+  if (!strcmp(ext,"GL_AMD_blend_minmax_factor"))               return gl_amd_blend_minmax_factor;
+  if (!strcmp(ext,"GL_AMD_compressed_3DC_texture"))            return gl_amd_compressed_3dc_texture;
+  if (!strcmp(ext,"GL_AMD_compressed_ATC_texture"))            return gl_amd_compressed_atc_texture;
+  if (!strcmp(ext,"GL_AMD_debug_output"))                      return gl_amd_debug_output;
+  if (!strcmp(ext,"GL_AMD_depth_clamp_separate"))              return gl_amd_depth_clamp_separate;
+  if (!strcmp(ext,"GL_AMD_draw_buffers_blend"))                return gl_amd_draw_buffers_blend;
+  if (!strcmp(ext,"GL_AMD_interleaved_elements"))              return gl_amd_interleaved_elements;
+  if (!strcmp(ext,"GL_AMD_multi_draw_indirect"))               return gl_amd_multi_draw_indirect;
+  if (!strcmp(ext,"GL_AMD_name_gen_delete"))                   return gl_amd_name_gen_delete;
+  if (!strcmp(ext,"GL_AMD_performance_monitor"))               return gl_amd_performance_monitor;
+  if (!strcmp(ext,"GL_AMD_pinned_memory"))                     return gl_amd_pinned_memory;
+  if (!strcmp(ext,"GL_AMD_program_binary_Z400"))               return gl_amd_program_binary_z400;
+  if (!strcmp(ext,"GL_AMD_query_buffer_object"))               return gl_amd_query_buffer_object;
+  if (!strcmp(ext,"GL_AMD_sample_positions"))                  return gl_amd_sample_positions;
+  if (!strcmp(ext,"GL_AMD_seamless_cubemap_per_texture"))      return gl_amd_seamless_cubemap_per_texture;
+  if (!strcmp(ext,"GL_AMD_sparse_texture"))                    return gl_amd_sparse_texture;
+  if (!strcmp(ext,"GL_AMD_stencil_operation_extended"))        return gl_amd_stencil_operation_extended;
+  if (!strcmp(ext,"GL_AMD_vertex_shader_tessellator"))         return gl_amd_vertex_shader_tessellator;
+  if (!strcmp(ext,"GL_ANGLE_framebuffer_blit"))                return gl_angle_framebuffer_blit;
+  if (!strcmp(ext,"GL_ANGLE_framebuffer_multisample"))         return gl_angle_framebuffer_multisample;
+  if (!strcmp(ext,"GL_ANGLE_instanced_arrays"))                return gl_angle_instanced_arrays;
+  if (!strcmp(ext,"GL_ANGLE_pack_reverse_row_order"))          return gl_angle_pack_reverse_row_order;
+  if (!strcmp(ext,"GL_ANGLE_program_binary"))                  return gl_angle_program_binary;
+  if (!strcmp(ext,"GL_ANGLE_texture_compression_dxt1"))        return gl_angle_texture_compression_dxt1;
+  if (!strcmp(ext,"GL_ANGLE_texture_compression_dxt3"))        return gl_angle_texture_compression_dxt3;
+  if (!strcmp(ext,"GL_ANGLE_texture_compression_dxt5"))        return gl_angle_texture_compression_dxt5;
+  if (!strcmp(ext,"GL_ANGLE_texture_usage"))                   return gl_angle_texture_usage;
+  if (!strcmp(ext,"GL_ANGLE_timer_query"))                     return gl_angle_timer_query;
+  if (!strcmp(ext,"GL_ANGLE_translated_shader_source"))        return gl_angle_translated_shader_source;
+  if (!strcmp(ext,"GL_APPLE_aux_depth_stencil"))               return gl_apple_aux_depth_stencil;
+  if (!strcmp(ext,"GL_APPLE_client_storage"))                  return gl_apple_client_storage;
+  if (!strcmp(ext,"GL_APPLE_copy_texture_levels"))             return gl_apple_copy_texture_levels;
+  if (!strcmp(ext,"GL_APPLE_element_array"))                   return gl_apple_element_array;
+  if (!strcmp(ext,"GL_APPLE_fence"))                           return gl_apple_fence;
+  if (!strcmp(ext,"GL_APPLE_float_pixels"))                    return gl_apple_float_pixels;
+  if (!strcmp(ext,"GL_APPLE_flush_buffer_range"))              return gl_apple_flush_buffer_range;
+  if (!strcmp(ext,"GL_APPLE_flush_render"))                    return gl_apple_flush_render;
+  if (!strcmp(ext,"GL_APPLE_framebuffer_multisample"))         return gl_apple_framebuffer_multisample;
+  if (!strcmp(ext,"GL_APPLE_object_purgeable"))                return gl_apple_object_purgeable;
+  if (!strcmp(ext,"GL_APPLE_pixel_buffer"))                    return gl_apple_pixel_buffer;
+  if (!strcmp(ext,"GL_APPLE_rgb_422"))                         return gl_apple_rgb_422;
+  if (!strcmp(ext,"GL_APPLE_row_bytes"))                       return gl_apple_row_bytes;
+  if (!strcmp(ext,"GL_APPLE_specular_vector"))                 return gl_apple_specular_vector;
+  if (!strcmp(ext,"GL_APPLE_sync"))                            return gl_apple_sync;
+  if (!strcmp(ext,"GL_APPLE_texture_max_level"))               return gl_apple_texture_max_level;
+  if (!strcmp(ext,"GL_APPLE_texture_range"))                   return gl_apple_texture_range;
+  if (!strcmp(ext,"GL_APPLE_transform_hint"))                  return gl_apple_transform_hint;
+  if (!strcmp(ext,"GL_APPLE_vertex_array_object"))             return gl_apple_vertex_array_object;
+  if (!strcmp(ext,"GL_APPLE_vertex_array_range"))              return gl_apple_vertex_array_range;
+  if (!strcmp(ext,"GL_APPLE_vertex_program_evaluators"))       return gl_apple_vertex_program_evaluators;
+  if (!strcmp(ext,"GL_APPLE_ycbcr_422"))                       return gl_apple_ycbcr_422;
+  if (!strcmp(ext,"GL_ARB_ES2_compatibility"))                 return gl_arb_es2_compatibility;
+  if (!strcmp(ext,"GL_ARB_ES3_compatibility"))                 return gl_arb_es3_compatibility;
+  if (!strcmp(ext,"GL_ARB_base_instance"))                     return gl_arb_base_instance;
+  if (!strcmp(ext,"GL_ARB_bindless_texture"))                  return gl_arb_bindless_texture;
+  if (!strcmp(ext,"GL_ARB_blend_func_extended"))               return gl_arb_blend_func_extended;
+  if (!strcmp(ext,"GL_ARB_buffer_storage"))                    return gl_arb_buffer_storage;
+  if (!strcmp(ext,"GL_ARB_cl_event"))                          return gl_arb_cl_event;
+  if (!strcmp(ext,"GL_ARB_clear_buffer_object"))               return gl_arb_clear_buffer_object;
+  if (!strcmp(ext,"GL_ARB_clear_texture"))                     return gl_arb_clear_texture;
+  if (!strcmp(ext,"GL_ARB_color_buffer_float"))                return gl_arb_color_buffer_float;
+  if (!strcmp(ext,"GL_ARB_compressed_texture_pixel_storage"))  return gl_arb_compressed_texture_pixel_storage;
+  if (!strcmp(ext,"GL_ARB_compute_shader"))                    return gl_arb_compute_shader;
+  if (!strcmp(ext,"GL_ARB_compute_variable_group_size"))       return gl_arb_compute_variable_group_size;
+  if (!strcmp(ext,"GL_ARB_copy_buffer"))                       return gl_arb_copy_buffer;
+  if (!strcmp(ext,"GL_ARB_copy_image"))                        return gl_arb_copy_image;
+  if (!strcmp(ext,"GL_ARB_debug_output"))                      return gl_arb_debug_output;
+  if (!strcmp(ext,"GL_ARB_depth_buffer_float"))                return gl_arb_depth_buffer_float;
+  if (!strcmp(ext,"GL_ARB_depth_clamp"))                       return gl_arb_depth_clamp;
+  if (!strcmp(ext,"GL_ARB_depth_texture"))                     return gl_arb_depth_texture;
+  if (!strcmp(ext,"GL_ARB_draw_buffers"))                      return gl_arb_draw_buffers;
+  if (!strcmp(ext,"GL_ARB_draw_buffers_blend"))                return gl_arb_draw_buffers_blend;
+  if (!strcmp(ext,"GL_ARB_draw_elements_base_vertex"))         return gl_arb_draw_elements_base_vertex;
+  if (!strcmp(ext,"GL_ARB_draw_indirect"))                     return gl_arb_draw_indirect;
+  if (!strcmp(ext,"GL_ARB_draw_instanced"))                    return gl_arb_draw_instanced;
+  if (!strcmp(ext,"GL_ARB_enhanced_layouts"))                  return gl_arb_enhanced_layouts;
+  if (!strcmp(ext,"GL_ARB_explicit_uniform_location"))         return gl_arb_explicit_uniform_location;
+  if (!strcmp(ext,"GL_ARB_fragment_program"))                  return gl_arb_fragment_program;
+  if (!strcmp(ext,"GL_ARB_fragment_shader"))                   return gl_arb_fragment_shader;
+  if (!strcmp(ext,"GL_ARB_framebuffer_no_attachments"))        return gl_arb_framebuffer_no_attachments;
+  if (!strcmp(ext,"GL_ARB_framebuffer_object"))                return gl_arb_framebuffer_object;
+  if (!strcmp(ext,"GL_ARB_framebuffer_sRGB"))                  return gl_arb_framebuffer_srgb;
+  if (!strcmp(ext,"GL_ARB_geometry_shader4"))                  return gl_arb_geometry_shader4;
+  if (!strcmp(ext,"GL_ARB_get_program_binary"))                return gl_arb_get_program_binary;
+  if (!strcmp(ext,"GL_ARB_gpu_shader5"))                       return gl_arb_gpu_shader5;
+  if (!strcmp(ext,"GL_ARB_gpu_shader_fp64"))                   return gl_arb_gpu_shader_fp64;
+  if (!strcmp(ext,"GL_ARB_half_float_pixel"))                  return gl_arb_half_float_pixel;
+  if (!strcmp(ext,"GL_ARB_half_float_vertex"))                 return gl_arb_half_float_vertex;
+  if (!strcmp(ext,"GL_ARB_imaging"))                           return gl_arb_imaging;
+  if (!strcmp(ext,"GL_ARB_indirect_parameters"))               return gl_arb_indirect_parameters;
+  if (!strcmp(ext,"GL_ARB_instanced_arrays"))                  return gl_arb_instanced_arrays;
+  if (!strcmp(ext,"GL_ARB_internalformat_query"))              return gl_arb_internalformat_query;
+  if (!strcmp(ext,"GL_ARB_internalformat_query2"))             return gl_arb_internalformat_query2;
+  if (!strcmp(ext,"GL_ARB_invalidate_subdata"))                return gl_arb_invalidate_subdata;
+  if (!strcmp(ext,"GL_ARB_map_buffer_alignment"))              return gl_arb_map_buffer_alignment;
+  if (!strcmp(ext,"GL_ARB_map_buffer_range"))                  return gl_arb_map_buffer_range;
+  if (!strcmp(ext,"GL_ARB_matrix_palette"))                    return gl_arb_matrix_palette;
+  if (!strcmp(ext,"GL_ARB_multi_bind"))                        return gl_arb_multi_bind;
+  if (!strcmp(ext,"GL_ARB_multi_draw_indirect"))               return gl_arb_multi_draw_indirect;
+  if (!strcmp(ext,"GL_ARB_multisample"))                       return gl_arb_multisample;
+  if (!strcmp(ext,"GL_ARB_multitexture"))                      return gl_arb_multitexture;
+  if (!strcmp(ext,"GL_ARB_occlusion_query"))                   return gl_arb_occlusion_query;
+  if (!strcmp(ext,"GL_ARB_occlusion_query2"))                  return gl_arb_occlusion_query2;
+  if (!strcmp(ext,"GL_ARB_pixel_buffer_object"))               return gl_arb_pixel_buffer_object;
+  if (!strcmp(ext,"GL_ARB_point_parameters"))                  return gl_arb_point_parameters;
+  if (!strcmp(ext,"GL_ARB_point_sprite"))                      return gl_arb_point_sprite;
+  if (!strcmp(ext,"GL_ARB_program_interface_query"))           return gl_arb_program_interface_query;
+  if (!strcmp(ext,"GL_ARB_provoking_vertex"))                  return gl_arb_provoking_vertex;
+  if (!strcmp(ext,"GL_ARB_query_buffer_object"))               return gl_arb_query_buffer_object;
+  if (!strcmp(ext,"GL_ARB_robustness"))                        return gl_arb_robustness;
+  if (!strcmp(ext,"GL_ARB_sample_shading"))                    return gl_arb_sample_shading;
+  if (!strcmp(ext,"GL_ARB_sampler_objects"))                   return gl_arb_sampler_objects;
+  if (!strcmp(ext,"GL_ARB_seamless_cube_map"))                 return gl_arb_seamless_cube_map;
+  if (!strcmp(ext,"GL_ARB_separate_shader_objects"))           return gl_arb_separate_shader_objects;
+  if (!strcmp(ext,"GL_ARB_shader_atomic_counters"))            return gl_arb_shader_atomic_counters;
+  if (!strcmp(ext,"GL_ARB_shader_image_load_store"))           return gl_arb_shader_image_load_store;
+  if (!strcmp(ext,"GL_ARB_shader_objects"))                    return gl_arb_shader_objects;
+  if (!strcmp(ext,"GL_ARB_shader_storage_buffer_object"))      return gl_arb_shader_storage_buffer_object;
+  if (!strcmp(ext,"GL_ARB_shader_subroutine"))                 return gl_arb_shader_subroutine;
+  if (!strcmp(ext,"GL_ARB_shading_language_100"))              return gl_arb_shading_language_100;
+  if (!strcmp(ext,"GL_ARB_shading_language_include"))          return gl_arb_shading_language_include;
+  if (!strcmp(ext,"GL_ARB_shadow"))                            return gl_arb_shadow;
+  if (!strcmp(ext,"GL_ARB_shadow_ambient"))                    return gl_arb_shadow_ambient;
+  if (!strcmp(ext,"GL_ARB_sparse_texture"))                    return gl_arb_sparse_texture;
+  if (!strcmp(ext,"GL_ARB_stencil_texturing"))                 return gl_arb_stencil_texturing;
+  if (!strcmp(ext,"GL_ARB_sync"))                              return gl_arb_sync;
+  if (!strcmp(ext,"GL_ARB_tessellation_shader"))               return gl_arb_tessellation_shader;
+  if (!strcmp(ext,"GL_ARB_texture_border_clamp"))              return gl_arb_texture_border_clamp;
+  if (!strcmp(ext,"GL_ARB_texture_buffer_object"))             return gl_arb_texture_buffer_object;
+  if (!strcmp(ext,"GL_ARB_texture_buffer_range"))              return gl_arb_texture_buffer_range;
+  if (!strcmp(ext,"GL_ARB_texture_compression"))               return gl_arb_texture_compression;
+  if (!strcmp(ext,"GL_ARB_texture_compression_bptc"))          return gl_arb_texture_compression_bptc;
+  if (!strcmp(ext,"GL_ARB_texture_compression_rgtc"))          return gl_arb_texture_compression_rgtc;
+  if (!strcmp(ext,"GL_ARB_texture_cube_map"))                  return gl_arb_texture_cube_map;
+  if (!strcmp(ext,"GL_ARB_texture_cube_map_array"))            return gl_arb_texture_cube_map_array;
+  if (!strcmp(ext,"GL_ARB_texture_env_combine"))               return gl_arb_texture_env_combine;
+  if (!strcmp(ext,"GL_ARB_texture_env_dot3"))                  return gl_arb_texture_env_dot3;
+  if (!strcmp(ext,"GL_ARB_texture_float"))                     return gl_arb_texture_float;
+  if (!strcmp(ext,"GL_ARB_texture_gather"))                    return gl_arb_texture_gather;
+  if (!strcmp(ext,"GL_ARB_texture_mirror_clamp_to_edge"))      return gl_arb_texture_mirror_clamp_to_edge;
+  if (!strcmp(ext,"GL_ARB_texture_mirrored_repeat"))           return gl_arb_texture_mirrored_repeat;
+  if (!strcmp(ext,"GL_ARB_texture_multisample"))               return gl_arb_texture_multisample;
+  if (!strcmp(ext,"GL_ARB_texture_rectangle"))                 return gl_arb_texture_rectangle;
+  if (!strcmp(ext,"GL_ARB_texture_rg"))                        return gl_arb_texture_rg;
+  if (!strcmp(ext,"GL_ARB_texture_rgb10_a2ui"))                return gl_arb_texture_rgb10_a2ui;
+  if (!strcmp(ext,"GL_ARB_texture_storage"))                   return gl_arb_texture_storage;
+  if (!strcmp(ext,"GL_ARB_texture_storage_multisample"))       return gl_arb_texture_storage_multisample;
+  if (!strcmp(ext,"GL_ARB_texture_swizzle"))                   return gl_arb_texture_swizzle;
+  if (!strcmp(ext,"GL_ARB_texture_view"))                      return gl_arb_texture_view;
+  if (!strcmp(ext,"GL_ARB_timer_query"))                       return gl_arb_timer_query;
+  if (!strcmp(ext,"GL_ARB_transform_feedback2"))               return gl_arb_transform_feedback2;
+  if (!strcmp(ext,"GL_ARB_transform_feedback3"))               return gl_arb_transform_feedback3;
+  if (!strcmp(ext,"GL_ARB_transform_feedback_instanced"))      return gl_arb_transform_feedback_instanced;
+  if (!strcmp(ext,"GL_ARB_transpose_matrix"))                  return gl_arb_transpose_matrix;
+  if (!strcmp(ext,"GL_ARB_uniform_buffer_object"))             return gl_arb_uniform_buffer_object;
+  if (!strcmp(ext,"GL_ARB_vertex_array_object"))               return gl_arb_vertex_array_object;
+  if (!strcmp(ext,"GL_ARB_vertex_attrib_64bit"))               return gl_arb_vertex_attrib_64bit;
+  if (!strcmp(ext,"GL_ARB_vertex_attrib_binding"))             return gl_arb_vertex_attrib_binding;
+  if (!strcmp(ext,"GL_ARB_vertex_blend"))                      return gl_arb_vertex_blend;
+  if (!strcmp(ext,"GL_ARB_vertex_buffer_object"))              return gl_arb_vertex_buffer_object;
+  if (!strcmp(ext,"GL_ARB_vertex_program"))                    return gl_arb_vertex_program;
+  if (!strcmp(ext,"GL_ARB_vertex_shader"))                     return gl_arb_vertex_shader;
+  if (!strcmp(ext,"GL_ARB_vertex_type_2_10_10_10_rev"))        return gl_arb_vertex_type_2_10_10_10_rev;
+  if (!strcmp(ext,"GL_ARB_viewport_array"))                    return gl_arb_viewport_array;
+  if (!strcmp(ext,"GL_ARB_window_pos"))                        return gl_arb_window_pos;
+  if (!strcmp(ext,"GL_ARM_mali_program_binary"))               return gl_arm_mali_program_binary;
+  if (!strcmp(ext,"GL_ARM_mali_shader_binary"))                return gl_arm_mali_shader_binary;
+  if (!strcmp(ext,"GL_ATI_draw_buffers"))                      return gl_ati_draw_buffers;
+  if (!strcmp(ext,"GL_ATI_element_array"))                     return gl_ati_element_array;
+  if (!strcmp(ext,"GL_ATI_envmap_bumpmap"))                    return gl_ati_envmap_bumpmap;
+  if (!strcmp(ext,"GL_ATI_fragment_shader"))                   return gl_ati_fragment_shader;
+  if (!strcmp(ext,"GL_ATI_map_object_buffer"))                 return gl_ati_map_object_buffer;
+  if (!strcmp(ext,"GL_ATI_meminfo"))                           return gl_ati_meminfo;
+  if (!strcmp(ext,"GL_ATI_pn_triangles"))                      return gl_ati_pn_triangles;
+  if (!strcmp(ext,"GL_ATI_separate_stencil"))                  return gl_ati_separate_stencil;
+  if (!strcmp(ext,"GL_ATI_text_fragment_shader"))              return gl_ati_text_fragment_shader;
+  if (!strcmp(ext,"GL_ATI_texture_compression_3dc"))           return gl_ati_texture_compression_3dc;
+  if (!strcmp(ext,"GL_ATI_texture_env_combine3"))              return gl_ati_texture_env_combine3;
+  if (!strcmp(ext,"GL_ATI_texture_float"))                     return gl_ati_texture_float;
+  if (!strcmp(ext,"GL_ATI_texture_mirror_once"))               return gl_ati_texture_mirror_once;
+  if (!strcmp(ext,"GL_ATI_vertex_array_object"))               return gl_ati_vertex_array_object;
+  if (!strcmp(ext,"GL_ATI_vertex_attrib_array_object"))        return gl_ati_vertex_attrib_array_object;
+  if (!strcmp(ext,"GL_ATI_vertex_streams"))                    return gl_ati_vertex_streams;
+  if (!strcmp(ext,"GL_DMP_shader_binary"))                     return gl_dmp_shader_binary;
+  if (!strcmp(ext,"GL_EXT_422_pixels"))                        return gl_ext_422_pixels;
+  if (!strcmp(ext,"GL_EXT_Cg_shader"))                         return gl_ext_cg_shader;
+  if (!strcmp(ext,"GL_EXT_abgr"))                              return gl_ext_abgr;
+  if (!strcmp(ext,"GL_EXT_bgra"))                              return gl_ext_bgra;
+  if (!strcmp(ext,"GL_EXT_bindable_uniform"))                  return gl_ext_bindable_uniform;
+  if (!strcmp(ext,"GL_EXT_blend_color"))                       return gl_ext_blend_color;
+  if (!strcmp(ext,"GL_EXT_blend_equation_separate"))           return gl_ext_blend_equation_separate;
+  if (!strcmp(ext,"GL_EXT_blend_func_separate"))               return gl_ext_blend_func_separate;
+  if (!strcmp(ext,"GL_EXT_blend_minmax"))                      return gl_ext_blend_minmax;
+  if (!strcmp(ext,"GL_EXT_blend_subtract"))                    return gl_ext_blend_subtract;
+  if (!strcmp(ext,"GL_EXT_clip_volume_hint"))                  return gl_ext_clip_volume_hint;
+  if (!strcmp(ext,"GL_EXT_cmyka"))                             return gl_ext_cmyka;
+  if (!strcmp(ext,"GL_EXT_color_buffer_half_float"))           return gl_ext_color_buffer_half_float;
+  if (!strcmp(ext,"GL_EXT_color_subtable"))                    return gl_ext_color_subtable;
+  if (!strcmp(ext,"GL_EXT_compiled_vertex_array"))             return gl_ext_compiled_vertex_array;
+  if (!strcmp(ext,"GL_EXT_convolution"))                       return gl_ext_convolution;
+  if (!strcmp(ext,"GL_EXT_coordinate_frame"))                  return gl_ext_coordinate_frame;
+  if (!strcmp(ext,"GL_EXT_copy_texture"))                      return gl_ext_copy_texture;
+  if (!strcmp(ext,"GL_EXT_cull_vertex"))                       return gl_ext_cull_vertex;
+  if (!strcmp(ext,"GL_EXT_debug_label"))                       return gl_ext_debug_label;
+  if (!strcmp(ext,"GL_EXT_debug_marker"))                      return gl_ext_debug_marker;
+  if (!strcmp(ext,"GL_EXT_depth_bounds_test"))                 return gl_ext_depth_bounds_test;
+  if (!strcmp(ext,"GL_EXT_direct_state_access"))               return gl_ext_direct_state_access;
+  if (!strcmp(ext,"GL_EXT_discard_framebuffer"))               return gl_ext_discard_framebuffer;
+  if (!strcmp(ext,"GL_EXT_disjoint_timer_query"))              return gl_ext_disjoint_timer_query;
+  if (!strcmp(ext,"GL_EXT_draw_buffers2"))                     return gl_ext_draw_buffers2;
+  if (!strcmp(ext,"GL_EXT_draw_instanced"))                    return gl_ext_draw_instanced;
+  if (!strcmp(ext,"GL_EXT_draw_range_elements"))               return gl_ext_draw_range_elements;
+  if (!strcmp(ext,"GL_EXT_fog_coord"))                         return gl_ext_fog_coord;
+  if (!strcmp(ext,"GL_EXT_fragment_lighting"))                 return gl_ext_fragment_lighting;
+  if (!strcmp(ext,"GL_EXT_framebuffer_blit"))                  return gl_ext_framebuffer_blit;
+  if (!strcmp(ext,"GL_EXT_framebuffer_multisample"))           return gl_ext_framebuffer_multisample;
   if (!strcmp(ext,"GL_EXT_framebuffer_multisample_blit_scaled")) return gl_ext_framebuffer_multisample_blit_scaled;
-  if (!strcmp(ext,"GL_EXT_framebuffer_object")) return regal_ext_framebuffer_object || gl_ext_framebuffer_object;
-  if (!strcmp(ext,"GL_EXT_framebuffer_sRGB")) return gl_ext_framebuffer_srgb;
-  if (!strcmp(ext,"GL_EXT_geometry_shader4")) return gl_ext_geometry_shader4;
-  if (!strcmp(ext,"GL_EXT_gpu_program_parameters")) return gl_ext_gpu_program_parameters;
-  if (!strcmp(ext,"GL_EXT_gpu_shader4")) return gl_ext_gpu_shader4;
-  if (!strcmp(ext,"GL_EXT_histogram")) return gl_ext_histogram;
-  if (!strcmp(ext,"GL_EXT_index_func")) return gl_ext_index_func;
-  if (!strcmp(ext,"GL_EXT_index_material")) return gl_ext_index_material;
-  if (!strcmp(ext,"GL_EXT_light_texture")) return gl_ext_light_texture;
-  if (!strcmp(ext,"GL_EXT_map_buffer_range")) return gl_ext_map_buffer_range;
-  if (!strcmp(ext,"GL_EXT_multi_draw_arrays")) return gl_ext_multi_draw_arrays;
-  if (!strcmp(ext,"GL_EXT_multisample")) return gl_ext_multisample;
-  if (!strcmp(ext,"GL_EXT_multisampled_render_to_texture")) return gl_ext_multisampled_render_to_texture;
-  if (!strcmp(ext,"GL_EXT_multiview_draw_buffers")) return gl_ext_multiview_draw_buffers;
-  if (!strcmp(ext,"GL_EXT_occlusion_query_boolean")) return gl_ext_occlusion_query_boolean;
-  if (!strcmp(ext,"GL_EXT_packed_depth_stencil")) return gl_ext_packed_depth_stencil;
-  if (!strcmp(ext,"GL_EXT_packed_float")) return gl_ext_packed_float;
-  if (!strcmp(ext,"GL_EXT_packed_pixels")) return gl_ext_packed_pixels;
-  if (!strcmp(ext,"GL_EXT_paletted_texture")) return gl_ext_paletted_texture;
-  if (!strcmp(ext,"GL_EXT_pixel_buffer_object")) return gl_ext_pixel_buffer_object;
-  if (!strcmp(ext,"GL_EXT_pixel_transform")) return gl_ext_pixel_transform;
-  if (!strcmp(ext,"GL_EXT_point_parameters")) return gl_ext_point_parameters;
-  if (!strcmp(ext,"GL_EXT_polygon_offset")) return gl_ext_polygon_offset;
-  if (!strcmp(ext,"GL_EXT_provoking_vertex")) return gl_ext_provoking_vertex;
-  if (!strcmp(ext,"GL_EXT_read_format_bgra")) return gl_ext_read_format_bgra;
-  if (!strcmp(ext,"GL_EXT_rescale_normal")) return gl_ext_rescale_normal;
-  if (!strcmp(ext,"GL_EXT_robustness")) return gl_ext_robustness;
-  if (!strcmp(ext,"GL_EXT_sRGB")) return gl_ext_srgb;
-  if (!strcmp(ext,"GL_EXT_scene_marker")) return gl_ext_scene_marker;
-  if (!strcmp(ext,"GL_EXT_secondary_color")) return gl_ext_secondary_color;
-  if (!strcmp(ext,"GL_EXT_separate_shader_objects")) return gl_ext_separate_shader_objects;
-  if (!strcmp(ext,"GL_EXT_separate_specular_color")) return gl_ext_separate_specular_color;
-  if (!strcmp(ext,"GL_EXT_shader_framebuffer_fetch")) return gl_ext_shader_framebuffer_fetch;
-  if (!strcmp(ext,"GL_EXT_shader_image_load_store")) return gl_ext_shader_image_load_store;
-  if (!strcmp(ext,"GL_EXT_shadow_samplers")) return gl_ext_shadow_samplers;
-  if (!strcmp(ext,"GL_EXT_shared_texture_palette")) return gl_ext_shared_texture_palette;
-  if (!strcmp(ext,"GL_EXT_stencil_clear_tag")) return gl_ext_stencil_clear_tag;
-  if (!strcmp(ext,"GL_EXT_stencil_two_side")) return gl_ext_stencil_two_side;
-  if (!strcmp(ext,"GL_EXT_stencil_wrap")) return gl_ext_stencil_wrap;
-  if (!strcmp(ext,"GL_EXT_subtexture")) return gl_ext_subtexture;
-  if (!strcmp(ext,"GL_EXT_texture")) return gl_ext_texture;
-  if (!strcmp(ext,"GL_EXT_texture3D")) return gl_ext_texture3d;
-  if (!strcmp(ext,"GL_EXT_texture_array")) return gl_ext_texture_array;
-  if (!strcmp(ext,"GL_EXT_texture_buffer_object")) return gl_ext_texture_buffer_object;
-  if (!strcmp(ext,"GL_EXT_texture_compression_latc")) return gl_ext_texture_compression_latc;
-  if (!strcmp(ext,"GL_EXT_texture_compression_rgtc")) return gl_ext_texture_compression_rgtc;
-  if (!strcmp(ext,"GL_EXT_texture_compression_s3tc")) return gl_ext_texture_compression_s3tc;
-  if (!strcmp(ext,"GL_EXT_texture_cube_map")) return regal_ext_texture_cube_map || gl_ext_texture_cube_map;
-  if (!strcmp(ext,"GL_EXT_texture_edge_clamp")) return regal_ext_texture_edge_clamp || gl_ext_texture_edge_clamp;
-  if (!strcmp(ext,"GL_EXT_texture_env_combine")) return regal_ext_texture_env_combine || gl_ext_texture_env_combine;
-  if (!strcmp(ext,"GL_EXT_texture_env_dot3")) return regal_ext_texture_env_dot3 || gl_ext_texture_env_dot3;
-  if (!strcmp(ext,"GL_EXT_texture_filter_anisotropic")) return gl_ext_texture_filter_anisotropic;
-  if (!strcmp(ext,"GL_EXT_texture_format_BGRA8888")) return gl_ext_texture_format_bgra8888;
-  if (!strcmp(ext,"GL_EXT_texture_integer")) return gl_ext_texture_integer;
-  if (!strcmp(ext,"GL_EXT_texture_lod_bias")) return gl_ext_texture_lod_bias;
-  if (!strcmp(ext,"GL_EXT_texture_mirror_clamp")) return gl_ext_texture_mirror_clamp;
-  if (!strcmp(ext,"GL_EXT_texture_object")) return gl_ext_texture_object;
-  if (!strcmp(ext,"GL_EXT_texture_perturb_normal")) return gl_ext_texture_perturb_normal;
-  if (!strcmp(ext,"GL_EXT_texture_rectangle")) return gl_ext_texture_rectangle;
-  if (!strcmp(ext,"GL_EXT_texture_rg")) return gl_ext_texture_rg;
-  if (!strcmp(ext,"GL_EXT_texture_sRGB")) return gl_ext_texture_srgb;
-  if (!strcmp(ext,"GL_EXT_texture_sRGB_decode")) return gl_ext_texture_srgb_decode;
-  if (!strcmp(ext,"GL_EXT_texture_shared_exponent")) return gl_ext_texture_shared_exponent;
-  if (!strcmp(ext,"GL_EXT_texture_snorm")) return gl_ext_texture_snorm;
-  if (!strcmp(ext,"GL_EXT_texture_storage")) return gl_ext_texture_storage;
-  if (!strcmp(ext,"GL_EXT_texture_swizzle")) return gl_ext_texture_swizzle;
-  if (!strcmp(ext,"GL_EXT_texture_type_2_10_10_10_REV")) return gl_ext_texture_type_2_10_10_10_rev;
-  if (!strcmp(ext,"GL_EXT_timer_query")) return gl_ext_timer_query;
-  if (!strcmp(ext,"GL_EXT_transform_feedback")) return gl_ext_transform_feedback;
-  if (!strcmp(ext,"GL_EXT_unpack_subimage")) return gl_ext_unpack_subimage;
-  if (!strcmp(ext,"GL_EXT_vertex_array")) return gl_ext_vertex_array;
-  if (!strcmp(ext,"GL_EXT_vertex_attrib_64bit")) return gl_ext_vertex_attrib_64bit;
-  if (!strcmp(ext,"GL_EXT_vertex_shader")) return gl_ext_vertex_shader;
-  if (!strcmp(ext,"GL_EXT_vertex_weighting")) return gl_ext_vertex_weighting;
-  if (!strcmp(ext,"GL_EXT_x11_sync_object")) return gl_ext_x11_sync_object;
-  if (!strcmp(ext,"GL_FJ_shader_binary_GCCSO")) return gl_fj_shader_binary_gccso;
-  if (!strcmp(ext,"GL_GREMEDY_frame_terminator")) return gl_gremedy_frame_terminator;
-  if (!strcmp(ext,"GL_GREMEDY_string_marker")) return gl_gremedy_string_marker;
-  if (!strcmp(ext,"GL_HP_image_transform")) return gl_hp_image_transform;
-  if (!strcmp(ext,"GL_HP_occlusion_test")) return gl_hp_occlusion_test;
-  if (!strcmp(ext,"GL_IBM_cull_vertex")) return gl_ibm_cull_vertex;
-  if (!strcmp(ext,"GL_IBM_multimode_draw_arrays")) return gl_ibm_multimode_draw_arrays;
-  if (!strcmp(ext,"GL_IBM_rasterpos_clip")) return gl_ibm_rasterpos_clip;
-  if (!strcmp(ext,"GL_IBM_static_data")) return gl_ibm_static_data;
-  if (!strcmp(ext,"GL_IBM_texture_mirrored_repeat")) return regal_ibm_texture_mirrored_repeat || gl_ibm_texture_mirrored_repeat;
-  if (!strcmp(ext,"GL_IBM_vertex_array_lists")) return gl_ibm_vertex_array_lists;
-  if (!strcmp(ext,"GL_IMG_multisampled_render_to_texture")) return gl_img_multisampled_render_to_texture;
-  if (!strcmp(ext,"GL_IMG_program_binary")) return gl_img_program_binary;
-  if (!strcmp(ext,"GL_IMG_read_format")) return gl_img_read_format;
-  if (!strcmp(ext,"GL_IMG_shader_binary")) return gl_img_shader_binary;
-  if (!strcmp(ext,"GL_IMG_texture_compression_pvrtc")) return gl_img_texture_compression_pvrtc;
-  if (!strcmp(ext,"GL_IMG_texture_compression_pvrtc2")) return gl_img_texture_compression_pvrtc2;
+  if (!strcmp(ext,"GL_EXT_framebuffer_object"))                return gl_ext_framebuffer_object;
+  if (!strcmp(ext,"GL_EXT_framebuffer_sRGB"))                  return gl_ext_framebuffer_srgb;
+  if (!strcmp(ext,"GL_EXT_geometry_shader4"))                  return gl_ext_geometry_shader4;
+  if (!strcmp(ext,"GL_EXT_gpu_program_parameters"))            return gl_ext_gpu_program_parameters;
+  if (!strcmp(ext,"GL_EXT_gpu_shader4"))                       return gl_ext_gpu_shader4;
+  if (!strcmp(ext,"GL_EXT_histogram"))                         return gl_ext_histogram;
+  if (!strcmp(ext,"GL_EXT_index_func"))                        return gl_ext_index_func;
+  if (!strcmp(ext,"GL_EXT_index_material"))                    return gl_ext_index_material;
+  if (!strcmp(ext,"GL_EXT_light_texture"))                     return gl_ext_light_texture;
+  if (!strcmp(ext,"GL_EXT_map_buffer_range"))                  return gl_ext_map_buffer_range;
+  if (!strcmp(ext,"GL_EXT_multi_draw_arrays"))                 return gl_ext_multi_draw_arrays;
+  if (!strcmp(ext,"GL_EXT_multisample"))                       return gl_ext_multisample;
+  if (!strcmp(ext,"GL_EXT_multisampled_render_to_texture"))    return gl_ext_multisampled_render_to_texture;
+  if (!strcmp(ext,"GL_EXT_multiview_draw_buffers"))            return gl_ext_multiview_draw_buffers;
+  if (!strcmp(ext,"GL_EXT_occlusion_query_boolean"))           return gl_ext_occlusion_query_boolean;
+  if (!strcmp(ext,"GL_EXT_packed_depth_stencil"))              return gl_ext_packed_depth_stencil;
+  if (!strcmp(ext,"GL_EXT_packed_float"))                      return gl_ext_packed_float;
+  if (!strcmp(ext,"GL_EXT_packed_pixels"))                     return gl_ext_packed_pixels;
+  if (!strcmp(ext,"GL_EXT_paletted_texture"))                  return gl_ext_paletted_texture;
+  if (!strcmp(ext,"GL_EXT_pixel_buffer_object"))               return gl_ext_pixel_buffer_object;
+  if (!strcmp(ext,"GL_EXT_pixel_transform"))                   return gl_ext_pixel_transform;
+  if (!strcmp(ext,"GL_EXT_point_parameters"))                  return gl_ext_point_parameters;
+  if (!strcmp(ext,"GL_EXT_polygon_offset"))                    return gl_ext_polygon_offset;
+  if (!strcmp(ext,"GL_EXT_provoking_vertex"))                  return gl_ext_provoking_vertex;
+  if (!strcmp(ext,"GL_EXT_read_format_bgra"))                  return gl_ext_read_format_bgra;
+  if (!strcmp(ext,"GL_EXT_rescale_normal"))                    return gl_ext_rescale_normal;
+  if (!strcmp(ext,"GL_EXT_robustness"))                        return gl_ext_robustness;
+  if (!strcmp(ext,"GL_EXT_sRGB"))                              return gl_ext_srgb;
+  if (!strcmp(ext,"GL_EXT_scene_marker"))                      return gl_ext_scene_marker;
+  if (!strcmp(ext,"GL_EXT_secondary_color"))                   return gl_ext_secondary_color;
+  if (!strcmp(ext,"GL_EXT_separate_shader_objects"))           return gl_ext_separate_shader_objects;
+  if (!strcmp(ext,"GL_EXT_separate_specular_color"))           return gl_ext_separate_specular_color;
+  if (!strcmp(ext,"GL_EXT_shader_framebuffer_fetch"))          return gl_ext_shader_framebuffer_fetch;
+  if (!strcmp(ext,"GL_EXT_shader_image_load_store"))           return gl_ext_shader_image_load_store;
+  if (!strcmp(ext,"GL_EXT_shadow_samplers"))                   return gl_ext_shadow_samplers;
+  if (!strcmp(ext,"GL_EXT_shared_texture_palette"))            return gl_ext_shared_texture_palette;
+  if (!strcmp(ext,"GL_EXT_stencil_clear_tag"))                 return gl_ext_stencil_clear_tag;
+  if (!strcmp(ext,"GL_EXT_stencil_two_side"))                  return gl_ext_stencil_two_side;
+  if (!strcmp(ext,"GL_EXT_stencil_wrap"))                      return gl_ext_stencil_wrap;
+  if (!strcmp(ext,"GL_EXT_subtexture"))                        return gl_ext_subtexture;
+  if (!strcmp(ext,"GL_EXT_texture"))                           return gl_ext_texture;
+  if (!strcmp(ext,"GL_EXT_texture3D"))                         return gl_ext_texture3d;
+  if (!strcmp(ext,"GL_EXT_texture_array"))                     return gl_ext_texture_array;
+  if (!strcmp(ext,"GL_EXT_texture_buffer_object"))             return gl_ext_texture_buffer_object;
+  if (!strcmp(ext,"GL_EXT_texture_compression_latc"))          return gl_ext_texture_compression_latc;
+  if (!strcmp(ext,"GL_EXT_texture_compression_rgtc"))          return gl_ext_texture_compression_rgtc;
+  if (!strcmp(ext,"GL_EXT_texture_compression_s3tc"))          return gl_ext_texture_compression_s3tc;
+  if (!strcmp(ext,"GL_EXT_texture_cube_map"))                  return gl_ext_texture_cube_map;
+  if (!strcmp(ext,"GL_EXT_texture_edge_clamp"))                return gl_ext_texture_edge_clamp;
+  if (!strcmp(ext,"GL_EXT_texture_env_combine"))               return gl_ext_texture_env_combine;
+  if (!strcmp(ext,"GL_EXT_texture_env_dot3"))                  return gl_ext_texture_env_dot3;
+  if (!strcmp(ext,"GL_EXT_texture_filter_anisotropic"))        return gl_ext_texture_filter_anisotropic;
+  if (!strcmp(ext,"GL_EXT_texture_format_BGRA8888"))           return gl_ext_texture_format_bgra8888;
+  if (!strcmp(ext,"GL_EXT_texture_integer"))                   return gl_ext_texture_integer;
+  if (!strcmp(ext,"GL_EXT_texture_lod_bias"))                  return gl_ext_texture_lod_bias;
+  if (!strcmp(ext,"GL_EXT_texture_mirror_clamp"))              return gl_ext_texture_mirror_clamp;
+  if (!strcmp(ext,"GL_EXT_texture_object"))                    return gl_ext_texture_object;
+  if (!strcmp(ext,"GL_EXT_texture_perturb_normal"))            return gl_ext_texture_perturb_normal;
+  if (!strcmp(ext,"GL_EXT_texture_rectangle"))                 return gl_ext_texture_rectangle;
+  if (!strcmp(ext,"GL_EXT_texture_rg"))                        return gl_ext_texture_rg;
+  if (!strcmp(ext,"GL_EXT_texture_sRGB"))                      return gl_ext_texture_srgb;
+  if (!strcmp(ext,"GL_EXT_texture_sRGB_decode"))               return gl_ext_texture_srgb_decode;
+  if (!strcmp(ext,"GL_EXT_texture_shared_exponent"))           return gl_ext_texture_shared_exponent;
+  if (!strcmp(ext,"GL_EXT_texture_snorm"))                     return gl_ext_texture_snorm;
+  if (!strcmp(ext,"GL_EXT_texture_storage"))                   return gl_ext_texture_storage;
+  if (!strcmp(ext,"GL_EXT_texture_swizzle"))                   return gl_ext_texture_swizzle;
+  if (!strcmp(ext,"GL_EXT_texture_type_2_10_10_10_REV"))       return gl_ext_texture_type_2_10_10_10_rev;
+  if (!strcmp(ext,"GL_EXT_timer_query"))                       return gl_ext_timer_query;
+  if (!strcmp(ext,"GL_EXT_transform_feedback"))                return gl_ext_transform_feedback;
+  if (!strcmp(ext,"GL_EXT_unpack_subimage"))                   return gl_ext_unpack_subimage;
+  if (!strcmp(ext,"GL_EXT_vertex_array"))                      return gl_ext_vertex_array;
+  if (!strcmp(ext,"GL_EXT_vertex_attrib_64bit"))               return gl_ext_vertex_attrib_64bit;
+  if (!strcmp(ext,"GL_EXT_vertex_shader"))                     return gl_ext_vertex_shader;
+  if (!strcmp(ext,"GL_EXT_vertex_weighting"))                  return gl_ext_vertex_weighting;
+  if (!strcmp(ext,"GL_EXT_x11_sync_object"))                   return gl_ext_x11_sync_object;
+  if (!strcmp(ext,"GL_FJ_shader_binary_GCCSO"))                return gl_fj_shader_binary_gccso;
+  if (!strcmp(ext,"GL_GREMEDY_frame_terminator"))              return gl_gremedy_frame_terminator;
+  if (!strcmp(ext,"GL_GREMEDY_string_marker"))                 return gl_gremedy_string_marker;
+  if (!strcmp(ext,"GL_HP_image_transform"))                    return gl_hp_image_transform;
+  if (!strcmp(ext,"GL_HP_occlusion_test"))                     return gl_hp_occlusion_test;
+  if (!strcmp(ext,"GL_IBM_cull_vertex"))                       return gl_ibm_cull_vertex;
+  if (!strcmp(ext,"GL_IBM_multimode_draw_arrays"))             return gl_ibm_multimode_draw_arrays;
+  if (!strcmp(ext,"GL_IBM_rasterpos_clip"))                    return gl_ibm_rasterpos_clip;
+  if (!strcmp(ext,"GL_IBM_static_data"))                       return gl_ibm_static_data;
+  if (!strcmp(ext,"GL_IBM_texture_mirrored_repeat"))           return gl_ibm_texture_mirrored_repeat;
+  if (!strcmp(ext,"GL_IBM_vertex_array_lists"))                return gl_ibm_vertex_array_lists;
+  if (!strcmp(ext,"GL_IMG_multisampled_render_to_texture"))    return gl_img_multisampled_render_to_texture;
+  if (!strcmp(ext,"GL_IMG_program_binary"))                    return gl_img_program_binary;
+  if (!strcmp(ext,"GL_IMG_read_format"))                       return gl_img_read_format;
+  if (!strcmp(ext,"GL_IMG_shader_binary"))                     return gl_img_shader_binary;
+  if (!strcmp(ext,"GL_IMG_texture_compression_pvrtc"))         return gl_img_texture_compression_pvrtc;
+  if (!strcmp(ext,"GL_IMG_texture_compression_pvrtc2"))        return gl_img_texture_compression_pvrtc2;
   if (!strcmp(ext,"GL_IMG_texture_env_enhanced_fixed_function")) return gl_img_texture_env_enhanced_fixed_function;
-  if (!strcmp(ext,"GL_IMG_user_clip_plane")) return gl_img_user_clip_plane;
-  if (!strcmp(ext,"GL_INGR_blend_func_separate")) return gl_ingr_blend_func_separate;
-  if (!strcmp(ext,"GL_INGR_color_clamp")) return gl_ingr_color_clamp;
-  if (!strcmp(ext,"GL_INGR_interlace_read")) return gl_ingr_interlace_read;
-  if (!strcmp(ext,"GL_INTEL_map_texture")) return gl_intel_map_texture;
-  if (!strcmp(ext,"GL_INTEL_parallel_arrays")) return gl_intel_parallel_arrays;
-  if (!strcmp(ext,"GL_INTEL_texture_scissor")) return gl_intel_texture_scissor;
-  if (!strcmp(ext,"GL_KHR_debug")) return gl_khr_debug;
-  if (!strcmp(ext,"GL_KHR_texture_compression_astc_ldr")) return gl_khr_texture_compression_astc_ldr;
-  if (!strcmp(ext,"GL_KTX_buffer_region")) return gl_ktx_buffer_region;
-  if (!strcmp(ext,"GL_MESAX_texture_stack")) return gl_mesax_texture_stack;
-  if (!strcmp(ext,"GL_MESA_pack_invert")) return gl_mesa_pack_invert;
-  if (!strcmp(ext,"GL_MESA_resize_buffers")) return gl_mesa_resize_buffers;
-  if (!strcmp(ext,"GL_MESA_window_pos")) return gl_mesa_window_pos;
-  if (!strcmp(ext,"GL_MESA_ycbcr_texture")) return gl_mesa_ycbcr_texture;
-  if (!strcmp(ext,"GL_NVX_conditional_render")) return gl_nvx_conditional_render;
-  if (!strcmp(ext,"GL_NVX_gpu_memory_info")) return gl_nvx_gpu_memory_info;
-  if (!strcmp(ext,"GL_NV_3dvision_settings")) return gl_nv_3dvision_settings;
-  if (!strcmp(ext,"GL_NV_bgr")) return gl_nv_bgr;
-  if (!strcmp(ext,"GL_NV_bindless_texture")) return gl_nv_bindless_texture;
-  if (!strcmp(ext,"GL_NV_blend_square")) return regal_nv_blend_square || gl_nv_blend_square;
-  if (!strcmp(ext,"GL_NV_compute_program5")) return gl_nv_compute_program5;
-  if (!strcmp(ext,"GL_NV_conditional_render")) return gl_nv_conditional_render;
-  if (!strcmp(ext,"GL_NV_copy_depth_to_color")) return gl_nv_copy_depth_to_color;
-  if (!strcmp(ext,"GL_NV_copy_image")) return gl_nv_copy_image;
-  if (!strcmp(ext,"GL_NV_coverage_sample")) return gl_nv_coverage_sample;
-  if (!strcmp(ext,"GL_NV_deep_texture3D")) return gl_nv_deep_texture3d;
-  if (!strcmp(ext,"GL_NV_depth_buffer_float")) return gl_nv_depth_buffer_float;
-  if (!strcmp(ext,"GL_NV_depth_clamp")) return gl_nv_depth_clamp;
-  if (!strcmp(ext,"GL_NV_depth_nonlinear")) return gl_nv_depth_nonlinear;
-  if (!strcmp(ext,"GL_NV_depth_range_unclamped")) return gl_nv_depth_range_unclamped;
-  if (!strcmp(ext,"GL_NV_draw_buffers")) return gl_nv_draw_buffers;
-  if (!strcmp(ext,"GL_NV_draw_texture")) return gl_nv_draw_texture;
-  if (!strcmp(ext,"GL_NV_evaluators")) return gl_nv_evaluators;
-  if (!strcmp(ext,"GL_NV_explicit_multisample")) return gl_nv_explicit_multisample;
-  if (!strcmp(ext,"GL_NV_fbo_color_attachments")) return gl_nv_fbo_color_attachments;
-  if (!strcmp(ext,"GL_NV_fence")) return gl_nv_fence;
-  if (!strcmp(ext,"GL_NV_float_buffer")) return gl_nv_float_buffer;
-  if (!strcmp(ext,"GL_NV_fog_distance")) return gl_nv_fog_distance;
-  if (!strcmp(ext,"GL_NV_fragment_program")) return gl_nv_fragment_program;
-  if (!strcmp(ext,"GL_NV_fragment_program2")) return gl_nv_fragment_program2;
-  if (!strcmp(ext,"GL_NV_framebuffer_blit")) return gl_nv_framebuffer_blit;
-  if (!strcmp(ext,"GL_NV_framebuffer_multisample")) return gl_nv_framebuffer_multisample;
-  if (!strcmp(ext,"GL_NV_framebuffer_multisample_coverage")) return gl_nv_framebuffer_multisample_coverage;
-  if (!strcmp(ext,"GL_NV_geometry_program4")) return gl_nv_geometry_program4;
-  if (!strcmp(ext,"GL_NV_gpu_program4")) return gl_nv_gpu_program4;
-  if (!strcmp(ext,"GL_NV_gpu_program5")) return gl_nv_gpu_program5;
-  if (!strcmp(ext,"GL_NV_gpu_shader5")) return gl_nv_gpu_shader5;
-  if (!strcmp(ext,"GL_NV_half_float")) return gl_nv_half_float;
-  if (!strcmp(ext,"GL_NV_instanced_arrays")) return gl_nv_instanced_arrays;
-  if (!strcmp(ext,"GL_NV_light_max_exponent")) return gl_nv_light_max_exponent;
-  if (!strcmp(ext,"GL_NV_multisample_coverage")) return gl_nv_multisample_coverage;
-  if (!strcmp(ext,"GL_NV_multisample_filter_hint")) return gl_nv_multisample_filter_hint;
-  if (!strcmp(ext,"GL_NV_occlusion_query")) return gl_nv_occlusion_query;
-  if (!strcmp(ext,"GL_NV_pack_subimage")) return gl_nv_pack_subimage;
-  if (!strcmp(ext,"GL_NV_packed_depth_stencil")) return gl_nv_packed_depth_stencil;
-  if (!strcmp(ext,"GL_NV_packed_float_linear")) return gl_nv_packed_float_linear;
-  if (!strcmp(ext,"GL_NV_parameter_buffer_object")) return gl_nv_parameter_buffer_object;
-  if (!strcmp(ext,"GL_NV_path_rendering")) return gl_nv_path_rendering;
-  if (!strcmp(ext,"GL_NV_pixel_buffer_object")) return gl_nv_pixel_buffer_object;
-  if (!strcmp(ext,"GL_NV_pixel_data_range")) return gl_nv_pixel_data_range;
-  if (!strcmp(ext,"GL_NV_platform_binary")) return gl_nv_platform_binary;
-  if (!strcmp(ext,"GL_NV_point_sprite")) return gl_nv_point_sprite;
-  if (!strcmp(ext,"GL_NV_present_video")) return gl_nv_present_video;
-  if (!strcmp(ext,"GL_NV_primitive_restart")) return gl_nv_primitive_restart;
-  if (!strcmp(ext,"GL_NV_read_buffer")) return gl_nv_read_buffer;
-  if (!strcmp(ext,"GL_NV_read_buffer_front")) return gl_nv_read_buffer_front;
-  if (!strcmp(ext,"GL_NV_register_combiners")) return gl_nv_register_combiners;
-  if (!strcmp(ext,"GL_NV_register_combiners2")) return gl_nv_register_combiners2;
-  if (!strcmp(ext,"GL_NV_sRGB_formats")) return gl_nv_srgb_formats;
-  if (!strcmp(ext,"GL_NV_shader_buffer_load")) return gl_nv_shader_buffer_load;
-  if (!strcmp(ext,"GL_NV_shadow_samplers_array")) return gl_nv_shadow_samplers_array;
-  if (!strcmp(ext,"GL_NV_shadow_samplers_cube")) return gl_nv_shadow_samplers_cube;
-  if (!strcmp(ext,"GL_NV_tessellation_program5")) return gl_nv_tessellation_program5;
-  if (!strcmp(ext,"GL_NV_texgen_emboss")) return gl_nv_texgen_emboss;
-  if (!strcmp(ext,"GL_NV_texgen_reflection")) return gl_nv_texgen_reflection;
-  if (!strcmp(ext,"GL_NV_texture_array")) return gl_nv_texture_array;
-  if (!strcmp(ext,"GL_NV_texture_barrier")) return gl_nv_texture_barrier;
-  if (!strcmp(ext,"GL_NV_texture_border_clamp")) return gl_nv_texture_border_clamp;
-  if (!strcmp(ext,"GL_NV_texture_compression_latc")) return gl_nv_texture_compression_latc;
-  if (!strcmp(ext,"GL_NV_texture_compression_s3tc")) return gl_nv_texture_compression_s3tc;
-  if (!strcmp(ext,"GL_NV_texture_env_combine4")) return gl_nv_texture_env_combine4;
-  if (!strcmp(ext,"GL_NV_texture_expand_normal")) return gl_nv_texture_expand_normal;
-  if (!strcmp(ext,"GL_NV_texture_multisample")) return gl_nv_texture_multisample;
-  if (!strcmp(ext,"GL_NV_texture_rectangle")) return gl_nv_texture_rectangle;
-  if (!strcmp(ext,"GL_NV_texture_shader")) return gl_nv_texture_shader;
-  if (!strcmp(ext,"GL_NV_texture_shader2")) return gl_nv_texture_shader2;
-  if (!strcmp(ext,"GL_NV_texture_shader3")) return gl_nv_texture_shader3;
-  if (!strcmp(ext,"GL_NV_transform_feedback")) return gl_nv_transform_feedback;
-  if (!strcmp(ext,"GL_NV_transform_feedback2")) return gl_nv_transform_feedback2;
-  if (!strcmp(ext,"GL_NV_vdpau_interop")) return gl_nv_vdpau_interop;
-  if (!strcmp(ext,"GL_NV_vertex_array_range")) return gl_nv_vertex_array_range;
-  if (!strcmp(ext,"GL_NV_vertex_array_range2")) return gl_nv_vertex_array_range2;
-  if (!strcmp(ext,"GL_NV_vertex_attrib_integer_64bit")) return gl_nv_vertex_attrib_integer_64bit;
-  if (!strcmp(ext,"GL_NV_vertex_buffer_unified_memory")) return gl_nv_vertex_buffer_unified_memory;
-  if (!strcmp(ext,"GL_NV_vertex_program")) return gl_nv_vertex_program;
-  if (!strcmp(ext,"GL_NV_vertex_program2_option")) return gl_nv_vertex_program2_option;
-  if (!strcmp(ext,"GL_NV_vertex_program3")) return gl_nv_vertex_program3;
-  if (!strcmp(ext,"GL_NV_vertex_program4")) return gl_nv_vertex_program4;
-  if (!strcmp(ext,"GL_NV_video_capture")) return gl_nv_video_capture;
-  if (!strcmp(ext,"GL_OES_blend_equation_separate")) return gl_oes_blend_equation_separate;
-  if (!strcmp(ext,"GL_OES_blend_func_separate")) return gl_oes_blend_func_separate;
-  if (!strcmp(ext,"GL_OES_blend_subtract")) return gl_oes_blend_subtract;
-  if (!strcmp(ext,"GL_OES_compressed_ETC1_RGB8_texture")) return gl_oes_compressed_etc1_rgb8_texture;
-  if (!strcmp(ext,"GL_OES_compressed_paletted_texture")) return gl_oes_compressed_paletted_texture;
-  if (!strcmp(ext,"GL_OES_depth_texture")) return gl_oes_depth_texture;
-  if (!strcmp(ext,"GL_OES_draw_texture")) return gl_oes_draw_texture;
-  if (!strcmp(ext,"GL_OES_element_index_uint")) return gl_oes_element_index_uint;
-  if (!strcmp(ext,"GL_OES_fbo_render_mipmap")) return gl_oes_fbo_render_mipmap;
-  if (!strcmp(ext,"GL_OES_framebuffer_object")) return gl_oes_framebuffer_object;
-  if (!strcmp(ext,"GL_OES_get_program_binary")) return gl_oes_get_program_binary;
-  if (!strcmp(ext,"GL_OES_mapbuffer")) return gl_oes_mapbuffer;
-  if (!strcmp(ext,"GL_OES_matrix_get")) return gl_oes_matrix_get;
-  if (!strcmp(ext,"GL_OES_matrix_palette")) return gl_oes_matrix_palette;
-  if (!strcmp(ext,"GL_OES_packed_depth_stencil")) return gl_oes_packed_depth_stencil;
-  if (!strcmp(ext,"GL_OES_point_size_array")) return gl_oes_point_size_array;
-  if (!strcmp(ext,"GL_OES_point_sprite")) return gl_oes_point_sprite;
-  if (!strcmp(ext,"GL_OES_read_format")) return gl_oes_read_format;
-  if (!strcmp(ext,"GL_OES_required_internalformat")) return gl_oes_required_internalformat;
-  if (!strcmp(ext,"GL_OES_rgb8_rgba8")) return gl_oes_rgb8_rgba8;
-  if (!strcmp(ext,"GL_OES_single_precision")) return gl_oes_single_precision;
-  if (!strcmp(ext,"GL_OES_standard_derivatives")) return gl_oes_standard_derivatives;
-  if (!strcmp(ext,"GL_OES_stencil1")) return gl_oes_stencil1;
-  if (!strcmp(ext,"GL_OES_stencil4")) return gl_oes_stencil4;
-  if (!strcmp(ext,"GL_OES_stencil8")) return gl_oes_stencil8;
-  if (!strcmp(ext,"GL_OES_surfaceless_context")) return gl_oes_surfaceless_context;
-  if (!strcmp(ext,"GL_OES_texture_3D")) return gl_oes_texture_3d;
-  if (!strcmp(ext,"GL_OES_texture_cube_map")) return gl_oes_texture_cube_map;
-  if (!strcmp(ext,"GL_OES_texture_mirrored_repeat")) return gl_oes_texture_mirrored_repeat;
-  if (!strcmp(ext,"GL_OES_vertex_array_object")) return gl_oes_vertex_array_object;
-  if (!strcmp(ext,"GL_OES_vertex_half_float")) return gl_oes_vertex_half_float;
-  if (!strcmp(ext,"GL_OES_vertex_type_10_10_10_2")) return gl_oes_vertex_type_10_10_10_2;
-  if (!strcmp(ext,"GL_OML_interlace")) return gl_oml_interlace;
-  if (!strcmp(ext,"GL_OML_resample")) return gl_oml_resample;
-  if (!strcmp(ext,"GL_OML_subsample")) return gl_oml_subsample;
-  if (!strcmp(ext,"GL_PGI_misc_hints")) return gl_pgi_misc_hints;
-  if (!strcmp(ext,"GL_PGI_vertex_hints")) return gl_pgi_vertex_hints;
-  if (!strcmp(ext,"GL_QCOM_alpha_test")) return gl_qcom_alpha_test;
-  if (!strcmp(ext,"GL_QCOM_binning_control")) return gl_qcom_binning_control;
-  if (!strcmp(ext,"GL_QCOM_driver_control")) return gl_qcom_driver_control;
-  if (!strcmp(ext,"GL_QCOM_extended_get")) return gl_qcom_extended_get;
-  if (!strcmp(ext,"GL_QCOM_extended_get2")) return gl_qcom_extended_get2;
-  if (!strcmp(ext,"GL_QCOM_perfmon_global_mode")) return gl_qcom_perfmon_global_mode;
-  if (!strcmp(ext,"GL_QCOM_tiled_rendering")) return gl_qcom_tiled_rendering;
-  if (!strcmp(ext,"GL_QCOM_writeonly_rendering")) return gl_qcom_writeonly_rendering;
-  if (!strcmp(ext,"GL_REGAL_ES1_0_compatibility")) return true;
-  if (!strcmp(ext,"GL_REGAL_ES1_1_compatibility")) return true;
-  if (!strcmp(ext,"GL_REGAL_enable")) return true;
-  if (!strcmp(ext,"GL_REGAL_error_string")) return true;
-  if (!strcmp(ext,"GL_REGAL_extension_query")) return true;
-  if (!strcmp(ext,"GL_REGAL_log")) return true;
-  if (!strcmp(ext,"GL_REND_screen_coordinates")) return gl_rend_screen_coordinates;
-  if (!strcmp(ext,"GL_S3_s3tc")) return gl_s3_s3tc;
-  if (!strcmp(ext,"GL_SGIS_color_range")) return gl_sgis_color_range;
-  if (!strcmp(ext,"GL_SGIS_detail_texture")) return gl_sgis_detail_texture;
-  if (!strcmp(ext,"GL_SGIS_fog_function")) return gl_sgis_fog_function;
-  if (!strcmp(ext,"GL_SGIS_generate_mipmap")) return gl_sgis_generate_mipmap;
-  if (!strcmp(ext,"GL_SGIS_multisample")) return gl_sgis_multisample;
-  if (!strcmp(ext,"GL_SGIS_pixel_texture")) return gl_sgis_pixel_texture;
-  if (!strcmp(ext,"GL_SGIS_point_line_texgen")) return gl_sgis_point_line_texgen;
-  if (!strcmp(ext,"GL_SGIS_point_parameters")) return gl_sgis_point_parameters;
-  if (!strcmp(ext,"GL_SGIS_sharpen_texture")) return gl_sgis_sharpen_texture;
-  if (!strcmp(ext,"GL_SGIS_texture4D")) return gl_sgis_texture4d;
-  if (!strcmp(ext,"GL_SGIS_texture_border_clamp")) return gl_sgis_texture_border_clamp;
-  if (!strcmp(ext,"GL_SGIS_texture_color_mask")) return gl_sgis_texture_color_mask;
-  if (!strcmp(ext,"GL_SGIS_texture_edge_clamp")) return gl_sgis_texture_edge_clamp;
-  if (!strcmp(ext,"GL_SGIS_texture_filter4")) return gl_sgis_texture_filter4;
-  if (!strcmp(ext,"GL_SGIS_texture_lod")) return gl_sgis_texture_lod;
-  if (!strcmp(ext,"GL_SGIX_async")) return gl_sgix_async;
-  if (!strcmp(ext,"GL_SGIX_async_histogram")) return gl_sgix_async_histogram;
-  if (!strcmp(ext,"GL_SGIX_async_pixel")) return gl_sgix_async_pixel;
-  if (!strcmp(ext,"GL_SGIX_blend_alpha_minmax")) return gl_sgix_blend_alpha_minmax;
-  if (!strcmp(ext,"GL_SGIX_convolution_accuracy")) return gl_sgix_convolution_accuracy;
-  if (!strcmp(ext,"GL_SGIX_depth_texture")) return gl_sgix_depth_texture;
-  if (!strcmp(ext,"GL_SGIX_flush_raster")) return gl_sgix_flush_raster;
-  if (!strcmp(ext,"GL_SGIX_fog_offset")) return gl_sgix_fog_offset;
-  if (!strcmp(ext,"GL_SGIX_fog_texture")) return gl_sgix_fog_texture;
-  if (!strcmp(ext,"GL_SGIX_fragment_lighting")) return gl_sgix_fragment_lighting;
-  if (!strcmp(ext,"GL_SGIX_fragment_specular_lighting")) return gl_sgix_fragment_specular_lighting;
-  if (!strcmp(ext,"GL_SGIX_framezoom")) return gl_sgix_framezoom;
-  if (!strcmp(ext,"GL_SGIX_igloo_interface")) return gl_sgix_igloo_interface;
-  if (!strcmp(ext,"GL_SGIX_instruments")) return gl_sgix_instruments;
-  if (!strcmp(ext,"GL_SGIX_interlace")) return gl_sgix_interlace;
-  if (!strcmp(ext,"GL_SGIX_list_priority")) return gl_sgix_list_priority;
-  if (!strcmp(ext,"GL_SGIX_pixel_texture")) return gl_sgix_pixel_texture;
-  if (!strcmp(ext,"GL_SGIX_polynomial_ffd")) return gl_sgix_polynomial_ffd;
-  if (!strcmp(ext,"GL_SGIX_reference_plane")) return gl_sgix_reference_plane;
-  if (!strcmp(ext,"GL_SGIX_resample")) return gl_sgix_resample;
-  if (!strcmp(ext,"GL_SGIX_shadow")) return gl_sgix_shadow;
-  if (!strcmp(ext,"GL_SGIX_shadow_ambient")) return gl_sgix_shadow_ambient;
-  if (!strcmp(ext,"GL_SGIX_sprite")) return gl_sgix_sprite;
-  if (!strcmp(ext,"GL_SGIX_tag_sample_buffer")) return gl_sgix_tag_sample_buffer;
-  if (!strcmp(ext,"GL_SGIX_texture_coordinate_clamp")) return gl_sgix_texture_coordinate_clamp;
-  if (!strcmp(ext,"GL_SGIX_texture_multi_buffer")) return gl_sgix_texture_multi_buffer;
-  if (!strcmp(ext,"GL_SGIX_texture_range")) return gl_sgix_texture_range;
-  if (!strcmp(ext,"GL_SGIX_texture_scale_bias")) return gl_sgix_texture_scale_bias;
-  if (!strcmp(ext,"GL_SGIX_vertex_preclip_hint")) return gl_sgix_vertex_preclip_hint;
-  if (!strcmp(ext,"GL_SGIX_ycrcb")) return gl_sgix_ycrcb;
-  if (!strcmp(ext,"GL_SGI_color_matrix")) return gl_sgi_color_matrix;
-  if (!strcmp(ext,"GL_SGI_color_table")) return gl_sgi_color_table;
-  if (!strcmp(ext,"GL_SGI_texture_color_table")) return gl_sgi_texture_color_table;
-  if (!strcmp(ext,"GL_SUNX_constant_data")) return gl_sunx_constant_data;
-  if (!strcmp(ext,"GL_SUN_convolution_border_modes")) return gl_sun_convolution_border_modes;
-  if (!strcmp(ext,"GL_SUN_global_alpha")) return gl_sun_global_alpha;
-  if (!strcmp(ext,"GL_SUN_mesh_array")) return gl_sun_mesh_array;
-  if (!strcmp(ext,"GL_SUN_read_video_pixels")) return gl_sun_read_video_pixels;
-  if (!strcmp(ext,"GL_SUN_slice_accum")) return gl_sun_slice_accum;
-  if (!strcmp(ext,"GL_SUN_triangle_list")) return gl_sun_triangle_list;
-  if (!strcmp(ext,"GL_SUN_vertex")) return gl_sun_vertex;
-  if (!strcmp(ext,"GL_VIV_shader_binary")) return gl_viv_shader_binary;
-  if (!strcmp(ext,"GL_WIN_phong_shading")) return gl_win_phong_shading;
-  if (!strcmp(ext,"GL_WIN_specular_fog")) return gl_win_specular_fog;
-  if (!strcmp(ext,"GL_WIN_swap_hint")) return gl_win_swap_hint;
+  if (!strcmp(ext,"GL_IMG_user_clip_plane"))                   return gl_img_user_clip_plane;
+  if (!strcmp(ext,"GL_INGR_blend_func_separate"))              return gl_ingr_blend_func_separate;
+  if (!strcmp(ext,"GL_INGR_color_clamp"))                      return gl_ingr_color_clamp;
+  if (!strcmp(ext,"GL_INGR_interlace_read"))                   return gl_ingr_interlace_read;
+  if (!strcmp(ext,"GL_INTEL_map_texture"))                     return gl_intel_map_texture;
+  if (!strcmp(ext,"GL_INTEL_parallel_arrays"))                 return gl_intel_parallel_arrays;
+  if (!strcmp(ext,"GL_INTEL_texture_scissor"))                 return gl_intel_texture_scissor;
+  if (!strcmp(ext,"GL_KHR_debug"))                             return gl_khr_debug;
+  if (!strcmp(ext,"GL_KHR_texture_compression_astc_ldr"))      return gl_khr_texture_compression_astc_ldr;
+  if (!strcmp(ext,"GL_KTX_buffer_region"))                     return gl_ktx_buffer_region;
+  if (!strcmp(ext,"GL_MESAX_texture_stack"))                   return gl_mesax_texture_stack;
+  if (!strcmp(ext,"GL_MESA_pack_invert"))                      return gl_mesa_pack_invert;
+  if (!strcmp(ext,"GL_MESA_resize_buffers"))                   return gl_mesa_resize_buffers;
+  if (!strcmp(ext,"GL_MESA_window_pos"))                       return gl_mesa_window_pos;
+  if (!strcmp(ext,"GL_MESA_ycbcr_texture"))                    return gl_mesa_ycbcr_texture;
+  if (!strcmp(ext,"GL_NVX_conditional_render"))                return gl_nvx_conditional_render;
+  if (!strcmp(ext,"GL_NVX_gpu_memory_info"))                   return gl_nvx_gpu_memory_info;
+  if (!strcmp(ext,"GL_NV_3dvision_settings"))                  return gl_nv_3dvision_settings;
+  if (!strcmp(ext,"GL_NV_bgr"))                                return gl_nv_bgr;
+  if (!strcmp(ext,"GL_NV_bindless_texture"))                   return gl_nv_bindless_texture;
+  if (!strcmp(ext,"GL_NV_blend_equation_advanced"))            return gl_nv_blend_equation_advanced;
+  if (!strcmp(ext,"GL_NV_blend_square"))                       return gl_nv_blend_square;
+  if (!strcmp(ext,"GL_NV_compute_program5"))                   return gl_nv_compute_program5;
+  if (!strcmp(ext,"GL_NV_conditional_render"))                 return gl_nv_conditional_render;
+  if (!strcmp(ext,"GL_NV_copy_buffer"))                        return gl_nv_copy_buffer;
+  if (!strcmp(ext,"GL_NV_copy_depth_to_color"))                return gl_nv_copy_depth_to_color;
+  if (!strcmp(ext,"GL_NV_copy_image"))                         return gl_nv_copy_image;
+  if (!strcmp(ext,"GL_NV_coverage_sample"))                    return gl_nv_coverage_sample;
+  if (!strcmp(ext,"GL_NV_deep_texture3D"))                     return gl_nv_deep_texture3d;
+  if (!strcmp(ext,"GL_NV_depth_buffer_float"))                 return gl_nv_depth_buffer_float;
+  if (!strcmp(ext,"GL_NV_depth_clamp"))                        return gl_nv_depth_clamp;
+  if (!strcmp(ext,"GL_NV_depth_nonlinear"))                    return gl_nv_depth_nonlinear;
+  if (!strcmp(ext,"GL_NV_depth_range_unclamped"))              return gl_nv_depth_range_unclamped;
+  if (!strcmp(ext,"GL_NV_draw_buffers"))                       return gl_nv_draw_buffers;
+  if (!strcmp(ext,"GL_NV_draw_texture"))                       return gl_nv_draw_texture;
+  if (!strcmp(ext,"GL_NV_evaluators"))                         return gl_nv_evaluators;
+  if (!strcmp(ext,"GL_NV_explicit_multisample"))               return gl_nv_explicit_multisample;
+  if (!strcmp(ext,"GL_NV_fbo_color_attachments"))              return gl_nv_fbo_color_attachments;
+  if (!strcmp(ext,"GL_NV_fence"))                              return gl_nv_fence;
+  if (!strcmp(ext,"GL_NV_float_buffer"))                       return gl_nv_float_buffer;
+  if (!strcmp(ext,"GL_NV_fog_distance"))                       return gl_nv_fog_distance;
+  if (!strcmp(ext,"GL_NV_fragment_program"))                   return gl_nv_fragment_program;
+  if (!strcmp(ext,"GL_NV_fragment_program2"))                  return gl_nv_fragment_program2;
+  if (!strcmp(ext,"GL_NV_framebuffer_blit"))                   return gl_nv_framebuffer_blit;
+  if (!strcmp(ext,"GL_NV_framebuffer_multisample"))            return gl_nv_framebuffer_multisample;
+  if (!strcmp(ext,"GL_NV_framebuffer_multisample_coverage"))   return gl_nv_framebuffer_multisample_coverage;
+  if (!strcmp(ext,"GL_NV_geometry_program4"))                  return gl_nv_geometry_program4;
+  if (!strcmp(ext,"GL_NV_gpu_program4"))                       return gl_nv_gpu_program4;
+  if (!strcmp(ext,"GL_NV_gpu_program5"))                       return gl_nv_gpu_program5;
+  if (!strcmp(ext,"GL_NV_gpu_shader5"))                        return gl_nv_gpu_shader5;
+  if (!strcmp(ext,"GL_NV_half_float"))                         return gl_nv_half_float;
+  if (!strcmp(ext,"GL_NV_instanced_arrays"))                   return gl_nv_instanced_arrays;
+  if (!strcmp(ext,"GL_NV_light_max_exponent"))                 return gl_nv_light_max_exponent;
+  if (!strcmp(ext,"GL_NV_multisample_coverage"))               return gl_nv_multisample_coverage;
+  if (!strcmp(ext,"GL_NV_multisample_filter_hint"))            return gl_nv_multisample_filter_hint;
+  if (!strcmp(ext,"GL_NV_non_square_matrices"))                return gl_nv_non_square_matrices;
+  if (!strcmp(ext,"GL_NV_occlusion_query"))                    return gl_nv_occlusion_query;
+  if (!strcmp(ext,"GL_NV_pack_subimage"))                      return gl_nv_pack_subimage;
+  if (!strcmp(ext,"GL_NV_packed_depth_stencil"))               return gl_nv_packed_depth_stencil;
+  if (!strcmp(ext,"GL_NV_packed_float_linear"))                return gl_nv_packed_float_linear;
+  if (!strcmp(ext,"GL_NV_parameter_buffer_object"))            return gl_nv_parameter_buffer_object;
+  if (!strcmp(ext,"GL_NV_path_rendering"))                     return gl_nv_path_rendering;
+  if (!strcmp(ext,"GL_NV_pixel_buffer_object"))                return gl_nv_pixel_buffer_object;
+  if (!strcmp(ext,"GL_NV_pixel_data_range"))                   return gl_nv_pixel_data_range;
+  if (!strcmp(ext,"GL_NV_platform_binary"))                    return gl_nv_platform_binary;
+  if (!strcmp(ext,"GL_NV_point_sprite"))                       return gl_nv_point_sprite;
+  if (!strcmp(ext,"GL_NV_present_video"))                      return gl_nv_present_video;
+  if (!strcmp(ext,"GL_NV_primitive_restart"))                  return gl_nv_primitive_restart;
+  if (!strcmp(ext,"GL_NV_read_buffer"))                        return gl_nv_read_buffer;
+  if (!strcmp(ext,"GL_NV_read_buffer_front"))                  return gl_nv_read_buffer_front;
+  if (!strcmp(ext,"GL_NV_register_combiners"))                 return gl_nv_register_combiners;
+  if (!strcmp(ext,"GL_NV_register_combiners2"))                return gl_nv_register_combiners2;
+  if (!strcmp(ext,"GL_NV_sRGB_formats"))                       return gl_nv_srgb_formats;
+  if (!strcmp(ext,"GL_NV_shader_buffer_load"))                 return gl_nv_shader_buffer_load;
+  if (!strcmp(ext,"GL_NV_shadow_samplers_array"))              return gl_nv_shadow_samplers_array;
+  if (!strcmp(ext,"GL_NV_shadow_samplers_cube"))               return gl_nv_shadow_samplers_cube;
+  if (!strcmp(ext,"GL_NV_tessellation_program5"))              return gl_nv_tessellation_program5;
+  if (!strcmp(ext,"GL_NV_texgen_emboss"))                      return gl_nv_texgen_emboss;
+  if (!strcmp(ext,"GL_NV_texgen_reflection"))                  return gl_nv_texgen_reflection;
+  if (!strcmp(ext,"GL_NV_texture_array"))                      return gl_nv_texture_array;
+  if (!strcmp(ext,"GL_NV_texture_barrier"))                    return gl_nv_texture_barrier;
+  if (!strcmp(ext,"GL_NV_texture_border_clamp"))               return gl_nv_texture_border_clamp;
+  if (!strcmp(ext,"GL_NV_texture_compression_latc"))           return gl_nv_texture_compression_latc;
+  if (!strcmp(ext,"GL_NV_texture_compression_s3tc"))           return gl_nv_texture_compression_s3tc;
+  if (!strcmp(ext,"GL_NV_texture_env_combine4"))               return gl_nv_texture_env_combine4;
+  if (!strcmp(ext,"GL_NV_texture_expand_normal"))              return gl_nv_texture_expand_normal;
+  if (!strcmp(ext,"GL_NV_texture_multisample"))                return gl_nv_texture_multisample;
+  if (!strcmp(ext,"GL_NV_texture_rectangle"))                  return gl_nv_texture_rectangle;
+  if (!strcmp(ext,"GL_NV_texture_shader"))                     return gl_nv_texture_shader;
+  if (!strcmp(ext,"GL_NV_texture_shader2"))                    return gl_nv_texture_shader2;
+  if (!strcmp(ext,"GL_NV_texture_shader3"))                    return gl_nv_texture_shader3;
+  if (!strcmp(ext,"GL_NV_transform_feedback"))                 return gl_nv_transform_feedback;
+  if (!strcmp(ext,"GL_NV_transform_feedback2"))                return gl_nv_transform_feedback2;
+  if (!strcmp(ext,"GL_NV_vdpau_interop"))                      return gl_nv_vdpau_interop;
+  if (!strcmp(ext,"GL_NV_vertex_array_range"))                 return gl_nv_vertex_array_range;
+  if (!strcmp(ext,"GL_NV_vertex_array_range2"))                return gl_nv_vertex_array_range2;
+  if (!strcmp(ext,"GL_NV_vertex_attrib_integer_64bit"))        return gl_nv_vertex_attrib_integer_64bit;
+  if (!strcmp(ext,"GL_NV_vertex_buffer_unified_memory"))       return gl_nv_vertex_buffer_unified_memory;
+  if (!strcmp(ext,"GL_NV_vertex_program"))                     return gl_nv_vertex_program;
+  if (!strcmp(ext,"GL_NV_vertex_program2_option"))             return gl_nv_vertex_program2_option;
+  if (!strcmp(ext,"GL_NV_vertex_program3"))                    return gl_nv_vertex_program3;
+  if (!strcmp(ext,"GL_NV_vertex_program4"))                    return gl_nv_vertex_program4;
+  if (!strcmp(ext,"GL_NV_video_capture"))                      return gl_nv_video_capture;
+  if (!strcmp(ext,"GL_OES_EGL_image_external"))                return gl_oes_egl_image_external;
+  if (!strcmp(ext,"GL_OES_blend_equation_separate"))           return gl_oes_blend_equation_separate;
+  if (!strcmp(ext,"GL_OES_blend_func_separate"))               return gl_oes_blend_func_separate;
+  if (!strcmp(ext,"GL_OES_blend_subtract"))                    return gl_oes_blend_subtract;
+  if (!strcmp(ext,"GL_OES_compressed_ETC1_RGB8_texture"))      return gl_oes_compressed_etc1_rgb8_texture;
+  if (!strcmp(ext,"GL_OES_compressed_paletted_texture"))       return gl_oes_compressed_paletted_texture;
+  if (!strcmp(ext,"GL_OES_depth_texture"))                     return gl_oes_depth_texture;
+  if (!strcmp(ext,"GL_OES_draw_texture"))                      return gl_oes_draw_texture;
+  if (!strcmp(ext,"GL_OES_element_index_uint"))                return gl_oes_element_index_uint;
+  if (!strcmp(ext,"GL_OES_fbo_render_mipmap"))                 return gl_oes_fbo_render_mipmap;
+  if (!strcmp(ext,"GL_OES_framebuffer_object"))                return gl_oes_framebuffer_object;
+  if (!strcmp(ext,"GL_OES_get_program_binary"))                return gl_oes_get_program_binary;
+  if (!strcmp(ext,"GL_OES_mapbuffer"))                         return gl_oes_mapbuffer;
+  if (!strcmp(ext,"GL_OES_matrix_get"))                        return gl_oes_matrix_get;
+  if (!strcmp(ext,"GL_OES_matrix_palette"))                    return gl_oes_matrix_palette;
+  if (!strcmp(ext,"GL_OES_packed_depth_stencil"))              return gl_oes_packed_depth_stencil;
+  if (!strcmp(ext,"GL_OES_point_size_array"))                  return gl_oes_point_size_array;
+  if (!strcmp(ext,"GL_OES_point_sprite"))                      return gl_oes_point_sprite;
+  if (!strcmp(ext,"GL_OES_read_format"))                       return gl_oes_read_format;
+  if (!strcmp(ext,"GL_OES_required_internalformat"))           return gl_oes_required_internalformat;
+  if (!strcmp(ext,"GL_OES_rgb8_rgba8"))                        return gl_oes_rgb8_rgba8;
+  if (!strcmp(ext,"GL_OES_single_precision"))                  return gl_oes_single_precision;
+  if (!strcmp(ext,"GL_OES_standard_derivatives"))              return gl_oes_standard_derivatives;
+  if (!strcmp(ext,"GL_OES_stencil1"))                          return gl_oes_stencil1;
+  if (!strcmp(ext,"GL_OES_stencil4"))                          return gl_oes_stencil4;
+  if (!strcmp(ext,"GL_OES_stencil8"))                          return gl_oes_stencil8;
+  if (!strcmp(ext,"GL_OES_surfaceless_context"))               return gl_oes_surfaceless_context;
+  if (!strcmp(ext,"GL_OES_texture_3D"))                        return gl_oes_texture_3d;
+  if (!strcmp(ext,"GL_OES_texture_cube_map"))                  return gl_oes_texture_cube_map;
+  if (!strcmp(ext,"GL_OES_texture_mirrored_repeat"))           return gl_oes_texture_mirrored_repeat;
+  if (!strcmp(ext,"GL_OES_vertex_array_object"))               return gl_oes_vertex_array_object;
+  if (!strcmp(ext,"GL_OES_vertex_half_float"))                 return gl_oes_vertex_half_float;
+  if (!strcmp(ext,"GL_OES_vertex_type_10_10_10_2"))            return gl_oes_vertex_type_10_10_10_2;
+  if (!strcmp(ext,"GL_OML_interlace"))                         return gl_oml_interlace;
+  if (!strcmp(ext,"GL_OML_resample"))                          return gl_oml_resample;
+  if (!strcmp(ext,"GL_OML_subsample"))                         return gl_oml_subsample;
+  if (!strcmp(ext,"GL_PGI_misc_hints"))                        return gl_pgi_misc_hints;
+  if (!strcmp(ext,"GL_PGI_vertex_hints"))                      return gl_pgi_vertex_hints;
+  if (!strcmp(ext,"GL_QCOM_alpha_test"))                       return gl_qcom_alpha_test;
+  if (!strcmp(ext,"GL_QCOM_binning_control"))                  return gl_qcom_binning_control;
+  if (!strcmp(ext,"GL_QCOM_driver_control"))                   return gl_qcom_driver_control;
+  if (!strcmp(ext,"GL_QCOM_extended_get"))                     return gl_qcom_extended_get;
+  if (!strcmp(ext,"GL_QCOM_extended_get2"))                    return gl_qcom_extended_get2;
+  if (!strcmp(ext,"GL_QCOM_perfmon_global_mode"))              return gl_qcom_perfmon_global_mode;
+  if (!strcmp(ext,"GL_QCOM_tiled_rendering"))                  return gl_qcom_tiled_rendering;
+  if (!strcmp(ext,"GL_QCOM_writeonly_rendering"))              return gl_qcom_writeonly_rendering;
+  if (!strcmp(ext,"GL_REGAL_ES1_0_compatibility"))             return gl_regal_es1_0_compatibility;
+  if (!strcmp(ext,"GL_REGAL_ES1_1_compatibility"))             return gl_regal_es1_1_compatibility;
+  if (!strcmp(ext,"GL_REGAL_enable"))                          return gl_regal_enable;
+  if (!strcmp(ext,"GL_REGAL_error_string"))                    return gl_regal_error_string;
+  if (!strcmp(ext,"GL_REGAL_extension_query"))                 return gl_regal_extension_query;
+  if (!strcmp(ext,"GL_REGAL_log"))                             return gl_regal_log;
+  if (!strcmp(ext,"GL_REND_screen_coordinates"))               return gl_rend_screen_coordinates;
+  if (!strcmp(ext,"GL_S3_s3tc"))                               return gl_s3_s3tc;
+  if (!strcmp(ext,"GL_SGIS_color_range"))                      return gl_sgis_color_range;
+  if (!strcmp(ext,"GL_SGIS_detail_texture"))                   return gl_sgis_detail_texture;
+  if (!strcmp(ext,"GL_SGIS_fog_function"))                     return gl_sgis_fog_function;
+  if (!strcmp(ext,"GL_SGIS_generate_mipmap"))                  return gl_sgis_generate_mipmap;
+  if (!strcmp(ext,"GL_SGIS_multisample"))                      return gl_sgis_multisample;
+  if (!strcmp(ext,"GL_SGIS_pixel_texture"))                    return gl_sgis_pixel_texture;
+  if (!strcmp(ext,"GL_SGIS_point_line_texgen"))                return gl_sgis_point_line_texgen;
+  if (!strcmp(ext,"GL_SGIS_point_parameters"))                 return gl_sgis_point_parameters;
+  if (!strcmp(ext,"GL_SGIS_sharpen_texture"))                  return gl_sgis_sharpen_texture;
+  if (!strcmp(ext,"GL_SGIS_texture4D"))                        return gl_sgis_texture4d;
+  if (!strcmp(ext,"GL_SGIS_texture_border_clamp"))             return gl_sgis_texture_border_clamp;
+  if (!strcmp(ext,"GL_SGIS_texture_color_mask"))               return gl_sgis_texture_color_mask;
+  if (!strcmp(ext,"GL_SGIS_texture_edge_clamp"))               return gl_sgis_texture_edge_clamp;
+  if (!strcmp(ext,"GL_SGIS_texture_filter4"))                  return gl_sgis_texture_filter4;
+  if (!strcmp(ext,"GL_SGIS_texture_lod"))                      return gl_sgis_texture_lod;
+  if (!strcmp(ext,"GL_SGIX_async"))                            return gl_sgix_async;
+  if (!strcmp(ext,"GL_SGIX_async_histogram"))                  return gl_sgix_async_histogram;
+  if (!strcmp(ext,"GL_SGIX_async_pixel"))                      return gl_sgix_async_pixel;
+  if (!strcmp(ext,"GL_SGIX_blend_alpha_minmax"))               return gl_sgix_blend_alpha_minmax;
+  if (!strcmp(ext,"GL_SGIX_convolution_accuracy"))             return gl_sgix_convolution_accuracy;
+  if (!strcmp(ext,"GL_SGIX_depth_texture"))                    return gl_sgix_depth_texture;
+  if (!strcmp(ext,"GL_SGIX_flush_raster"))                     return gl_sgix_flush_raster;
+  if (!strcmp(ext,"GL_SGIX_fog_offset"))                       return gl_sgix_fog_offset;
+  if (!strcmp(ext,"GL_SGIX_fog_texture"))                      return gl_sgix_fog_texture;
+  if (!strcmp(ext,"GL_SGIX_fragment_lighting"))                return gl_sgix_fragment_lighting;
+  if (!strcmp(ext,"GL_SGIX_fragment_specular_lighting"))       return gl_sgix_fragment_specular_lighting;
+  if (!strcmp(ext,"GL_SGIX_framezoom"))                        return gl_sgix_framezoom;
+  if (!strcmp(ext,"GL_SGIX_igloo_interface"))                  return gl_sgix_igloo_interface;
+  if (!strcmp(ext,"GL_SGIX_instruments"))                      return gl_sgix_instruments;
+  if (!strcmp(ext,"GL_SGIX_interlace"))                        return gl_sgix_interlace;
+  if (!strcmp(ext,"GL_SGIX_list_priority"))                    return gl_sgix_list_priority;
+  if (!strcmp(ext,"GL_SGIX_pixel_texture"))                    return gl_sgix_pixel_texture;
+  if (!strcmp(ext,"GL_SGIX_polynomial_ffd"))                   return gl_sgix_polynomial_ffd;
+  if (!strcmp(ext,"GL_SGIX_reference_plane"))                  return gl_sgix_reference_plane;
+  if (!strcmp(ext,"GL_SGIX_resample"))                         return gl_sgix_resample;
+  if (!strcmp(ext,"GL_SGIX_shadow"))                           return gl_sgix_shadow;
+  if (!strcmp(ext,"GL_SGIX_shadow_ambient"))                   return gl_sgix_shadow_ambient;
+  if (!strcmp(ext,"GL_SGIX_sprite"))                           return gl_sgix_sprite;
+  if (!strcmp(ext,"GL_SGIX_tag_sample_buffer"))                return gl_sgix_tag_sample_buffer;
+  if (!strcmp(ext,"GL_SGIX_texture_coordinate_clamp"))         return gl_sgix_texture_coordinate_clamp;
+  if (!strcmp(ext,"GL_SGIX_texture_multi_buffer"))             return gl_sgix_texture_multi_buffer;
+  if (!strcmp(ext,"GL_SGIX_texture_range"))                    return gl_sgix_texture_range;
+  if (!strcmp(ext,"GL_SGIX_texture_scale_bias"))               return gl_sgix_texture_scale_bias;
+  if (!strcmp(ext,"GL_SGIX_vertex_preclip_hint"))              return gl_sgix_vertex_preclip_hint;
+  if (!strcmp(ext,"GL_SGIX_ycrcb"))                            return gl_sgix_ycrcb;
+  if (!strcmp(ext,"GL_SGI_color_matrix"))                      return gl_sgi_color_matrix;
+  if (!strcmp(ext,"GL_SGI_color_table"))                       return gl_sgi_color_table;
+  if (!strcmp(ext,"GL_SGI_texture_color_table"))               return gl_sgi_texture_color_table;
+  if (!strcmp(ext,"GL_SUNX_constant_data"))                    return gl_sunx_constant_data;
+  if (!strcmp(ext,"GL_SUN_convolution_border_modes"))          return gl_sun_convolution_border_modes;
+  if (!strcmp(ext,"GL_SUN_global_alpha"))                      return gl_sun_global_alpha;
+  if (!strcmp(ext,"GL_SUN_mesh_array"))                        return gl_sun_mesh_array;
+  if (!strcmp(ext,"GL_SUN_read_video_pixels"))                 return gl_sun_read_video_pixels;
+  if (!strcmp(ext,"GL_SUN_slice_accum"))                       return gl_sun_slice_accum;
+  if (!strcmp(ext,"GL_SUN_triangle_list"))                     return gl_sun_triangle_list;
+  if (!strcmp(ext,"GL_SUN_vertex"))                            return gl_sun_vertex;
+  if (!strcmp(ext,"GL_VIV_shader_binary"))                     return gl_viv_shader_binary;
+  if (!strcmp(ext,"GL_WIN_phong_shading"))                     return gl_win_phong_shading;
+  if (!strcmp(ext,"GL_WIN_specular_fog"))                      return gl_win_specular_fog;
+  if (!strcmp(ext,"GL_WIN_swap_hint"))                         return gl_win_swap_hint;
 
 #if REGAL_SYS_WGL
-  if (!strcmp(ext,"WGL_3DL_stereo_control")) return wgl_3dl_stereo_control;
-  if (!strcmp(ext,"WGL_AMD_gpu_association")) return wgl_amd_gpu_association;
-  if (!strcmp(ext,"WGL_ARB_buffer_region")) return wgl_arb_buffer_region;
-  if (!strcmp(ext,"WGL_ARB_create_context")) return wgl_arb_create_context;
-  if (!strcmp(ext,"WGL_ARB_create_context_profile")) return wgl_arb_create_context_profile;
-  if (!strcmp(ext,"WGL_ARB_create_context_robustness")) return wgl_arb_create_context_robustness;
-  if (!strcmp(ext,"WGL_ARB_extensions_string")) return wgl_arb_extensions_string;
-  if (!strcmp(ext,"WGL_ARB_framebuffer_sRGB")) return wgl_arb_framebuffer_srgb;
-  if (!strcmp(ext,"WGL_ARB_make_current_read")) return wgl_arb_make_current_read;
-  if (!strcmp(ext,"WGL_ARB_multisample")) return wgl_arb_multisample;
-  if (!strcmp(ext,"WGL_ARB_pbuffer")) return wgl_arb_pbuffer;
-  if (!strcmp(ext,"WGL_ARB_pixel_format")) return wgl_arb_pixel_format;
-  if (!strcmp(ext,"WGL_ARB_pixel_format_float")) return wgl_arb_pixel_format_float;
-  if (!strcmp(ext,"WGL_ARB_render_texture")) return wgl_arb_render_texture;
+  if (!strcmp(ext,"WGL_3DL_stereo_control"))                   return wgl_3dl_stereo_control;
+  if (!strcmp(ext,"WGL_AMD_gpu_association"))                  return wgl_amd_gpu_association;
+  if (!strcmp(ext,"WGL_ARB_buffer_region"))                    return wgl_arb_buffer_region;
+  if (!strcmp(ext,"WGL_ARB_create_context"))                   return wgl_arb_create_context;
+  if (!strcmp(ext,"WGL_ARB_create_context_profile"))           return wgl_arb_create_context_profile;
+  if (!strcmp(ext,"WGL_ARB_create_context_robustness"))        return wgl_arb_create_context_robustness;
+  if (!strcmp(ext,"WGL_ARB_extensions_string"))                return wgl_arb_extensions_string;
+  if (!strcmp(ext,"WGL_ARB_framebuffer_sRGB"))                 return wgl_arb_framebuffer_srgb;
+  if (!strcmp(ext,"WGL_ARB_make_current_read"))                return wgl_arb_make_current_read;
+  if (!strcmp(ext,"WGL_ARB_multisample"))                      return wgl_arb_multisample;
+  if (!strcmp(ext,"WGL_ARB_pbuffer"))                          return wgl_arb_pbuffer;
+  if (!strcmp(ext,"WGL_ARB_pixel_format"))                     return wgl_arb_pixel_format;
+  if (!strcmp(ext,"WGL_ARB_pixel_format_float"))               return wgl_arb_pixel_format_float;
+  if (!strcmp(ext,"WGL_ARB_render_texture"))                   return wgl_arb_render_texture;
   if (!strcmp(ext,"WGL_ARB_robustness_share_group_isolation")) return wgl_arb_robustness_share_group_isolation;
-  if (!strcmp(ext,"WGL_ATI_pixel_format_float")) return wgl_ati_pixel_format_float;
-  if (!strcmp(ext,"WGL_ATI_render_texture_rectangle")) return wgl_ati_render_texture_rectangle;
-  if (!strcmp(ext,"WGL_EXT_create_context_es2_profile")) return wgl_ext_create_context_es2_profile;
-  if (!strcmp(ext,"WGL_EXT_create_context_es_profile")) return wgl_ext_create_context_es_profile;
-  if (!strcmp(ext,"WGL_EXT_depth_float")) return wgl_ext_depth_float;
-  if (!strcmp(ext,"WGL_EXT_display_color_table")) return wgl_ext_display_color_table;
-  if (!strcmp(ext,"WGL_EXT_extensions_string")) return wgl_ext_extensions_string;
-  if (!strcmp(ext,"WGL_EXT_framebuffer_sRGB")) return wgl_ext_framebuffer_srgb;
-  if (!strcmp(ext,"WGL_EXT_make_current_read")) return wgl_ext_make_current_read;
-  if (!strcmp(ext,"WGL_EXT_multisample")) return wgl_ext_multisample;
-  if (!strcmp(ext,"WGL_EXT_pbuffer")) return wgl_ext_pbuffer;
-  if (!strcmp(ext,"WGL_EXT_pixel_format")) return wgl_ext_pixel_format;
-  if (!strcmp(ext,"WGL_EXT_pixel_format_packed_float")) return wgl_ext_pixel_format_packed_float;
-  if (!strcmp(ext,"WGL_EXT_swap_control")) return wgl_ext_swap_control;
-  if (!strcmp(ext,"WGL_GDI")) return wgl_gdi;
-  if (!strcmp(ext,"WGL_I3D_digital_video_control")) return wgl_i3d_digital_video_control;
-  if (!strcmp(ext,"WGL_I3D_gamma")) return wgl_i3d_gamma;
-  if (!strcmp(ext,"WGL_I3D_genlock")) return wgl_i3d_genlock;
-  if (!strcmp(ext,"WGL_I3D_image_buffer")) return wgl_i3d_image_buffer;
-  if (!strcmp(ext,"WGL_I3D_swap_frame_lock")) return wgl_i3d_swap_frame_lock;
-  if (!strcmp(ext,"WGL_I3D_swap_frame_usage")) return wgl_i3d_swap_frame_usage;
-  if (!strcmp(ext,"WGL_NV_DX_interop")) return wgl_nv_dx_interop;
-  if (!strcmp(ext,"WGL_NV_copy_image")) return wgl_nv_copy_image;
-  if (!strcmp(ext,"WGL_NV_float_buffer")) return wgl_nv_float_buffer;
-  if (!strcmp(ext,"WGL_NV_gpu_affinity")) return wgl_nv_gpu_affinity;
-  if (!strcmp(ext,"WGL_NV_multisample_coverage")) return wgl_nv_multisample_coverage;
-  if (!strcmp(ext,"WGL_NV_present_video")) return wgl_nv_present_video;
-  if (!strcmp(ext,"WGL_NV_render_depth_texture")) return wgl_nv_render_depth_texture;
-  if (!strcmp(ext,"WGL_NV_render_texture_rectangle")) return wgl_nv_render_texture_rectangle;
-  if (!strcmp(ext,"WGL_NV_swap_group")) return wgl_nv_swap_group;
-  if (!strcmp(ext,"WGL_NV_vertex_array_range")) return wgl_nv_vertex_array_range;
-  if (!strcmp(ext,"WGL_NV_video_capture")) return wgl_nv_video_capture;
-  if (!strcmp(ext,"WGL_NV_video_output")) return wgl_nv_video_output;
-  if (!strcmp(ext,"WGL_OML_sync_control")) return wgl_oml_sync_control;
-#endif
+  if (!strcmp(ext,"WGL_ATI_pixel_format_float"))               return wgl_ati_pixel_format_float;
+  if (!strcmp(ext,"WGL_ATI_render_texture_rectangle"))         return wgl_ati_render_texture_rectangle;
+  if (!strcmp(ext,"WGL_EXT_create_context_es2_profile"))       return wgl_ext_create_context_es2_profile;
+  if (!strcmp(ext,"WGL_EXT_create_context_es_profile"))        return wgl_ext_create_context_es_profile;
+  if (!strcmp(ext,"WGL_EXT_depth_float"))                      return wgl_ext_depth_float;
+  if (!strcmp(ext,"WGL_EXT_display_color_table"))              return wgl_ext_display_color_table;
+  if (!strcmp(ext,"WGL_EXT_extensions_string"))                return wgl_ext_extensions_string;
+  if (!strcmp(ext,"WGL_EXT_framebuffer_sRGB"))                 return wgl_ext_framebuffer_srgb;
+  if (!strcmp(ext,"WGL_EXT_make_current_read"))                return wgl_ext_make_current_read;
+  if (!strcmp(ext,"WGL_EXT_multisample"))                      return wgl_ext_multisample;
+  if (!strcmp(ext,"WGL_EXT_pbuffer"))                          return wgl_ext_pbuffer;
+  if (!strcmp(ext,"WGL_EXT_pixel_format"))                     return wgl_ext_pixel_format;
+  if (!strcmp(ext,"WGL_EXT_pixel_format_packed_float"))        return wgl_ext_pixel_format_packed_float;
+  if (!strcmp(ext,"WGL_EXT_swap_control"))                     return wgl_ext_swap_control;
+  if (!strcmp(ext,"WGL_GDI"))                                  return wgl_gdi;
+  if (!strcmp(ext,"WGL_I3D_digital_video_control"))            return wgl_i3d_digital_video_control;
+  if (!strcmp(ext,"WGL_I3D_gamma"))                            return wgl_i3d_gamma;
+  if (!strcmp(ext,"WGL_I3D_genlock"))                          return wgl_i3d_genlock;
+  if (!strcmp(ext,"WGL_I3D_image_buffer"))                     return wgl_i3d_image_buffer;
+  if (!strcmp(ext,"WGL_I3D_swap_frame_lock"))                  return wgl_i3d_swap_frame_lock;
+  if (!strcmp(ext,"WGL_I3D_swap_frame_usage"))                 return wgl_i3d_swap_frame_usage;
+  if (!strcmp(ext,"WGL_NV_DX_interop"))                        return wgl_nv_dx_interop;
+  if (!strcmp(ext,"WGL_NV_copy_image"))                        return wgl_nv_copy_image;
+  if (!strcmp(ext,"WGL_NV_float_buffer"))                      return wgl_nv_float_buffer;
+  if (!strcmp(ext,"WGL_NV_gpu_affinity"))                      return wgl_nv_gpu_affinity;
+  if (!strcmp(ext,"WGL_NV_multisample_coverage"))              return wgl_nv_multisample_coverage;
+  if (!strcmp(ext,"WGL_NV_present_video"))                     return wgl_nv_present_video;
+  if (!strcmp(ext,"WGL_NV_render_depth_texture"))              return wgl_nv_render_depth_texture;
+  if (!strcmp(ext,"WGL_NV_render_texture_rectangle"))          return wgl_nv_render_texture_rectangle;
+  if (!strcmp(ext,"WGL_NV_swap_group"))                        return wgl_nv_swap_group;
+  if (!strcmp(ext,"WGL_NV_vertex_array_range"))                return wgl_nv_vertex_array_range;
+  if (!strcmp(ext,"WGL_NV_video_capture"))                     return wgl_nv_video_capture;
+  if (!strcmp(ext,"WGL_NV_video_output"))                      return wgl_nv_video_output;
+  if (!strcmp(ext,"WGL_OML_sync_control"))                     return wgl_oml_sync_control;
+#endif /* REGAL_SYS_WGL */
 
 #if REGAL_SYS_GLX
-  if (!strcmp(ext,"GLX_3DFX_multisample")) return glx_3dfx_multisample;
-  if (!strcmp(ext,"GLX_AMD_gpu_association")) return glx_amd_gpu_association;
-  if (!strcmp(ext,"GLX_ARB_create_context")) return glx_arb_create_context;
-  if (!strcmp(ext,"GLX_ARB_create_context_profile")) return glx_arb_create_context_profile;
-  if (!strcmp(ext,"GLX_ARB_create_context_robustness")) return glx_arb_create_context_robustness;
-  if (!strcmp(ext,"GLX_ARB_fbconfig_float")) return glx_arb_fbconfig_float;
-  if (!strcmp(ext,"GLX_ARB_framebuffer_sRGB")) return glx_arb_framebuffer_srgb;
-  if (!strcmp(ext,"GLX_ARB_get_proc_address")) return glx_arb_get_proc_address;
-  if (!strcmp(ext,"GLX_ARB_multisample")) return glx_arb_multisample;
+  if (!strcmp(ext,"GLX_3DFX_multisample"))                     return glx_3dfx_multisample;
+  if (!strcmp(ext,"GLX_AMD_gpu_association"))                  return glx_amd_gpu_association;
+  if (!strcmp(ext,"GLX_ARB_create_context"))                   return glx_arb_create_context;
+  if (!strcmp(ext,"GLX_ARB_create_context_profile"))           return glx_arb_create_context_profile;
+  if (!strcmp(ext,"GLX_ARB_create_context_robustness"))        return glx_arb_create_context_robustness;
+  if (!strcmp(ext,"GLX_ARB_fbconfig_float"))                   return glx_arb_fbconfig_float;
+  if (!strcmp(ext,"GLX_ARB_framebuffer_sRGB"))                 return glx_arb_framebuffer_srgb;
+  if (!strcmp(ext,"GLX_ARB_get_proc_address"))                 return glx_arb_get_proc_address;
+  if (!strcmp(ext,"GLX_ARB_multisample"))                      return glx_arb_multisample;
   if (!strcmp(ext,"GLX_ARB_robustness_share_group_isolation")) return glx_arb_robustness_share_group_isolation;
-  if (!strcmp(ext,"GLX_ARB_vertex_buffer_object")) return glx_arb_vertex_buffer_object;
-  if (!strcmp(ext,"GLX_ATI_pixel_format_float")) return glx_ati_pixel_format_float;
-  if (!strcmp(ext,"GLX_ATI_render_texture")) return glx_ati_render_texture;
-  if (!strcmp(ext,"GLX_EXT_create_context_es2_profile")) return glx_ext_create_context_es2_profile;
-  if (!strcmp(ext,"GLX_EXT_create_context_es_profile")) return glx_ext_create_context_es_profile;
-  if (!strcmp(ext,"GLX_EXT_fbconfig_packed_float")) return glx_ext_fbconfig_packed_float;
-  if (!strcmp(ext,"GLX_EXT_framebuffer_sRGB")) return glx_ext_framebuffer_srgb;
-  if (!strcmp(ext,"GLX_EXT_import_context")) return glx_ext_import_context;
-  if (!strcmp(ext,"GLX_EXT_swap_control")) return glx_ext_swap_control;
-  if (!strcmp(ext,"GLX_EXT_swap_control_tear")) return glx_ext_swap_control_tear;
-  if (!strcmp(ext,"GLX_EXT_texture_from_pixmap")) return glx_ext_texture_from_pixmap;
-  if (!strcmp(ext,"GLX_EXT_visual_info")) return glx_ext_visual_info;
-  if (!strcmp(ext,"GLX_EXT_visual_rating")) return glx_ext_visual_rating;
-  if (!strcmp(ext,"GLX_INTEL_swap_event")) return glx_intel_swap_event;
-  if (!strcmp(ext,"GLX_MESA_agp_offset")) return glx_mesa_agp_offset;
-  if (!strcmp(ext,"GLX_MESA_copy_sub_buffer")) return glx_mesa_copy_sub_buffer;
-  if (!strcmp(ext,"GLX_MESA_pixmap_colormap")) return glx_mesa_pixmap_colormap;
-  if (!strcmp(ext,"GLX_MESA_release_buffers")) return glx_mesa_release_buffers;
-  if (!strcmp(ext,"GLX_MESA_set_3dfx_mode")) return glx_mesa_set_3dfx_mode;
-  if (!strcmp(ext,"GLX_MESA_swap_control")) return glx_mesa_swap_control;
-  if (!strcmp(ext,"GLX_NV_copy_image")) return glx_nv_copy_image;
-  if (!strcmp(ext,"GLX_NV_float_buffer")) return glx_nv_float_buffer;
-  if (!strcmp(ext,"GLX_NV_multisample_coverage")) return glx_nv_multisample_coverage;
-  if (!strcmp(ext,"GLX_NV_present_video")) return glx_nv_present_video;
-  if (!strcmp(ext,"GLX_NV_swap_group")) return glx_nv_swap_group;
-  if (!strcmp(ext,"GLX_NV_vertex_array_range")) return glx_nv_vertex_array_range;
-  if (!strcmp(ext,"GLX_NV_video_capture")) return glx_nv_video_capture;
-  if (!strcmp(ext,"GLX_NV_video_output")) return glx_nv_video_output;
-  if (!strcmp(ext,"GLX_OML_swap_method")) return glx_oml_swap_method;
-  if (!strcmp(ext,"GLX_OML_sync_control")) return glx_oml_sync_control;
-  if (!strcmp(ext,"GLX_SGIS_blended_overlay")) return glx_sgis_blended_overlay;
-  if (!strcmp(ext,"GLX_SGIS_color_range")) return glx_sgis_color_range;
-  if (!strcmp(ext,"GLX_SGIS_multisample")) return glx_sgis_multisample;
-  if (!strcmp(ext,"GLX_SGIS_shared_multisample")) return glx_sgis_shared_multisample;
-  if (!strcmp(ext,"GLX_SGIX_fbconfig")) return glx_sgix_fbconfig;
-  if (!strcmp(ext,"GLX_SGIX_hyperpipe")) return glx_sgix_hyperpipe;
-  if (!strcmp(ext,"GLX_SGIX_pbuffer")) return glx_sgix_pbuffer;
-  if (!strcmp(ext,"GLX_SGIX_swap_barrier")) return glx_sgix_swap_barrier;
-  if (!strcmp(ext,"GLX_SGIX_swap_group")) return glx_sgix_swap_group;
-  if (!strcmp(ext,"GLX_SGIX_video_resize")) return glx_sgix_video_resize;
-  if (!strcmp(ext,"GLX_SGIX_visual_select_group")) return glx_sgix_visual_select_group;
-  if (!strcmp(ext,"GLX_SGI_cushion")) return glx_sgi_cushion;
-  if (!strcmp(ext,"GLX_SGI_make_current_read")) return glx_sgi_make_current_read;
-  if (!strcmp(ext,"GLX_SGI_swap_control")) return glx_sgi_swap_control;
-  if (!strcmp(ext,"GLX_SGI_video_sync")) return glx_sgi_video_sync;
-  if (!strcmp(ext,"GLX_SUN_get_transparent_index")) return glx_sun_get_transparent_index;
-  if (!strcmp(ext,"GLX_SUN_video_resize")) return glx_sun_video_resize;
-#endif
+  if (!strcmp(ext,"GLX_ARB_vertex_buffer_object"))             return glx_arb_vertex_buffer_object;
+  if (!strcmp(ext,"GLX_ATI_pixel_format_float"))               return glx_ati_pixel_format_float;
+  if (!strcmp(ext,"GLX_ATI_render_texture"))                   return glx_ati_render_texture;
+  if (!strcmp(ext,"GLX_EXT_create_context_es2_profile"))       return glx_ext_create_context_es2_profile;
+  if (!strcmp(ext,"GLX_EXT_create_context_es_profile"))        return glx_ext_create_context_es_profile;
+  if (!strcmp(ext,"GLX_EXT_fbconfig_packed_float"))            return glx_ext_fbconfig_packed_float;
+  if (!strcmp(ext,"GLX_EXT_framebuffer_sRGB"))                 return glx_ext_framebuffer_srgb;
+  if (!strcmp(ext,"GLX_EXT_import_context"))                   return glx_ext_import_context;
+  if (!strcmp(ext,"GLX_EXT_swap_control"))                     return glx_ext_swap_control;
+  if (!strcmp(ext,"GLX_EXT_swap_control_tear"))                return glx_ext_swap_control_tear;
+  if (!strcmp(ext,"GLX_EXT_texture_from_pixmap"))              return glx_ext_texture_from_pixmap;
+  if (!strcmp(ext,"GLX_EXT_visual_info"))                      return glx_ext_visual_info;
+  if (!strcmp(ext,"GLX_EXT_visual_rating"))                    return glx_ext_visual_rating;
+  if (!strcmp(ext,"GLX_INTEL_swap_event"))                     return glx_intel_swap_event;
+  if (!strcmp(ext,"GLX_MESA_agp_offset"))                      return glx_mesa_agp_offset;
+  if (!strcmp(ext,"GLX_MESA_copy_sub_buffer"))                 return glx_mesa_copy_sub_buffer;
+  if (!strcmp(ext,"GLX_MESA_pixmap_colormap"))                 return glx_mesa_pixmap_colormap;
+  if (!strcmp(ext,"GLX_MESA_release_buffers"))                 return glx_mesa_release_buffers;
+  if (!strcmp(ext,"GLX_MESA_set_3dfx_mode"))                   return glx_mesa_set_3dfx_mode;
+  if (!strcmp(ext,"GLX_MESA_swap_control"))                    return glx_mesa_swap_control;
+  if (!strcmp(ext,"GLX_NV_copy_image"))                        return glx_nv_copy_image;
+  if (!strcmp(ext,"GLX_NV_float_buffer"))                      return glx_nv_float_buffer;
+  if (!strcmp(ext,"GLX_NV_multisample_coverage"))              return glx_nv_multisample_coverage;
+  if (!strcmp(ext,"GLX_NV_present_video"))                     return glx_nv_present_video;
+  if (!strcmp(ext,"GLX_NV_swap_group"))                        return glx_nv_swap_group;
+  if (!strcmp(ext,"GLX_NV_vertex_array_range"))                return glx_nv_vertex_array_range;
+  if (!strcmp(ext,"GLX_NV_video_capture"))                     return glx_nv_video_capture;
+  if (!strcmp(ext,"GLX_NV_video_output"))                      return glx_nv_video_output;
+  if (!strcmp(ext,"GLX_OML_swap_method"))                      return glx_oml_swap_method;
+  if (!strcmp(ext,"GLX_OML_sync_control"))                     return glx_oml_sync_control;
+  if (!strcmp(ext,"GLX_SGIS_blended_overlay"))                 return glx_sgis_blended_overlay;
+  if (!strcmp(ext,"GLX_SGIS_color_range"))                     return glx_sgis_color_range;
+  if (!strcmp(ext,"GLX_SGIS_multisample"))                     return glx_sgis_multisample;
+  if (!strcmp(ext,"GLX_SGIS_shared_multisample"))              return glx_sgis_shared_multisample;
+  if (!strcmp(ext,"GLX_SGIX_fbconfig"))                        return glx_sgix_fbconfig;
+  if (!strcmp(ext,"GLX_SGIX_hyperpipe"))                       return glx_sgix_hyperpipe;
+  if (!strcmp(ext,"GLX_SGIX_pbuffer"))                         return glx_sgix_pbuffer;
+  if (!strcmp(ext,"GLX_SGIX_swap_barrier"))                    return glx_sgix_swap_barrier;
+  if (!strcmp(ext,"GLX_SGIX_swap_group"))                      return glx_sgix_swap_group;
+  if (!strcmp(ext,"GLX_SGIX_video_resize"))                    return glx_sgix_video_resize;
+  if (!strcmp(ext,"GLX_SGIX_visual_select_group"))             return glx_sgix_visual_select_group;
+  if (!strcmp(ext,"GLX_SGI_cushion"))                          return glx_sgi_cushion;
+  if (!strcmp(ext,"GLX_SGI_make_current_read"))                return glx_sgi_make_current_read;
+  if (!strcmp(ext,"GLX_SGI_swap_control"))                     return glx_sgi_swap_control;
+  if (!strcmp(ext,"GLX_SGI_video_sync"))                       return glx_sgi_video_sync;
+  if (!strcmp(ext,"GLX_SUN_get_transparent_index"))            return glx_sun_get_transparent_index;
+  if (!strcmp(ext,"GLX_SUN_video_resize"))                     return glx_sun_video_resize;
+#endif /* REGAL_SYS_GLX */
 
 #if REGAL_SYS_EGL
-  if (!strcmp(ext,"EGL_ANGLE_query_surface_pointer")) return egl_angle_query_surface_pointer;
+  if (!strcmp(ext,"EGL_ANGLE_query_surface_pointer"))          return egl_angle_query_surface_pointer;
   if (!strcmp(ext,"EGL_ANGLE_surface_d3d_texture_2d_share_handle")) return egl_angle_surface_d3d_texture_2d_share_handle;
-  if (!strcmp(ext,"EGL_EXT_create_context_robustness")) return egl_ext_create_context_robustness;
-  if (!strcmp(ext,"EGL_EXT_multiview_window")) return egl_ext_multiview_window;
-  if (!strcmp(ext,"EGL_HI_colorformats")) return egl_hi_colorformats;
-  if (!strcmp(ext,"EGL_IMG_context_priority")) return egl_img_context_priority;
-  if (!strcmp(ext,"EGL_KHR_config_attribs")) return egl_khr_config_attribs;
-  if (!strcmp(ext,"EGL_KHR_create_context")) return egl_khr_create_context;
-  if (!strcmp(ext,"EGL_KHR_fence_sync")) return egl_khr_fence_sync;
-  if (!strcmp(ext,"EGL_KHR_gl_texture_cubemap_image")) return egl_khr_gl_texture_cubemap_image;
-  if (!strcmp(ext,"EGL_KHR_image_base")) return egl_khr_image_base;
-  if (!strcmp(ext,"EGL_KHR_image_pixmap")) return egl_khr_image_pixmap;
-  if (!strcmp(ext,"EGL_KHR_lock_surface")) return egl_khr_lock_surface;
-  if (!strcmp(ext,"EGL_KHR_lock_surface2")) return egl_khr_lock_surface2;
-  if (!strcmp(ext,"EGL_KHR_reusable_sync")) return egl_khr_reusable_sync;
-  if (!strcmp(ext,"EGL_KHR_stream")) return egl_khr_stream;
-  if (!strcmp(ext,"EGL_KHR_stream_consumer_gltexture")) return egl_khr_stream_consumer_gltexture;
-  if (!strcmp(ext,"EGL_KHR_stream_cross_process_fd")) return egl_khr_stream_cross_process_fd;
-  if (!strcmp(ext,"EGL_KHR_stream_fifo")) return egl_khr_stream_fifo;
-  if (!strcmp(ext,"EGL_KHR_stream_producer_eglsurface")) return egl_khr_stream_producer_eglsurface;
-  if (!strcmp(ext,"EGL_KHR_vg_parent_image")) return egl_khr_vg_parent_image;
-  if (!strcmp(ext,"EGL_KHR_wait_sync")) return egl_khr_wait_sync;
-  if (!strcmp(ext,"EGL_MESA_drm_image")) return egl_mesa_drm_image;
-  if (!strcmp(ext,"EGL_NV_coverage_sample")) return egl_nv_coverage_sample;
-  if (!strcmp(ext,"EGL_NV_coverage_sample_resolve")) return egl_nv_coverage_sample_resolve;
-  if (!strcmp(ext,"EGL_NV_post_sub_buffer")) return egl_nv_post_sub_buffer;
-  if (!strcmp(ext,"EGL_NV_sync")) return egl_nv_sync;
-  if (!strcmp(ext,"EGL_NV_system_time")) return egl_nv_system_time;
-#endif
+  if (!strcmp(ext,"EGL_EXT_create_context_robustness"))        return egl_ext_create_context_robustness;
+  if (!strcmp(ext,"EGL_EXT_multiview_window"))                 return egl_ext_multiview_window;
+  if (!strcmp(ext,"EGL_HI_colorformats"))                      return egl_hi_colorformats;
+  if (!strcmp(ext,"EGL_IMG_context_priority"))                 return egl_img_context_priority;
+  if (!strcmp(ext,"EGL_KHR_config_attribs"))                   return egl_khr_config_attribs;
+  if (!strcmp(ext,"EGL_KHR_create_context"))                   return egl_khr_create_context;
+  if (!strcmp(ext,"EGL_KHR_fence_sync"))                       return egl_khr_fence_sync;
+  if (!strcmp(ext,"EGL_KHR_gl_texture_cubemap_image"))         return egl_khr_gl_texture_cubemap_image;
+  if (!strcmp(ext,"EGL_KHR_image_base"))                       return egl_khr_image_base;
+  if (!strcmp(ext,"EGL_KHR_image_pixmap"))                     return egl_khr_image_pixmap;
+  if (!strcmp(ext,"EGL_KHR_lock_surface"))                     return egl_khr_lock_surface;
+  if (!strcmp(ext,"EGL_KHR_lock_surface2"))                    return egl_khr_lock_surface2;
+  if (!strcmp(ext,"EGL_KHR_reusable_sync"))                    return egl_khr_reusable_sync;
+  if (!strcmp(ext,"EGL_KHR_stream"))                           return egl_khr_stream;
+  if (!strcmp(ext,"EGL_KHR_stream_consumer_gltexture"))        return egl_khr_stream_consumer_gltexture;
+  if (!strcmp(ext,"EGL_KHR_stream_cross_process_fd"))          return egl_khr_stream_cross_process_fd;
+  if (!strcmp(ext,"EGL_KHR_stream_fifo"))                      return egl_khr_stream_fifo;
+  if (!strcmp(ext,"EGL_KHR_stream_producer_eglsurface"))       return egl_khr_stream_producer_eglsurface;
+  if (!strcmp(ext,"EGL_KHR_vg_parent_image"))                  return egl_khr_vg_parent_image;
+  if (!strcmp(ext,"EGL_KHR_wait_sync"))                        return egl_khr_wait_sync;
+  if (!strcmp(ext,"EGL_MESA_drm_image"))                       return egl_mesa_drm_image;
+  if (!strcmp(ext,"EGL_NV_coverage_sample"))                   return egl_nv_coverage_sample;
+  if (!strcmp(ext,"EGL_NV_coverage_sample_resolve"))           return egl_nv_coverage_sample_resolve;
+  if (!strcmp(ext,"EGL_NV_post_sub_buffer"))                   return egl_nv_post_sub_buffer;
+  if (!strcmp(ext,"EGL_NV_sync"))                              return egl_nv_sync;
+  if (!strcmp(ext,"EGL_NV_system_time"))                       return egl_nv_system_time;
+#endif /* REGAL_SYS_EGL */
 
-return false;
-}
-
-bool
-ContextInfo::isSupported(const char *ext) const
-{
-  Internal("ContextInfo::isSupported ",boost::print::quote(ext,'"'));
-
-  string_list<string> e;
-  e.split(ext,' ');
-  for (string_list<string>::const_iterator i=e.begin(); i!=e.end(); ++i)
-    if (i->length() && !getExtension(i->c_str())) return false;
-  return true;
+  return false;
 }
 
 REGAL_NAMESPACE_END

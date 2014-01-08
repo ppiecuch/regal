@@ -13,13 +13,16 @@ ifndef REGAL_FORCE_REBUILD
   endif
 endif
 
-regal_cflags := -DANDROID=1 -DREGAL_NO_PNG=1 -Werror
+# apitrace still needs -DANDROID=1 
+
+regal_cflags := -DANDROID=1 -DREGAL_NO_PNG=1 -DREGAL_CONFIG_FILE=/data/.regal -Werror
 
 regal_path   := $(LOCAL_PATH)/../../../..
 
 include $(regal_path)/build/zlib.inc
 include $(regal_path)/build/snappy.inc
 include $(regal_path)/build/apitrace.inc
+include $(regal_path)/build/glslopt.inc
 include $(regal_path)/build/regal.inc
 
 #
@@ -61,6 +64,15 @@ apitrace_c_includes += $(regal_path)/src/regal $(regal_path)/src/mongoose $(rega
 apitrace_c_includes := $(patsubst $(LOCAL_PATH)/../%,%,$(apitrace_c_includes))
 
 apitrace_export_c_includes := $(regal_path)/include
+
+#
+#
+# glsl optimizer
+#
+
+glslopt_src_files := $(patsubst %,$(regal_path)/%,$(GLSLOPT.CXX))
+glslopt_src_files := $(patsubst $(LOCAL_PATH)/%,%,$(glslopt_src_files))
+glslopt_c_includes := $(patsubst -I%,$(regal_path)/%,$(GLSLOPT.INCLUDE))
 
 #
 # regal
@@ -118,12 +130,22 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := apitrace
 LOCAL_SRC_FILES := $(apitrace_src_files)
-LOCAL_CFLAGS := $(regal_cflags) -DAPITRACE_TLS=0 -DTRACE_OS_LOG=0 -DTRACE_BACKTRACE=0
+LOCAL_CFLAGS := $(regal_cflags) -DAPITRACE_TLS=0 -DHAVE_EXTERNAL_OS_LOG=1 -DHAVE_BACKTRACE=0 -DTRACE_ENABLED_CHECK=0
+
 LOCAL_C_INCLUDES := $(apitrace_c_includes)
 LOCAL_EXPORT_C_INCLUDES := $(apitrace_export_c_includes)
 LOCAL_EXPORT_LDLIBS :=
 LOCAL_ARM_MODE  := arm
 include $(BUILD_STATIC_LIBRARY)
+
+# include $(CLEAR_VARS)
+# LOCAL_MODULE := glslopt 
+# LOCAL_SRC_FILES := $(glslopt_src_files)
+# LOCAL_CFLAGS := $(regal_cflags)
+# LOCAL_C_INCLUDES := $(glslopt_c_includes)
+# LOCAL_EXPORT_LDLIBS :=
+# LOCAL_ARM_MODE  := arm
+# include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := Regal_static

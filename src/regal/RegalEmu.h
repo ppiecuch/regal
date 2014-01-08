@@ -30,8 +30,8 @@
 
 /*
 
- Regal Emulation layer base class.
- Cass Everitt
+ Regal Emulation layer constants
+ Cass Everitt, Scott Nations
 
  */
 
@@ -40,40 +40,82 @@
 
 #include "RegalUtil.h"
 
-#if REGAL_EMULATION
-
 REGAL_GLOBAL_BEGIN
 
 #include <GL/Regal.h>
-
-#include <cassert>
 
 REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
+namespace Emu
+{
+
 // In ES2 mode, 16 texture units only?
 
+// No. of fixed function texture units. 2 minimum.
+
 #ifndef REGAL_EMU_MAX_TEXTURE_UNITS
-#define REGAL_EMU_MAX_TEXTURE_UNITS 32
+#define REGAL_EMU_MAX_TEXTURE_UNITS 4
 #endif
+
+// No. of texture coordinate sets. 8 minimum.
 
 #ifndef REGAL_EMU_MAX_TEXTURE_COORDS
 #define REGAL_EMU_MAX_TEXTURE_COORDS 16
 #endif
 
+// No. of active vertex attributes.  16 minimum.
+
 #ifndef REGAL_EMU_MAX_VERTEX_ATTRIBS
 #define REGAL_EMU_MAX_VERTEX_ATTRIBS 16
 #endif
 
+// Max no. of vertex buffers. 16 minimum
+
 #ifndef REGAL_EMU_MAX_VERTEX_ATTRIB_BINDINGS
-#define REGAL_EMU_MAX_VERTEX_ATTRIB_BINDINGS 32
+#define REGAL_EMU_MAX_VERTEX_ATTRIB_BINDINGS 16
 #endif
 
-REGAL_NAMESPACE_END
+// Total no. of texture units accessible by the GL.  96 minimum
+
+#ifndef REGAL_EMU_MAX_COMBINED_TEXTURE_IMAGE_UNITS
+#define REGAL_EMU_MAX_COMBINED_TEXTURE_IMAGE_UNITS 96
+#endif
+
+// Max depth of the server attribute stack.  16 minimum.
+
+#ifndef REGAL_EMU_MAX_ATTRIB_STACK_DEPTH
+#define REGAL_EMU_MAX_ATTRIB_STACK_DEPTH 16
+#endif
+
+// Max depth of the client attribute stack.  16 minimum.
+
+#ifndef REGAL_EMU_MAX_CLIENT_ATTRIB_STACK_DEPTH
+#define REGAL_EMU_MAX_CLIENT_ATTRIB_STACK_DEPTH 16
+#endif
+
+// Max no. of active draw buffers. 8 minimum
+
+#ifndef REGAL_EMU_MAX_DRAW_BUFFERS
+#define REGAL_EMU_MAX_DRAW_BUFFERS 8
+#endif
+
+// Max no. of active viewports. 16 minimum
+
+#ifndef REGAL_EMU_MAX_VIEWPORTS
+#define REGAL_EMU_MAX_VIEWPORTS 16
+#endif
+
+#if REGAL_EMULATION
+
+extern bool validTextureEnum(GLenum texture);
+extern bool validTextureUnit(GLuint unit);
 
 #endif // REGAL_EMULATION
 
+};
+
+REGAL_NAMESPACE_END
+
 #endif // ! __REGAL_EMU_H__
-
-

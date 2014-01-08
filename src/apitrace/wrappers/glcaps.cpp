@@ -57,6 +57,9 @@ static const char *
 extraExtension_stringsFull[] = {
     "GL_GREMEDY_string_marker",
     "GL_GREMEDY_frame_terminator",
+    "GL_ARB_debug_output",
+    "GL_AMD_debug_output",
+    "GL_KHR_debug",
 };
 
 static const char *
@@ -191,6 +194,14 @@ _glGetIntegerv_override(GLenum pname, GLint *params)
             {
                 const ExtensionsDesc *desc = getExtraExtensions();
                 *params += desc->numStrings;
+            }
+            break;
+        case GL_MAX_LABEL_LENGTH:
+            /* We provide our default implementation of KHR_debug when the
+             * driver does not.  So return something sensible here.
+             */
+            if (params[0] == 0) {
+                params[0] = 256;
             }
             break;
         default:

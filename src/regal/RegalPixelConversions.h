@@ -41,19 +41,21 @@
 
 #include "RegalUtil.h"
 
+#if REGAL_EMULATION
+
 REGAL_GLOBAL_BEGIN
 
 #include <GL/Regal.h>
 
 #include <boost/cstdint.hpp>
 
-REGAL_GLOBAL_END
-
-REGAL_NAMESPACE_BEGIN
-
 using ::boost::uint8_t;
 using ::boost::uint16_t;
 using ::boost::uint32_t;
+
+REGAL_GLOBAL_END
+
+REGAL_NAMESPACE_BEGIN
 
 // The IConversion interface hides the implementation details of the conversion
 // module behind a standard interface.
@@ -92,5 +94,7 @@ class IConversion
 IConversion *GetConversionInterface(GLenum format, GLenum type);
 
 REGAL_NAMESPACE_END
+
+#endif // REGAL_EMULATION
 
 #endif // ! __REGAL_PIXEL_CONVERSIONS_H__

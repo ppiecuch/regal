@@ -50,6 +50,7 @@ REGAL_GLOBAL_BEGIN
 #include "RegalContextInfo.h"
 #include "RegalDispatcherGL.h"
 #include "RegalDispatchError.h"
+#include "RegalScopedPtr.h"
 #include "RegalSharedList.h"
 
 #if REGAL_SYS_PPAPI
@@ -62,6 +63,7 @@ REGAL_GLOBAL_END
 
 REGAL_NAMESPACE_BEGIN
 
+struct EmuInfo;
 struct DebugInfo;
 struct Statistics;
 
@@ -78,6 +80,7 @@ namespace Emu { struct TexSto; };
 namespace Emu { struct BaseVertex; };
 namespace Emu { struct Rect; };
 namespace Emu { struct Iff; };
+namespace Emu { struct Quads; };
 namespace Emu { struct So; };
 namespace Emu { struct Dsa; };
 namespace Emu { struct Vao; };
@@ -100,40 +103,44 @@ struct RegalContext
   inline bool isCore()   const { RegalAssert(info); return REGAL_SYS_GL  && ( REGAL_FORCE_CORE_PROFILE || info->core ); }
   inline bool isCompat() const { RegalAssert(info); return REGAL_SYS_GL  &&                               info->compat; }
 
-  bool                initialized;
-  DispatcherGL        dispatcher;
-  DispatchErrorState  err;
-  DebugInfo          *dbg;
-  ContextInfo        *info;
+  bool                    initialized;
+  DispatcherGL            dispatcher;
+  DispatchErrorState      err;
+  scoped_ptr<DebugInfo>   dbg;
+  scoped_ptr<ContextInfo> info;
+  scoped_ptr<EmuInfo>     emuInfo;
 
 #if REGAL_STATISTICS
-  Statistics         *statistics;
+  scoped_ptr<Statistics>  statistics;
 #endif
 
   //
   // Emulation
   //
 
-  Marker             *marker;
-  Frame              *frame;
+  scoped_ptr<Marker            > marker;
+#if REGAL_FRAME
+  scoped_ptr<Frame             > frame;
+#endif /* REGAL_FRAME */
 #if REGAL_EMULATION
   // Fixed function emulation
   int emuLevel;
-  Emu::Obj           *obj;
-  Emu::Hint          *hint;
-  Emu::Ppa           *ppa;
-  Emu::Ppca          *ppca;
-  Emu::Bin           *bin;
-  Emu::Xfer          *xfer;
-  Emu::TexSto        *texsto;
-  Emu::BaseVertex    *bv;
-  Emu::Rect          *rect;
-  Emu::Iff           *iff;
-  Emu::So            *so;
-  Emu::Dsa           *dsa;
-  Emu::Vao           *vao;
-  Emu::TexC          *texc;
-  Emu::Filt          *filt;
+  scoped_ptr<Emu::Obj          > obj;
+  scoped_ptr<Emu::Hint         > hint;
+  scoped_ptr<Emu::Ppa          > ppa;
+  scoped_ptr<Emu::Ppca         > ppca;
+  scoped_ptr<Emu::Bin          > bin;
+  scoped_ptr<Emu::Xfer         > xfer;
+  scoped_ptr<Emu::TexSto       > texsto;
+  scoped_ptr<Emu::BaseVertex   > bv;
+  scoped_ptr<Emu::Rect         > rect;
+  scoped_ptr<Emu::Iff          > iff;
+  scoped_ptr<Emu::Quads        > quads;
+  scoped_ptr<Emu::So           > so;
+  scoped_ptr<Emu::Dsa          > dsa;
+  scoped_ptr<Emu::Vao          > vao;
+  scoped_ptr<Emu::TexC         > texc;
+  scoped_ptr<Emu::Filt         > filt;
 #endif
 
   #if REGAL_SYS_PPAPI

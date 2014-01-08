@@ -17,6 +17,12 @@
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.mm */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		BC3A59B31804680000992687 /* libapitrace.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC9F8ABB1804648500C68C71 /* libapitrace.a */; };
+		BC3A59BA1804680400992687 /* libjsonsl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC9F8AC2180464A200C68C71 /* libjsonsl.a */; };
+		BC3A59BB1804680800992687 /* libmd5.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC9F8AC8180464B200C68C71 /* libmd5.a */; };
+		BC3A59BC1804680B00992687 /* libmongoose.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC9F8ACE180464C500C68C71 /* libmongoose.a */; };
+		BC3A59BD1804680E00992687 /* libsnappy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC9F8AD4180464D700C68C71 /* libsnappy.a */; };
+		BC3A59BE1804681100992687 /* libsquish.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC9F8ADA180464F400C68C71 /* libsquish.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,6 +32,48 @@
 			proxyType = 2;
 			remoteGlobalIDString = 43A6C1C615C48CD90063667E;
 			remoteInfo = Regal;
+		};
+		BC9F8ABA1804648500C68C71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BC9F8AB61804648400C68C71 /* apitrace.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 433667A917C56F3500D45AD9;
+			remoteInfo = apitrace;
+		};
+		BC9F8AC1180464A200C68C71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BC9F8ABD180464A200C68C71 /* jsonsl.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4336679417C56EF900D45AD9;
+			remoteInfo = jsonsl;
+		};
+		BC9F8AC7180464B200C68C71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BC9F8AC3180464B100C68C71 /* md5.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4336678117C56DFD00D45AD9;
+			remoteInfo = md5;
+		};
+		BC9F8ACD180464C500C68C71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BC9F8AC9180464C500C68C71 /* mongoose.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4336676E17C56DC700D45AD9;
+			remoteInfo = mongoose;
+		};
+		BC9F8AD3180464D700C68C71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BC9F8ACF180464D700C68C71 /* snappy.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4336665817C56AA300D45AD9;
+			remoteInfo = snappy;
+		};
+		BC9F8AD9180464F400C68C71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BC9F8AD5180464F400C68C71 /* squish.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4336667917C56B5200D45AD9;
+			remoteInfo = squish;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -50,6 +98,12 @@
 		43E244C5133066AF0040E20D /* RegalView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RegalView.mm; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* minimal_osx-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "minimal_osx-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* minimal_osx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = minimal_osx.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BC9F8AB61804648400C68C71 /* apitrace.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = apitrace.xcodeproj; path = ../../../build/mac/apitrace/apitrace.xcodeproj; sourceTree = "<group>"; };
+		BC9F8ABD180464A200C68C71 /* jsonsl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = jsonsl.xcodeproj; path = ../../../build/mac/jsonsl/jsonsl.xcodeproj; sourceTree = "<group>"; };
+		BC9F8AC3180464B100C68C71 /* md5.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = md5.xcodeproj; path = ../../../build/mac/md5/md5.xcodeproj; sourceTree = "<group>"; };
+		BC9F8AC9180464C500C68C71 /* mongoose.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = mongoose.xcodeproj; path = ../../../build/mac/mongoose/mongoose.xcodeproj; sourceTree = "<group>"; };
+		BC9F8ACF180464D700C68C71 /* snappy.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = snappy.xcodeproj; path = ../../../build/mac/snappy/snappy.xcodeproj; sourceTree = "<group>"; };
+		BC9F8AD5180464F400C68C71 /* squish.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = squish.xcodeproj; path = ../../../build/mac/squish/squish.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +111,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC3A59BE1804681100992687 /* libsquish.a in Frameworks */,
+				BC3A59BD1804680E00992687 /* libsnappy.a in Frameworks */,
+				BC3A59BC1804680B00992687 /* libmongoose.a in Frameworks */,
+				BC3A59BB1804680800992687 /* libmd5.a in Frameworks */,
+				BC3A59BA1804680400992687 /* libjsonsl.a in Frameworks */,
+				BC3A59B31804680000992687 /* libapitrace.a in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				431D3C0815C9B648009DD04F /* libRegal.a in Frameworks */,
 			);
@@ -95,6 +155,12 @@
 			isa = PBXGroup;
 			children = (
 				431D3BFF15C9B635009DD04F /* Regal.xcodeproj */,
+				BC9F8AD5180464F400C68C71 /* squish.xcodeproj */,
+				BC9F8ACF180464D700C68C71 /* snappy.xcodeproj */,
+				BC9F8AC9180464C500C68C71 /* mongoose.xcodeproj */,
+				BC9F8AC3180464B100C68C71 /* md5.xcodeproj */,
+				BC9F8ABD180464A200C68C71 /* jsonsl.xcodeproj */,
+				BC9F8AB61804648400C68C71 /* apitrace.xcodeproj */,
 				29B97315FDCFA39411CA2CEA /* code */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
@@ -148,6 +214,54 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		BC9F8AB71804648400C68C71 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BC9F8ABB1804648500C68C71 /* libapitrace.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BC9F8ABE180464A200C68C71 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BC9F8AC2180464A200C68C71 /* libjsonsl.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BC9F8AC4180464B100C68C71 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BC9F8AC8180464B200C68C71 /* libmd5.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BC9F8ACA180464C500C68C71 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BC9F8ACE180464C500C68C71 /* libmongoose.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BC9F8AD0180464D700C68C71 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BC9F8AD4180464D700C68C71 /* libsnappy.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BC9F8AD6180464F400C68C71 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BC9F8ADA180464F400C68C71 /* libsquish.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -191,8 +305,32 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = BC9F8AB71804648400C68C71 /* Products */;
+					ProjectRef = BC9F8AB61804648400C68C71 /* apitrace.xcodeproj */;
+				},
+				{
+					ProductGroup = BC9F8ABE180464A200C68C71 /* Products */;
+					ProjectRef = BC9F8ABD180464A200C68C71 /* jsonsl.xcodeproj */;
+				},
+				{
+					ProductGroup = BC9F8AC4180464B100C68C71 /* Products */;
+					ProjectRef = BC9F8AC3180464B100C68C71 /* md5.xcodeproj */;
+				},
+				{
+					ProductGroup = BC9F8ACA180464C500C68C71 /* Products */;
+					ProjectRef = BC9F8AC9180464C500C68C71 /* mongoose.xcodeproj */;
+				},
+				{
 					ProductGroup = 431D3C0015C9B635009DD04F /* Products */;
 					ProjectRef = 431D3BFF15C9B635009DD04F /* Regal.xcodeproj */;
+				},
+				{
+					ProductGroup = BC9F8AD0180464D700C68C71 /* Products */;
+					ProjectRef = BC9F8ACF180464D700C68C71 /* snappy.xcodeproj */;
+				},
+				{
+					ProductGroup = BC9F8AD6180464F400C68C71 /* Products */;
+					ProjectRef = BC9F8AD5180464F400C68C71 /* squish.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -208,6 +346,48 @@
 			fileType = archive.ar;
 			path = libRegal.a;
 			remoteRef = 431D3C0615C9B636009DD04F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BC9F8ABB1804648500C68C71 /* libapitrace.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libapitrace.a;
+			remoteRef = BC9F8ABA1804648500C68C71 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BC9F8AC2180464A200C68C71 /* libjsonsl.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libjsonsl.a;
+			remoteRef = BC9F8AC1180464A200C68C71 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BC9F8AC8180464B200C68C71 /* libmd5.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libmd5.a;
+			remoteRef = BC9F8AC7180464B200C68C71 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BC9F8ACE180464C500C68C71 /* libmongoose.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libmongoose.a;
+			remoteRef = BC9F8ACD180464C500C68C71 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BC9F8AD4180464D700C68C71 /* libsnappy.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libsnappy.a;
+			remoteRef = BC9F8AD3180464D700C68C71 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BC9F8ADA180464F400C68C71 /* libsquish.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libsquish.a;
+			remoteRef = BC9F8AD9180464F400C68C71 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

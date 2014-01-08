@@ -18,7 +18,7 @@
 
 #define HIGHFIRST
 
-#ifdef __i386__
+#if defined(__i386__) || defined(__x86_64__) || defined(__amd64__)
 #undef HIGHFIRST
 #endif
 
@@ -47,7 +47,7 @@ extern "C"
 #endif
 
 extern void MD5Init(struct MD5Context *);
-extern void MD5Update(struct MD5Context *, const void *, unsigned );
+extern void MD5Update(struct MD5Context *, const unsigned char *, unsigned );
 extern void MD5Final(unsigned char [16], struct MD5Context *);
 extern void MD5Transform(uint32 [4], uint32 [16]);
 
@@ -60,7 +60,7 @@ extern void MD5Transform(uint32 [4], uint32 [16]);
  */
 typedef struct MD5Context MD5_CTX;
 
-/*  Define CHECK_HARDWARE_PROPERTIES to have main,c verify
+/*  Define CHECK_HARDWARE_PROPERTIES to have main.c verify
     byte order and uint32 settings.  */
 #define CHECK_HARDWARE_PROPERTIES
 

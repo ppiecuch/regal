@@ -61,12 +61,36 @@ namespace Token {
   const char * internalFormatToString(GLint      v);
 
   std::string  GLtextureToString     (GLenum     v); // GL_TEXTUREi or 0xaaaa
+  std::string  GLmodeToString        (GLenum     v); // GL_PRIMITIVE or 0xaaaa
 
   // Bitfield strings
 
-  std::string GLclearToString       (GLbitfield v);
-  std::string GLbufferAccessToString(GLbitfield v);
-  std::string GLpushAttribToString  (GLbitfield v);
+  std::string GLblitFramebufferToString (GLbitfield v);
+  std::string GLbufferAccessToString    (GLbitfield v);
+  std::string GLbufferStorageToString   (GLbitfield v);
+  std::string GLclearToString           (GLbitfield v);
+  std::string GLclientWaitSyncToString  (GLbitfield v);
+  std::string GLfenceSyncToString       (GLbitfield v);
+  std::string GLmapBufferRangeToString  (GLbitfield v);
+  std::string GLmemoryBarrierToString   (GLbitfield v);
+  std::string GLpushAttribToString      (GLbitfield v);
+  std::string GLpushClientAttribToString(GLbitfield v);
+  std::string GLsampleMaskiToString     (GLbitfield v);
+  std::string GLuseProgramStagesToString(GLbitfield v);
+  std::string GLwaitSyncToString        (GLbitfield v);
+
+  std::string GLcreateSyncFromCLeventARBToString(GLbitfield v);
+
+  std::string GLimportSyncEXTToString(GLbitfield v);
+
+  std::string GLgetPathMetricsNVToString(GLbitfield v);
+  std::string GLpathGlyphsNVToString    (GLbitfield v);
+
+  std::string GLtexStorageSparseAMDToString(GLbitfield v);
+
+  std::string GLmapTexture2DINTELToString(GLbitfield v);
+
+  std::string GLstartTilingQCOMToString(GLbitfield v);
 
   std::string GLTexParameterToString(GLenum pname, const GLfloat  param );
   std::string GLTexParameterToString(GLenum pname, const GLint    param );

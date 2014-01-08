@@ -126,7 +126,7 @@ def generatePluginSource(apis, args):
     tmp = []
 
     names = []
-    for j in i.functions:    
+    for j in i.functions:
       if getattr(j,'regalOnly',False):
         continue
       names.append(j.name)
@@ -141,7 +141,7 @@ def generatePluginSource(apis, args):
     code2 += '\n' + indent(tmp,'  ')
 
   # glGetProcAddress
-  
+
   code3 = '''
   using namespace ::REGAL_NAMESPACE_INTERNAL::Lookup;
   using namespace ::REGAL_NAMESPACE_INTERNAL::Plugin;
@@ -153,7 +153,7 @@ def generatePluginSource(apis, args):
 '''
 
   for i in apis:
-    tmp =  '    res = (const char **) std::bsearch(&name, %s, %d, sizeof(const char *), NameCmp);\n'%('lookup_%s_Name'%i.name,size[i.name]-1) 
+    tmp =  '    res = (const char **) std::bsearch(&name, %s, %d, sizeof(const char *), NameCmp);\n'%('lookup_%s_Name'%i.name,size[i.name]-1)
     tmp += '    if (res) return const_cast<void *>(%s[(size_t) (res - %s)]);\n'%('lookup_%s_Value'%i.name,'lookup_%s_Name'%i.name)
     if i.name in cond:
       tmp = wrapIf(cond[i.name], tmp)

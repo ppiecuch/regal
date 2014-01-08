@@ -32,6 +32,11 @@ Project("{CF05FE22-B763-D96E-C64D-312608111C07}") = "Regalmlib", "Regalmlib.vcxp
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{CF05FE22-B763-D96E-C64D-312608111C07}") = "Regalw", "Regalw.vcxproj", "{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B2F73D1B-8FA3-518D-0F85-9AAD20EF1E1C} = {B2F73D1B-8FA3-518D-0F85-9AAD20EF1E1C}
+	EndProjectSection
+EndProject
 Project("{CF05FE22-B763-D96E-C64D-312608111C07}") = "mongooselib", "mongooselib.vcxproj", "{256E64B8-F766-061C-45F8-25B51B7CA24E}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -105,6 +110,14 @@ Global
 		{5C0D9EFE-80E2-1DA1-7A53-D640CAE643C0}.Release|Win32.ActiveCfg = Release|Win32
 		{5C0D9EFE-80E2-1DA1-7A53-D640CAE643C0}.Release|x64.Build.0 = Release|x64
 		{5C0D9EFE-80E2-1DA1-7A53-D640CAE643C0}.Release|x64.ActiveCfg = Release|x64
+		{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}.Debug|Win32.Build.0 = Debug|Win32
+		{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}.Debug|Win32.ActiveCfg = Debug|Win32
+		{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}.Debug|x64.Build.0 = Debug|x64
+		{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}.Debug|x64.ActiveCfg = Debug|x64
+		{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}.Release|Win32.Build.0 = Release|Win32
+		{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}.Release|Win32.ActiveCfg = Release|Win32
+		{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}.Release|x64.Build.0 = Release|x64
+		{324CD1C8-680A-9A1D-EFE7-A93D7EFFE858}.Release|x64.ActiveCfg = Release|x64
 		{256E64B8-F766-061C-45F8-25B51B7CA24E}.Debug|Win32.Build.0 = Debug|Win32
 		{256E64B8-F766-061C-45F8-25B51B7CA24E}.Debug|Win32.ActiveCfg = Debug|Win32
 		{256E64B8-F766-061C-45F8-25B51B7CA24E}.Debug|x64.Build.0 = Debug|x64

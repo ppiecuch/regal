@@ -1,0 +1,25 @@
+{
+ "regal" : {
+  "logging" : {
+   "enable" : {
+    "error"    : true,
+    "warning"  : true,
+    "info"     : true,
+    "app"      : true,
+    "driver"   : true,
+    "internal" : true,
+    "http"     : true
+   },
+   "maxLines"        : -1,
+   "maxBytes"        : -1,
+   "once"            : true,
+   "frameTime"       : true,
+   "frameStatistics" : true,
+   "pointers"        : true,
+   "thread"          : false,
+   "process"         : false,
+   "callback"        : false,
+   "log"             : true
+  }
+ }
+}

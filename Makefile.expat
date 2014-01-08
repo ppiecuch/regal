@@ -1,0 +1,55 @@
+ifndef MAKEFILE_EXPAT_INCLUDED
+MAKEFILE_EXPAT_INCLUDED := 1
+
+.PHONY: expat.lib expat.clean
+
+include build/common.inc
+
+include build/expat.inc
+
+#
+# expat
+#
+
+ifneq ($(EXPAT.STATIC),)
+
+all:: expat.lib
+
+clean:: expat.clean
+
+EXPAT.SRCS       := $(EXPAT.C)
+EXPAT.SRCS.NAMES := $(notdir $(EXPAT.SRCS))
+EXPAT.OBJS       := $(addprefix tmp/$(SYSTEM)/expat/static/,$(EXPAT.SRCS.NAMES))
+EXPAT.OBJS       := $(EXPAT.OBJS:.c=.o)
+EXPAT.DEPS       := $(EXPAT.DEPS:.o=.d)
+
+-include $(EXPAT.DEPS)
+
+ifeq ($(MODE),release)
+EXPAT.CFLAGS     += -DNDEBUG
+endif
+
+EXPAT.CFLAGS     += -DHAVE_MEMMOVE
+
+expat.lib: lib/$(SYSTEM)/$(EXPAT.STATIC)
+
+expat.clean:
+	$(RM) -r tmp/$(SYSTEM)/expat/static
+	$(RM) -r lib/$(SYSTEM)/$(EXPAT.STATIC)
+
+tmp/$(SYSTEM)/expat/static/%.o: src/expat/src/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(EXPAT.CFLAGS) $(CFLAGS) $(PICFLAG) -o $@ -c $<
+
+lib/$(SYSTEM)/$(EXPAT.STATIC): $(EXPAT.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(EXPAT.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif

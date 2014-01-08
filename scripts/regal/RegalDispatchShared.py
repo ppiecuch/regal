@@ -5,7 +5,7 @@ from string import Template, upper, replace
 from ApiCodeGen import paramsDefaultCode
 from ApiCodeGen import paramsNameCode, typeCode
 
-from RegalContextInfo import cond
+from RegalContextInfo import cond as condDefault
 
 ############################################################################
 
@@ -52,7 +52,11 @@ REGAL_NAMESPACE_END
 
 ${ENDIF}''')
 
-def apiDispatchFuncInitCode(apis, args, dispatchName, exclude=[], filter = lambda x : True):
+def apiDispatchFuncInitCode(apis, args, dispatchName, exclude=[], filter = lambda x : True, cond = None):
+
+  if not cond:
+    cond = condDefault
+
   categoryPrev = None
   code = ''
 
@@ -99,7 +103,10 @@ def apiDispatchFuncInitCode(apis, args, dispatchName, exclude=[], filter = lambd
 
       categoryPrev = category
 
-      code += '  tbl.%s = %s_%s;\n' % ( name, dispatchName, name )
+      if dispatchName!=None:
+        code += '  tbl.%s = %s_%s;\n' % ( name, dispatchName, name )
+      else:
+        code += '    tbl.%s = %s;\n' % ( name, name )
 
     if api.name in cond:
       code += '#endif // %s\n' % cond[api.name]
@@ -111,12 +118,22 @@ def apiDispatchFuncInitCode(apis, args, dispatchName, exclude=[], filter = lambd
 
   return code
 
-def apiDispatchGlobalFuncInitCode(apis, args, dispatchName, exclude=[], filter = lambda x : True):
+def apiDispatchGlobalFuncInitCode(apis, args, dispatchName, exclude=[], filter = lambda x : True, cond = None):
+
+  if not cond:
+    cond = condDefault
+
   categoryPrev = None
-  code = '''
+  if dispatchName!= None:
+    code = '''
 void InitDispatchTableGlobal%s%s(DispatchTableGlobal &tbl)
 {
 '''%(dispatchName[0:1].upper(),dispatchName[1:])
+  else:
+    code = '''
+void Init(DispatchTableGlobal &tbl)
+{
+'''
 
   for api in apis:
 
@@ -161,7 +178,10 @@ void InitDispatchTableGlobal%s%s(DispatchTableGlobal &tbl)
 
       categoryPrev = category
 
-      code += '  tbl.%s = %s_%s;\n' % ( name, dispatchName, name )
+      if dispatchName!=None:
+        code += '  tbl.%s = %s_%s;\n' % ( name, dispatchName, name )
+      else:
+        code += '    tbl.%s = %s;\n' % ( name, name )
 
     if api.name in cond:
       code += '#endif // %s\n' % cond[api.name]

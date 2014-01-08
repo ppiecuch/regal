@@ -2,7 +2,8 @@
 
 from string import Template, upper, replace
 
-from ApiUtil import outputCode
+from ApiUtil    import outputCode
+from ApiCodeGen import wrapIf
 
 cond = { 'wgl' : 'REGAL_SYS_WGL', 'glx' : 'REGAL_SYS_GLX', 'cgl' : 'REGAL_SYS_OSX', 'egl' : 'REGAL_SYS_EGL' }
 
@@ -34,10 +35,9 @@ struct ContextInfo
 
   void init(const RegalContext &context);
 
-  // glewGetExtension, glewIsSupported
+  // glewGetExtension
 
   bool getExtension(const char *ext) const;
-  bool isSupported(const char *ext) const;
 
   // As reported by OpenGL implementation
 
@@ -46,21 +46,20 @@ struct ContextInfo
   std::string version;
   std::string extensions;
 
-  // As reported by Regal
+  //
 
-  std::string regalVendor;
-  std::string regalRenderer;
-  std::string regalVersion;
-  std::string regalExtensions;
-
-  std::set<std::string> regalExtensionsSet;
+  std::set<std::string> extensionsSet;
 
   // As supported by the OpenGL implementation
 
 ${VERSION_DECLARE}
 
-  GLuint maxVertexAttribs;
-  GLuint maxVaryings;
+  // Driver context limits
+
+${IMPL_DECLARE}
+
+private:
+  static bool stringSetFind(const std::set<std::string> &stringSet, const std::string &val);
 };
 
 REGAL_NAMESPACE_END
@@ -86,10 +85,10 @@ using namespace std;
 #include <boost/print/string_list.hpp>
 using namespace boost::print;
 
+#include "RegalEmu.h"
 #include "RegalToken.h"
 #include "RegalContext.h"
 #include "RegalContextInfo.h"
-#include "RegalIff.h"             // For REGAL_MAX_VERTEX_ATTRIBS
 
 REGAL_GLOBAL_END
 
@@ -101,8 +100,7 @@ using namespace ::REGAL_NAMESPACE_INTERNAL::Token;
 ContextInfo::ContextInfo()
 :
 ${VERSION_INIT}
-  maxVertexAttribs(0),
-  maxVaryings(0)
+${IMPL_INIT}
 {
    Internal("ContextInfo::ContextInfo","()");
 }
@@ -120,9 +118,20 @@ inline string getString(const RegalContext &context, const GLenum e)
   return str ? string(reinterpret_cast<const char *>(str)) : string();
 }
 
+inline void warnGLError(const RegalContext &context, const char *message)
+{
+  Internal("warnGLError ",message ? message : NULL);
+  RegalAssert(context.dispatcher.driver.glGetError);
+  GLenum err = context.dispatcher.driver.glGetError();
+  if (err!=GL_NO_ERROR)
+    Warning("glGetError returned ",GLerrorToString(err)," ",message ? message : NULL);
+}
+
 void
 ContextInfo::init(const RegalContext &context)
 {
+  warnGLError(context,"before Regal context initialization.");
+
   // OpenGL Version.
 
   vendor     = getString(context, GL_VENDOR);
@@ -140,24 +149,23 @@ ContextInfo::init(const RegalContext &context)
   gles_version_minor = 0;
 
   // Detect GL context version
+  //
+  // Note: We need to detect desktop ES contexts even if REGAL_SYS_ES1 or REGAL_SYS_ES2
+  //       are disabled.
 
-  #if REGAL_SYS_ES1
   es1 = starts_with(version, "OpenGL ES-CM");
   if (es1)
   {
     sscanf(version.c_str(), "OpenGL ES-CM %d.%d", &gles_version_major, &gles_version_minor);
   }
   else
-  #endif
   {
-    #if REGAL_SYS_ES2
     es2 = starts_with(version,"OpenGL ES ");
     if (es2)
     {
       sscanf(version.c_str(), "OpenGL ES %d.%d", &gles_version_major, &gles_version_minor);
     }
     else
-    #endif
     {
       sscanf(version.c_str(), "%d.%d", &gl_version_major, &gl_version_minor);
     }
@@ -206,9 +214,9 @@ ContextInfo::init(const RegalContext &context)
   }
   #endif
 
-  // Detect core context
+  // Detect core context for GL 3.2 onwards
 
-  if (!es1 && !es2 && gl_version_major>=3)
+  if (!es1 && !es2 && (gl_version_major>3 || (gl_version_major==3 && gl_version_minor>=2)))
   {
     GLint flags = 0;
     RegalAssert(context.dispatcher.driver.glGetIntegerv);
@@ -268,77 +276,9 @@ ContextInfo::init(const RegalContext &context)
     driverExtensions.split(extensions,' ');
   }
 
-  regalExtensionsSet.insert(driverExtensions.begin(),driverExtensions.end());
+  extensionsSet.insert(driverExtensions.begin(),driverExtensions.end());
 
   Info("OpenGL extensions: ",extensions);
-
-  // TODO - filter out extensions Regal doesn't support?
-
-#ifdef REGAL_GL_VENDOR
-  regalVendor = REGAL_EQUOTE(REGAL_GL_VENDOR);
-#else
-  regalVendor = vendor;
-#endif
-
-#ifdef REGAL_GL_RENDERER
-  regalRenderer = REGAL_EQUOTE(REGAL_GL_RENDERER);
-#else
-  regalRenderer = renderer;
-#endif
-
-#ifdef REGAL_GL_VERSION
-  regalVersion = REGAL_EQUOTE(REGAL_GL_VERSION);
-#else
-  regalVersion = version;
-#endif
-
-#ifdef REGAL_GL_EXTENSIONS
-  {
-    string_list<string> extList;
-    extList.split(REGAL_EQUOTE(REGAL_GL_EXTENSIONS),' ');
-    regalExtensionsSet.clear();
-    regalExtensionsSet.insert(extList.begin(),extList.end());
-  }
-#else
-  static const char *ourExtensions[9] = {
-    "GL_REGAL_log",
-    "GL_REGAL_enable",
-    "GL_REGAL_error_string",
-    "GL_REGAL_extension_query",
-    "GL_REGAL_ES1_0_compatibility",
-    "GL_REGAL_ES1_1_compatibility",
-    "GL_EXT_debug_marker",
-    "GL_GREMEDY_string_marker",
-    "GL_GREMEDY_frame_terminator"
-  };
-  regalExtensionsSet.insert(&ourExtensions[0],&ourExtensions[9]);
-#endif
-
-#ifndef REGAL_NO_GETENV
-  {
-    getEnv("REGAL_GL_VENDOR",   regalVendor);
-    getEnv("REGAL_GL_RENDERER", regalRenderer);
-    getEnv("REGAL_GL_VERSION",  regalVersion);
-
-    const char *extensionsEnv = getEnv("REGAL_GL_EXTENSIONS");
-    if (extensionsEnv)
-    {
-      string_list<string> extList;
-      extList.split(extensionsEnv,' ');
-      regalExtensionsSet.clear();
-      regalExtensionsSet.insert(extList.begin(),extList.end());
-    }
-  }
-#endif
-
-  // Form Regal extension string from the set
-
-  regalExtensions = ::boost::print::detail::join(regalExtensionsSet,string(" "));
-
-  Info("Regal vendor     : ",regalVendor);
-  Info("Regal renderer   : ",regalRenderer);
-  Info("Regal version    : ",regalVersion);
-  Info("Regal extensions : ",regalExtensions);
 
 ${VERSION_DETECT}
 
@@ -350,30 +290,19 @@ ${VERSION_DETECT}
 ${EXT_INIT}
 
   RegalAssert(context.dispatcher.driver.glGetIntegerv);
-  if (es1)
-  {
-    maxVertexAttribs = 8;
-    maxVaryings = 0;
-  }
-  else
-  {
-    context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&maxVertexAttribs));
-    context.dispatcher.driver.glGetIntegerv( es2 ? GL_MAX_VARYING_VECTORS : GL_MAX_VARYING_FLOATS, reinterpret_cast<GLint *>(&maxVaryings));
-  }
+  RegalAssert(context.dispatcher.driver.glGetBooleanv);
+${IMPL_GET}
 
-  Info("OpenGL v attribs : ",maxVertexAttribs);
-  Info("OpenGL varyings  : ",maxVaryings);
+  Info("OpenGL v attribs : ",gl_max_vertex_attribs);
+  Info("OpenGL varyings  : ",gl_max_varying_floats);
 
-  if (maxVertexAttribs > REGAL_EMU_IFF_VERTEX_ATTRIBS)
-      maxVertexAttribs = REGAL_EMU_IFF_VERTEX_ATTRIBS;
+  warnGLError(context,"querying context information.");
+}
 
-  // Qualcomm fails with float4 attribs with 256 byte stride, so artificially limit to 8 attribs (n*16 is used
-  // as the stride in RegalIFF).  WebGL (and Pepper) explicitly disallows stride > 255 as well.
-
-  if (vendor == "Qualcomm" || vendor == "Chromium" || webgl)
-    maxVertexAttribs = 8;
-
-  Info("Regal  v attribs : ",maxVertexAttribs);
+bool
+ContextInfo::stringSetFind(const std::set<std::string> &stringSet, const std::string &val)
+{
+  return stringSet.find(val)!=stringSet.end();
 }
 
 ${EXT_CODE}
@@ -387,7 +316,7 @@ def traverseContextInfo(apis, args):
     if api.name == 'gles':
       api.versions =  [ [2, 0] ]
     if api.name == 'gl':
-      api.versions =  [ [4,2], [4, 1], [4, 0] ]
+      api.versions =  [ [4,4], [4,3], [4,2], [4, 1], [4, 0] ]
       api.versions += [ [3, 3], [3, 2], [3, 1], [3, 0] ]
       api.versions += [ [2, 1], [2, 0] ]
       api.versions += [ [1, 5], [1, 4], [1, 3], [1, 2], [1, 1], [1, 0] ]
@@ -441,17 +370,10 @@ def versionDeclareCode(apis, args):
       code += '\n'
 
   for api in apis:
-    name = api.name.lower()
-    if name in cond:
-      code += '#if %s\n'%cond[name]
+    tmp = ''
     for c in sorted(api.categories):
-      code += '  GLboolean %s : 1;\n' % (c.lower())
-    if name in cond:
-      code += '#endif\n'
-    for ext in api.extensions:
-      if len(ext.emulatedBy):
-        code += '  GLboolean regal_%s : 1;\n' % (ext.name.lower()[3:])
-    code += '\n'
+      tmp += '  GLboolean %s : 1;\n' % (c.lower())
+    code += wrapIf(cond.get(api.name.lower()),tmp) + '\n'
 
   return code
 
@@ -483,16 +405,10 @@ def versionInitCode(apis, args):
       code += '  glsl_version_minor(-1),\n'
 
   for api in apis:
-    name = api.name.lower()
-    if name in cond:
-      code += '#if %s\n'%cond[name]
+    tmp = ''
     for c in sorted(api.categories):
-      code += '  %s(false),\n' % (c.lower())
-    if name in cond:
-      code += '#endif\n'
-    for ext in api.extensions:
-      if len(ext.emulatedBy):
-        code += '  regal_%s(false),\n' % (ext.name.lower()[3:])
+      tmp += '  %s(false),\n' % (c.lower())
+    code += wrapIf(cond.get(api.name.lower()),tmp)
 
   return code
 
@@ -540,19 +456,185 @@ def versionDetectCode(apis, args):
 
   return code
 
+def implDeclareCode(apis, args):
+
+  code = ''
+  for api in apis:
+    name = api.name.lower()
+
+    if name == 'gl':
+      code += '\n'
+
+      states = []
+      for state in api.states:
+        states.append(state.getValue.lower())
+
+      for state in sorted(states):
+        code += '  GLuint gl_%s;\n' % (state)
+
+      code += '\n'
+      code += '  GLuint gl_max_varying_floats;\n'
+      code += '\n'
+      code += '  GLboolean gl_quads_follow_provoking_vertex_convention;\n'
+
+  return code
+
+def implInitCode(apis, args):
+
+  code = ''
+  for api in apis:
+    name = api.name.lower()
+
+    if name == 'gl':
+
+      states = []
+      for state in api.states:
+        states.append(state.getValue.lower())
+
+      for state in sorted(states):
+        code += '  gl_%s(0),\n' % (state)
+
+      code += '  gl_max_varying_floats(0),\n'
+      code += '  gl_quads_follow_provoking_vertex_convention(GL_FALSE)\n'
+
+  return code
+
+def implGetCode(apis, args):
+
+  code = '''
+  gl_max_attrib_stack_depth = 0;
+  gl_max_client_attrib_stack_depth = 0;
+  gl_max_combined_texture_image_units = 0;
+  gl_max_debug_message_length = 1024;
+  gl_max_draw_buffers = 0;
+  gl_max_texture_coords = 0;
+  gl_max_texture_units = 0;
+  gl_max_vertex_attrib_bindings = 0;
+  gl_max_vertex_attribs = 0;
+  gl_max_viewports = 0;
+  gl_max_varying_floats = 0;
+
+  // Looking at the various specs and RegalEmu.h I came up with this table:
+  //
+  //                                        GL       Core  ES1  ES2  ES3  Regal
+  // GL_MAX_ATTRIB_STACK_DEPTH              16        rem  n/a  n/a  n/a    16
+  // GL_MAX_CLIENT_ATTRIB_STACK_DEPTH       16        rem  n/a  n/a  n/a    16
+  // GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS    96        96    -    8   32     96
+  // GL_MAX_DRAW_BUFFERS                     8         8    -    -    4      8
+  // GL_MAX_TEXTURE_COORDS                   8        rem   -    -    -     16
+  // GL_MAX_TEXTURE_UNITS                    2        rem   +    -    -      4
+  // GL_MAX_VARYING_VECTORS                 15        15    -    8   15      -
+  // GL_MAX_VARYING_FLOATS                  32 (2.0)  dep   -    -    -      -
+  // GL_MAX_VERTEX_ATTRIBS                  16        16    -    8   16     16
+  // GL_MAX_VERTEX_ATTRIB_BINDINGS          16        16    -    -    -     16
+  // GL_MAX_VIEWPORTS                       16        16    -    -    -     16
+
+  if (compat)
+  {
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_ATTRIB_STACK_DEPTH, reinterpret_cast<GLint *>(&gl_max_attrib_stack_depth));
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_CLIENT_ATTRIB_STACK_DEPTH, reinterpret_cast<GLint *>(&gl_max_client_attrib_stack_depth));
+  }
+
+  if (!es1)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&gl_max_combined_texture_image_units));
+
+  if (core || compat)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_DRAW_BUFFERS, reinterpret_cast<GLint *>(&gl_max_draw_buffers));
+
+  if (compat)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_TEXTURE_COORDS, reinterpret_cast<GLint *>(&gl_max_texture_coords));
+
+  if (es1 || compat)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_TEXTURE_UNITS, reinterpret_cast<GLint *>(&gl_max_texture_units));
+
+  if (es2 || core)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VARYING_VECTORS, reinterpret_cast<GLint *>(&gl_max_varying_floats));
+  else if (compat)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VARYING_FLOATS, reinterpret_cast<GLint *>(&gl_max_varying_floats));
+
+  if (es1)
+    gl_max_vertex_attribs = 8;  //<> one of these things is not like the other...
+  else
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&gl_max_vertex_attribs));
+
+  if ((core || compat) && (gl_version_4_3 || gl_arb_vertex_attrib_binding))
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIB_BINDINGS, reinterpret_cast<GLint *>(&gl_max_vertex_attrib_bindings));
+
+  if ((core || compat) && (gl_version_4_1 || gl_arb_viewport_array))
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_VIEWPORTS, reinterpret_cast<GLint *>(&gl_max_viewports));
+
+  if (gl_arb_debug_output)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_DEBUG_MESSAGE_LENGTH_ARB, reinterpret_cast<GLint *>(&gl_max_debug_message_length));
+  else if (gl_khr_debug)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_DEBUG_MESSAGE_LENGTH, reinterpret_cast<GLint *>(&gl_max_debug_message_length));
+  else if (gl_amd_debug_output)
+    context.dispatcher.driver.glGetIntegerv( GL_MAX_DEBUG_MESSAGE_LENGTH_AMD, reinterpret_cast<GLint *>(&gl_max_debug_message_length));
+
+  if ((compat) && (gl_version_3_2 || gl_arb_provoking_vertex || gl_ext_provoking_vertex))
+    context.dispatcher.driver.glGetBooleanv( GL_QUADS_FOLLOW_PROVOKING_VERTEX_CONVENTION, &gl_quads_follow_provoking_vertex_convention);
+'''
+  return code
+
+def originalImplGetCode(apis, args):
+
+  code = ''
+  for api in apis:
+    name = api.name.lower()
+
+    if name == 'gl':
+
+      states = []
+      for state in api.states:
+        states.append(state.getValue)
+
+      code += '  if (es1)\n'
+      code += '  {\n'
+
+      for state in sorted(states):
+        code += '    gl_%s = 0;\n' % state.lower()
+
+      code += '\n'
+      code += '    gl_max_vertex_attribs = 8;\n'
+      code += '  }\n'
+      code += '  else\n'
+      code += '  {\n'
+
+
+      for state in sorted(states):
+        if state not in [ 'MAX_VERTEX_ATTRIB_BINDINGS', 'MAX_VIEWPORTS' ]:
+          code += '    context.dispatcher.driver.glGetIntegerv( GL_%s, reinterpret_cast<GLint *>(&gl_%s));\n' % (state, state.lower())
+
+      code += '''
+    if (gl_version_4_3 || gl_arb_vertex_attrib_binding)
+      context.dispatcher.driver.glGetIntegerv( GL_MAX_VERTEX_ATTRIB_BINDINGS, reinterpret_cast<GLint *>(&gl_max_vertex_attrib_bindings));
+    else
+      gl_max_vertex_attrib_bindings = 0;
+    if (gl_version_4_1 || gl_arb_viewport_array)
+      context.dispatcher.driver.glGetIntegerv( GL_MAX_VIEWPORTS, reinterpret_cast<GLint *>(&gl_max_viewports));
+    else
+      gl_max_viewports = 0;
+'''
+
+      code += '    context.dispatcher.driver.glGetIntegerv( es2 ? GL_MAX_VARYING_VECTORS : GL_MAX_VARYING_FLOATS, reinterpret_cast<GLint *>(&gl_max_varying_floats));\n'
+      code += '  }\n'
+      code += '\n'
+
+      code += '\n'
+
+  return code
+
 def extensionStringCode(apis, args):
 
   code = ''
 
   for api in apis:
-    name = api.name.lower()
-    if name in cond:
-      code += '#if %s\n'%cond[name]
+    tmp = ''
     for c in sorted(api.categories):
-      code += '  %s = e.find("%s")!=e.end();\n' % (c.lower(),c)
-    if name in cond:
-      code += '#endif\n'
-    code += '\n'
+      tmp += '  %-50s = stringSetFind(e,"%s");\n' % (c.lower(),c)
+
+    tmp = wrapIf(cond.get(api.name.lower()),tmp)
+
+    code += tmp + '\n'
 
   return code
 
@@ -566,40 +648,17 @@ def getExtensionCode(apis, args):
   code += '\n'
 
   for api in apis:
-    emulatedExtensions = []
 
-    for extension in api.extensions:
-      if len(extension.emulatedBy):
-        emulatedExtensions.append(extension.name)
-
-    name = api.name.lower()
-    if name in cond:
-      code += '#if %s\n'%cond[name]
+    tmp = ''
     for c in sorted(api.categories):
-      if c.startswith('GL_REGAL_') or c=='GL_EXT_debug_marker':
-        code += '  if (!strcmp(ext,"%s")) return true;\n' % (c)
-      elif c in emulatedExtensions:
-        code += '  if (!strcmp(ext,"%s")) return regal_%s || %s;\n' % (c,c.lower()[3:],c.lower())
-      else:
-        code += '  if (!strcmp(ext,"%s")) return %s;\n' % (c,c.lower())
-    if name in cond:
-      code += '#endif\n'
-    code += '\n'
+      tmp += '  %-60s %s;\n'%('if (!strcmp(ext,"%s"))'%c,'return %s'%c.lower())
 
-  code += 'return false;\n'
+    tmp = wrapIf(cond.get(api.name.lower()),tmp)
+
+    code += tmp + '\n'
+
+  code += '  return false;\n'
   code += '}\n\n'
-
-  code += 'bool\n'
-  code += 'ContextInfo::isSupported(const char *ext) const\n'
-  code += '{\n'
-  code += '  Internal("ContextInfo::isSupported ",boost::print::quote(ext,\'"\'));\n'
-  code += '\n'
-  code += '  string_list<string> e;\n'
-  code += '  e.split(ext,\' \');\n'
-  code += '  for (string_list<string>::const_iterator i=e.begin(); i!=e.end(); ++i)\n'
-  code += '    if (i->length() && !getExtension(i->c_str())) return false;\n'
-  code += '  return true;\n'
-  code += '}\n'
 
   return code
 
@@ -611,6 +670,7 @@ def generateContextInfoHeader(apis, args):
     substitute['COPYRIGHT']       = args.copyright
     substitute['HEADER_NAME']     = "REGAL_CONTEXT_INFO"
     substitute['VERSION_DECLARE'] = versionDeclareCode(apis,args)
+    substitute['IMPL_DECLARE']    = implDeclareCode(apis,args)
     outputCode( '%s/RegalContextInfo.h' % args.srcdir, contextInfoHeaderTemplate.substitute(substitute))
 
 def generateContextInfoSource(apis, args):
@@ -623,4 +683,6 @@ def generateContextInfoSource(apis, args):
     substitute['VERSION_DETECT'] = versionDetectCode(apis,args)
     substitute['EXT_INIT']       = extensionStringCode(apis,args)
     substitute['EXT_CODE']       = getExtensionCode(apis,args)
+    substitute['IMPL_INIT']      = implInitCode(apis,args)
+    substitute['IMPL_GET']       = implGetCode(apis,args)
     outputCode( '%s/RegalContextInfo.cpp' % args.srcdir, contextInfoSourceTemplate.substitute(substitute))

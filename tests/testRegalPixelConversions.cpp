@@ -33,7 +33,7 @@
 
 #include <GL/Regal.h>
 
-#include "RegalPixelConversions.h"
+#include <RegalPixelConversions.h>
 
 namespace {
 

@@ -63,10 +63,9 @@ void MD5Init(ctx)
  * of bytes.
  */
 void MD5Update(ctx, buf, len)
-    struct MD5Context *ctx; const void *buf; unsigned len;
+    struct MD5Context *ctx; const unsigned char *buf; unsigned len;
 {
     uint32 t;
-    const char *b = (const char *) buf;
 
     /* Update bitcount */
 
@@ -84,28 +83,28 @@ void MD5Update(ctx, buf, len)
 
 	t = 64 - t;
 	if (len < t) {
-	    memcpy(p, b, len);
+	    memcpy(p, buf, len);
 	    return;
 	}
-	memcpy(p, b, t);
+	memcpy(p, buf, t);
 	byteReverse(ctx->in, 16);
 	MD5Transform(ctx->buf, (uint32 *) ctx->in);
-	b += t;
+	buf += t;
 	len -= t;
     }
     /* Process data in 64-byte chunks */
 
     while (len >= 64) {
-	memcpy(ctx->in, b, 64);
+	memcpy(ctx->in, buf, 64);
 	byteReverse(ctx->in, 16);
 	MD5Transform(ctx->buf, (uint32 *) ctx->in);
-	b += 64;
+	buf += 64;
 	len -= 64;
     }
 
     /* Handle any remaining bytes of data. */
 
-    memcpy(ctx->in, b, len);
+    memcpy(ctx->in, buf, len);
 }
 
 /*

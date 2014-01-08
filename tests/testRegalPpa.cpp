@@ -40,6 +40,7 @@
 #include "RegalDispatch.h"
 #include "RegalDispatchGMock.h"
 #include "RegalContextInfo.h"
+#include "RegalEmuInfo.h"
 
 namespace
 {
@@ -52,16 +53,20 @@ using ::testing::AnyNumber;
 
 TEST( RegalPpa, Enable )
 {
-  Emu::Ppa ppa;
-
   RegalContext ctx;
   ctx.info = new ContextInfo();
   ctx.info->es2 = true;
+
+  ctx.emuInfo = new EmuInfo();
+  ctx.emuInfo->init(*ctx.info.get());
+
+  Emu::Ppa ppa;
 
   EXPECT_TRUE ( ppa.Enable( &ctx, GL_POINT_SMOOTH ) );
   EXPECT_TRUE ( ppa.Enable( &ctx, GL_LINE_STIPPLE ) );
 
   ctx.info->es2 = ctx.info->core = false;
+  ctx.emuInfo->init(*ctx.info.get());
 
   EXPECT_FALSE ( ppa.Enable( &ctx, GL_POINT_SMOOTH ) );
   EXPECT_FALSE ( ppa.Enable( &ctx, GL_LINE_STIPPLE ) );
@@ -92,7 +97,12 @@ TEST( RegalPpa, PushPopAttrib )
   RegalContext ctx;
   ctx.info = new ContextInfo();
   ctx.info->es2 = ctx.info->core = false;
-  InitDispatchTableMissing( ctx.dispatcher.emulation );
+
+  ctx.emuInfo = new EmuInfo();
+  ctx.emuInfo->init(*ctx.info.get());
+  ctx.emuInfo->gl_max_attrib_stack_depth = 16;
+
+  Missing::Init( ctx.dispatcher.emulation );
   InitDispatchTableGMock( ctx.dispatcher.emulation );
 
   Emu::Ppa ppa;
@@ -200,7 +210,12 @@ TEST( RegalPpa, PushPopDepthBufferBit )
   RegalContext ctx;
   ctx.info = new ContextInfo();
   ctx.info->es2 = ctx.info->core = false;
-  InitDispatchTableMissing( ctx.dispatcher.emulation );
+
+  ctx.emuInfo = new EmuInfo();
+  ctx.emuInfo->init(*ctx.info.get());
+  ctx.emuInfo->gl_max_attrib_stack_depth = 16;
+
+  Missing::Init( ctx.dispatcher.emulation );
   InitDispatchTableGMock( ctx.dispatcher.emulation );
 
   Emu::Ppa ppa;

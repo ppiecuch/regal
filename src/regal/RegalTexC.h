@@ -54,13 +54,13 @@ REGAL_GLOBAL_BEGIN
 #include "RegalContext.h"
 #include "RegalSharedMap.h"
 
-REGAL_GLOBAL_END
-
-REGAL_NAMESPACE_BEGIN
-
 using ::boost::uint8_t;
 using ::boost::uint16_t;
 using ::boost::uint32_t;
+
+REGAL_GLOBAL_END
+
+REGAL_NAMESPACE_BEGIN
 
 namespace Emu {
 
@@ -187,7 +187,8 @@ struct TexC
 
   void Reset_();
 
-  TextureState* GetBoundTexture_( GLenum textureUnit, GLenum target );
+  TextureState* GetBoundTexture_( GLenum textureEnum, GLenum target );
+  TextureState* GetBoundTextureUnit_( GLuint textureUnit, GLenum target );
   TextureState* GetTexture_( GLuint texture );
 
   void GetFormatAndType( GLenum target, GLint level, GLenum* format, GLenum* type );
@@ -217,8 +218,8 @@ struct TexC
 
   PixelStorageStateGLES20 unpackPSS;
 
-  GLenum currentTextureUnit;
-  TextureUnitState textureUnitArrayState[ REGAL_EMU_MAX_TEXTURE_UNITS ];
+  GLuint currentTextureUnit;
+  TextureUnitState textureUnitArrayState[ REGAL_EMU_MAX_COMBINED_TEXTURE_IMAGE_UNITS ];
   TextureState textureZero;
 };
 

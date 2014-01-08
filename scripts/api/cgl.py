@@ -438,7 +438,7 @@ CGLCopyContext = Function('CGLCopyContext')
 CGLCopyContext.ret = Return('CGLError')
 CGLCopyContext.add( Input( 'src','CGLContextObj' ))
 CGLCopyContext.add( Input( 'dst','CGLContextObj' ))
-CGLCopyContext.add( Input( 'mask','GLbitfield' ))
+CGLCopyContext.add( Input( 'mask','GLbitfield' ,regalLog = 'GLpushAttribToString(mask)' ))
 CGLCopyContext.version = ''
 CGLCopyContext.category = 'CGL_VERSION_1_0'
 CGLCopyContext.trace = True

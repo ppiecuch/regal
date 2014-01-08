@@ -249,6 +249,7 @@
     <ClCompile Include="..\..\..\..\src\regal\RegalContextInfo.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalContextInfo.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalDebugInfo.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalDispatch.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalDispatch.h" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchCache.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchCode.cpp" />
@@ -256,6 +257,7 @@
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchEmu.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchError.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalDispatchError.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalDispatchGLX.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchGlobal.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchLoader.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDispatchLog.cpp" />
@@ -273,7 +275,10 @@
     <ClInclude Include="..\..\..\..\src\regal\RegalDispatcherGlobal.h" />
     <ClCompile Include="..\..\..\..\src\regal\RegalDllMain.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalDsa.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalEmu.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalEmu.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalEmuInfo.cpp" />
+    <ClInclude Include="..\..\..\..\src\regal\RegalEmuInfo.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalEnum.h" />
     <ClCompile Include="..\..\..\..\src\regal\RegalFavicon.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalFavicon.h" />
@@ -307,12 +312,12 @@
     <ClInclude Include="..\..\..\..\src\regal\RegalPixelConversions.inl" />
     <ClCompile Include="..\..\..\..\src\regal\RegalPlugin.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPpa.h" />
-    <ClInclude Include="..\..\..\..\src\regal\RegalPpc.h" />
-    <ClCompile Include="..\..\..\..\src\regal\RegalPpca.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPpca.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPrecompile.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPrivate.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalPush.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalQuads.cpp" />
+    <ClInclude Include="..\..\..\..\src\regal\RegalQuads.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalScopedPtr.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalSharedList.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalSharedMap.h" />
@@ -333,6 +338,7 @@
     <ClCompile Include="..\..\..\..\src\regal\RegalUtil.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalUtil.h" />
     <ClInclude Include="..\..\..\..\src\regal\RegalVao.h" />
+    <ClCompile Include="..\..\..\..\src\regal\RegalX11.cpp" />
     <ClCompile Include="..\..\..\..\src\regal\RegalXfer.cpp" />
     <ClInclude Include="..\..\..\..\src\regal\RegalXfer.h" />
     <ClInclude Include="..\..\..\..\src\regal\linear.h" />

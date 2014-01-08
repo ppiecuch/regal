@@ -102,13 +102,15 @@ DispatcherGL::DispatcherGL()
   ::memset(&driver,0,sizeof(DispatchTableGL));
   InitDispatchTablePpapi(driver);               // ES 2.0 functions only
   #else
-  InitDispatchTableLoader(driver);              // Desktop/ES2.0 lazy loader
+  Loader::Init(driver);                         // Desktop/ES2.0 lazy loader
   #endif
   push_back(driver,Config::enableDriver);
   #endif
 
-  InitDispatchTableMissing(missing);
-  push_back(missing,true);
+  #if REGAL_MISSING
+  Missing::Init(missing);
+  push_back(missing,Config::enableMissing);
+  #endif
 
   // Optionally move the error checking dispatch to downstream of emulation.
   // This can be helpful for debugging Regal emulation

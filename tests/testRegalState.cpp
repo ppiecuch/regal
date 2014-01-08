@@ -110,9 +110,9 @@ TEST( RegalStateTransform, WorksAsExpected )
   State::Transform t2;
 
   for ( size_t i = 0; i < t1.maxPlanes(); ++i ) {
-    t1.clipPlane[ i ].enabled = 50 + i;
+    t1.clipPlane[ i ].enabled = static_cast<GLboolean>(50 + i);
     for ( size_t j = 0; j < 4; ++j ) {
-      t1.clipPlane[ i ].equation.data[ j ] = i * 4 + j;
+      t1.clipPlane[ i ].equation.data[ j ] = static_cast<GLdouble>(i * 4 + j);
     }
   }
 

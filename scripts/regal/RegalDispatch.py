@@ -20,7 +20,7 @@ def apiDispatchTableDefineCode(apis, args, apiNames, structName):
   {
     inline void setFunction(const size_t offset, void *func)
     {
-      RegalAssert((offset*sizeof(void *))<sizeof(this));
+      RegalAssert((offset*sizeof(void *))<sizeof(*this));
       ((void **)(this))[offset] = func;
     }
 '''%(structName)
@@ -147,8 +147,12 @@ struct DispatchTable
 
 struct DispatchTableGL : public DispatchTable, Dispatch::GL
 {
-  template<typename T> T call(T *func) { return Dispatch::call(*this,func);                                }
-  inline DispatchTableGL *next()       { return reinterpret_cast<DispatchTableGL *>(DispatchTable::_next); }
+public:
+  template<typename T> T call(T *func) { return reinterpret_cast<T>(doCall(reinterpret_cast<void **>(func))); }
+  inline DispatchTableGL *next()       { return reinterpret_cast<DispatchTableGL *>(DispatchTable::_next);    }
+
+private:
+  void *doCall(void **func);  // inlined Dispatch::call consolidated to one instance for DispatchTableGL
 };
 
 struct DispatchTableGlobal : public DispatchTable, Dispatch::Global
@@ -156,11 +160,15 @@ struct DispatchTableGlobal : public DispatchTable, Dispatch::Global
   DispatchTableGlobal();
   ~DispatchTableGlobal();
 
-  template<typename T> T call(T *func) { return Dispatch::call(*this,func);                                    }
+  template<typename T> T call(T *func) { return reinterpret_cast<T>(doCall(reinterpret_cast<void **>(func)));  }
   inline DispatchTableGlobal *next()   { return reinterpret_cast<DispatchTableGlobal *>(DispatchTable::_next); }
+
+private:
+  void *doCall(void **func);  // inlined Dispatch::call consolidated to one instance for DispatchTableGlobal
 };
 
 extern DispatchTableGlobal dispatchTableGlobal;
+
 REGAL_NAMESPACE_END
 
 #endif // __${HEADER_NAME}_H__

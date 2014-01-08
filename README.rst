@@ -18,21 +18,27 @@ Regal
 Recent News
 ===========
 
-* July 30th 2013 - New binaries available for Windows and Mac.
-* July 26th 2013 - `Emscripten <https://github.com/kripken/emscripten>`_ support in progress.
-* July 22nd 2013 - `OpenGL 4.4 <http://www.opengl.org/registry/>`_ API support added.
-* July 21st 2013 - `apitrace <http://apitrace.github.io/>`_ support added.
+* November 2013 - Regal Wrangler support added.
+* October 2013 - `Emscripten <https://github.com/kripken/emscripten>`_ support added.
+* July 2013 - New binaries available for Windows and Mac.
+* July 2013 - `OpenGL 4.4 <http://www.opengl.org/registry/>`_ API support added.
+* July 2013 - `apitrace <http://apitrace.github.io/>`_ support added.
 
 Summary
 =======
 
-OpenGL portability layer for OpenGL 2.x, 3.x, 4.x, Core contexts and ES 2.0
+Regal is a user-space OpenGL layer for OpenGL 2.x, 3.x, 4.x, Core contexts and ES 2.0.
+Regal implements OpenGL loading, emulation for ES and Core contexts and tools for debugging.
 
-+---------------+----------------------------------------------------------------------+
-|  **Warning**  |  Regal is pre-alpha software, it is available here for evaluation    |
-|               |  and to play with the examples.  Don't use it in your projects yet.  |
-|               |  You have been warned.                                               |
-+---------------+----------------------------------------------------------------------+
+Status
+======
+
+Regal has been in active development on github since May of 2012 ---
+it is in deployment for internal projects, and has received significant
+external contributions.
+
+Features such as emulation might not be complete or bug-free enough for
+every situation, milage may vary, contributions welcome.
 
 .. contents::
 
@@ -98,101 +104,107 @@ Features
 Emulation
 ---------
 
-  - Fixed function texturing, lighting and fog.
-  - Direct State Access extension
+- Fixed function texturing, lighting and fog.
+- Direct State Access extension
 
-    http://www.opengl.org/registry/specs/EXT/direct_state_access.txt
+  http://www.opengl.org/registry/specs/EXT/direct_state_access.txt
 
-  - GL_EXT_debug_marker extension
+- GL_EXT_debug_marker extension
 
-    http://www.khronos.org/registry/gles/extensions/EXT/EXT_debug_marker.txt
+  http://www.khronos.org/registry/gles/extensions/EXT/EXT_debug_marker.txt
 
-  - Fixed function and DSA emulation enabled by default, except when compatibility context
-    with DSA extension detected.
+- Fixed function and DSA emulation enabled by default, except when compatibility context
+  with DSA extension detected.
 
-  - Build-time configuration:
+- Build-time configuration:
 
-    - **REGAL_EMULATION**         -- Enable/disable the use of emulation
-    - **REGAL_FORCE_EMULATION**   -- Force the use of emulation, even for compatibility contexts with DSA
+  - **REGAL_EMULATION**         -- Enable/disable the use of emulation
+  - **REGAL_FORCE_EMULATION**   -- Force the use of emulation, even for compatibility contexts with DSA
 
-  - Environment variable configuration:
+- Environment variable configuration:
 
-    - **REGAL_EMULATION**         -- Enable/disable the use of emulation
-    - **REGAL_FORCE_EMULATION**   -- Force the use of emulation, even for compatibility contexts with DSA
+  - **REGAL_EMULATION**         -- Enable/disable the use of emulation
+  - **REGAL_FORCE_EMULATION**   -- Force the use of emulation, even for compatibility contexts with DSA
 
-  - Runime configuration via GL_REGAL_enable_:
+- Runime configuration via GL_REGAL_enable_:
 
-    - **GL_EMULATION_REGAL**      -- glEnable/glDisable emulation
+  - **GL_EMULATION_REGAL**      -- glEnable/glDisable emulation
+
+.. NOTE:: Emulation is not supported in REGAL_WRANGLER=1 mode.
 
 OpenGL error checking
 ---------------------
 
-  - Disabled by default.
+- Disabled by default.
 
-  - Build-time configuration: **REGAL_ERROR**
+- Build-time configuration: **REGAL_ERROR**
 
-  - Environment variable configuration: **REGAL_ERROR**
+- Environment variable configuration: **REGAL_ERROR**
 
-  - Runtime configuration via GL_REGAL_enable_: **GL_ERROR_REGAL**
+- Runtime configuration via GL_REGAL_enable_: **GL_ERROR_REGAL**
+
+.. NOTE:: OpenGL error checking is not supported in REGAL_WRANGLER=1 mode.
 
 Logging
 -------
 
-  Regal supports detailed logging for development purposes.
+Regal supports detailed logging for development purposes.
 
-  - **Error**       -- Fatal and non-fatal Regal runtime errors.
-  - **Warning**     -- Non-fatal Regal warnings.
-  - **Info**        -- Informational messages.
-  - **App**         -- Application calls into Regal.
-  - **Driver**      -- Regal calls into OpenGL.
-  - **Internal**    -- Internal Regal calls.
-  - **Http**        -- HTTP traffic logging.
+- **Error**       -- Fatal and non-fatal Regal runtime errors.
+- **Warning**     -- Non-fatal Regal warnings.
+- **Info**        -- Informational messages.
+- **App**         -- Application calls into Regal.
+- **Driver**      -- Regal calls into OpenGL.
+- **Internal**    -- Internal Regal calls.
+- **Http**        -- HTTP traffic logging.
 
-  Build-time configuration:
+Build-time configuration:
 
-  - **REGAL_LOG_ERROR**
-  - **REGAL_LOG_WARNING**
-  - **REGAL_LOG_INFO**
-  - **REGAL_LOG_APP**
-  - **REGAL_LOG_DRIVER**
-  - **REGAL_LOG_INTERNAL**
-  - **REGAL_LOG_HTTP**
+- **REGAL_LOG_ERROR**
+- **REGAL_LOG_WARNING**
+- **REGAL_LOG_INFO**
+- **REGAL_LOG_APP**
+- **REGAL_LOG_DRIVER**
+- **REGAL_LOG_INTERNAL**
+- **REGAL_LOG_HTTP**
 
-  * Debug mode: All logging supported with error, warning, info and http logging enabled.
-  * Release mode: Support for application, driver and internal logging disabled by default.
+* Debug mode: All logging supported with error, warning, info and http logging enabled.
+* Release mode: Support for application, driver and internal logging disabled by default.
 
-  Environment variable configuration:
+Environment variable configuration:
 
-  - **REGAL_LOG_ERROR**
-  - **REGAL_LOG_WARNING**
-  - **REGAL_LOG_INFO**
-  - **REGAL_LOG_APP**
-  - **REGAL_LOG_DRIVER**
-  - **REGAL_LOG_INTERNAL**
-  - **REGAL_LOG_HTTP**
-  - **REGAL_LOG_API**       --- Application + Driver OpenGL logging
-  - **REGAL_LOG_NONE**      --- enable or disable all logging
+- **REGAL_LOG_ERROR**
+- **REGAL_LOG_WARNING**
+- **REGAL_LOG_INFO**
+- **REGAL_LOG_APP**
+- **REGAL_LOG_DRIVER**
+- **REGAL_LOG_INTERNAL**
+- **REGAL_LOG_HTTP**
+- **REGAL_LOG_API**       --- Application + Driver OpenGL logging
+- **REGAL_LOG_NONE**      --- enable or disable all logging
 
-  Environment variable lookup is globally disabled by defining **REGAL_NO_GETENV**
-  at compile-time.
+Environment variable lookup is globally disabled by defining **REGAL_NO_GETENV**
+at compile-time.
 
-  Runtime configuration via GL_REGAL_log_ extension: (**glEnable/glDisable/glIsEnabled**)
+Runtime configuration via GL_REGAL_log_ extension: (**glEnable/glDisable/glIsEnabled**)
 
-  - **GL_LOG_ERROR_REGAL**
-  - **GL_LOG_WARNING_REGAL**
-  - **GL_LOG_INFO_REGAL**
-  - **GL_LOG_APP_REGAL**
-  - **GL_LOG_DRIVER_REGAL**
-  - **GL_LOG_INTERNAL_REGAL**
-  - **GL_LOG_HTTP_REGAL**
+- **GL_LOG_ERROR_REGAL**
+- **GL_LOG_WARNING_REGAL**
+- **GL_LOG_INFO_REGAL**
+- **GL_LOG_APP_REGAL**
+- **GL_LOG_DRIVER_REGAL**
+- **GL_LOG_INTERNAL_REGAL**
+- **GL_LOG_HTTP_REGAL**
 
-  Other compile-time or runtime configuration of logging:
-  
-  - **REGAL_LOG**           --- enable or disable logging
-  - **REGAL_LOG_FILE**      --- log to specified filename
-  - **REGAL_LOG_MAX_LINES** --- limit the number of lines of multi-line messages (shaders, etc)
-  - **REGAL_LOG_JSON**      --- log in JSON mode
-  - **REGAL_LOG_JSON_FILE** --- JSON log to specified filename
+Other compile-time or runtime configuration of logging:
+
+- **REGAL_LOG**           --- enable or disable logging
+- **REGAL_LOG_FILE**      --- log to specified filename
+- **REGAL_LOG_MAX_LINES** --- limit the number of lines of multi-line messages (shaders, etc)
+- **REGAL_LOG_JSON**      --- log in JSON mode
+- **REGAL_LOG_JSON_FILE** --- JSON log to specified filename
+
+.. NOTE:: API logging is not supported in REGAL_WRANGLER=1 mode.
 
 Multi-threading support
 -----------------------
@@ -228,21 +240,23 @@ Spoofing OpenGL vendor, renderer, version and extension strings
 Browser-based interface
 -----------------------
 
-  - Enabled by default.
+- Enabled by default.
 
-  - **REGAL_NO_HTTP**         --- Build-time and environment variable enable/disable.
-  - **REGAL_HTTP_PORT**       --- Port for HTTP connections (8080 by default)
-  - **REGAL_HTTP_LOG_LIMIT**  --- Number of lines of logging buffered
+- **REGAL_NO_HTTP**         --- Build-time and environment variable enable/disable.
+- **REGAL_HTTP_PORT**       --- Port for HTTP connections (8080 by default)
+- **REGAL_HTTP_LOG_LIMIT**  --- Number of lines of logging buffered
 
-  - `http://127.0.0.1:8080/log`_                          --- View log
-  - `http://127.0.0.1:8080/glEnable?GL_LOG_APP_REGAL`_    --- Enable/disable application logging
-  - `http://127.0.0.1:8080/glEnable?GL_LOG_DRIVER_REGAL`_ --- Enable/disable driver logging
-  - `http://127.0.0.1:8080`_                              --- State information
+- `http://127.0.0.1:8080/log`_                          --- View log
+- `http://127.0.0.1:8080/glEnable?GL_LOG_APP_REGAL`_    --- Enable/disable application logging
+- `http://127.0.0.1:8080/glEnable?GL_LOG_DRIVER_REGAL`_ --- Enable/disable driver logging
+- `http://127.0.0.1:8080`_                              --- State information
 
 .. _http://127.0.0.1:8080/log:                          http://127.0.0.1:8080/log
 .. _http://127.0.0.1:8080/glEnable?GL_LOG_APP_REGAL:    http://127.0.0.1:8080/glEnable?GL_LOG_APP_REGAL
 .. _http://127.0.0.1:8080/glEnable?GL_LOG_DRIVER_REGAL: http://127.0.0.1:8080/glEnable?GL_LOG_DRIVER_REGAL
 .. _http://127.0.0.1:8080:                              http://127.0.0.1:8080
+
+.. NOTE:: Browser interface is not supported in REGAL_WRANGLER=1 mode.
 
 Regal OpenGL extensions
 -----------------------
@@ -263,22 +277,24 @@ Regal API
 In Progress
 ===========
 
+* Light-weight loader-only "wrangler" mode along the lines of GLEW.
 * Context sharing support
-* Pointer-based API
 * glPushAttrib emulation
 
 Planned Features
 ================
 
+* NV_path_rendering emulation.
+* GLSL to GLSL translation.
+* ES 3.0 support
 * Debug label.
 * Debug output.
-* Web browser-based debugging tools.
 * Display list emulation.
+* Web browser-based debugging tools.
 
 Limitations
 ===========
 
-* Incomplete implementation, so far.
 * Shared OpenGL contexts supported for single-threaded only.
 * Limited GLSL language support.
 * GL_QUADS only works in immediate mode or with DrawArrays for ES and core profiles.
@@ -296,6 +312,7 @@ Contact Information
 Other Information
 =================
 
+* Big Android BBQ 2013: `Developing for Dedicated Android Gaming Systems <https://developer.nvidia.com/content/nvidia-shield-and-bbq-big-android-bbq-hurst-tx>`_ `(.pdf slides) <https://developer.nvidia.com/sites/default/files/akamai/mobile/docs/NVIDIA_Dedicated_Android_Gaming_2013_updated.pdf>`_.
 * #AltDevBlogADay blog: `Bringing Regal OpenGL to Native Client <http://www.altdevblogaday.com/2012/09/04/bringing-regal-opengl-to-native-client/>`_.
 * opengl.org forum thread: `Introducing Regal <http://www.opengl.org/discussion_boards/showthread.php/178678-Introducing-Regal?p=1241199>`_.
 * Slides - `Regal for Software Development <http://www.slideshare.net/nigelstewart1/regal-tlf>`_.
@@ -383,6 +400,10 @@ Related Efforts
 ---------------
 
 * Mesa3D mail thread: `Mesa as part of OpenGL-on-OpenGL ES 2.0 <http://lists.freedesktop.org/archives/mesa-dev/2012-March/019692.html>`_
+
+* `glshim <https://github.com/lunixbochs/glshim>`_, `Pandora forum thread <http://boards.openpandora.org/index.php/topic/11506-opengl-implementation-tldr-more-games/>`_.
+
+* Runtime OpenGL to OpenGL ES translator: `glesport <http://unrealvoodoo.org/cgi-bin/cgit/glesport.git/log/>`_, `OpenGL ES for Maemo <http://unrealvoodoo.org/hiteck/blog/2007/07/opengl-es-for-maemo/>`_.
 
 License and Credits
 ===================

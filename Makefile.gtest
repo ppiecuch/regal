@@ -46,9 +46,6 @@ lib/$(SYSTEM)/$(GTEST.STATIC): $(GTEST.OBJS)
 ifneq ($(RANLIB),)
 	$(LOG_RANLIB)$(RANLIB) $@
 endif
-ifneq ($(STRIP),)
-	$(LOG_STRIP)$(STRIP) -x $@
-endif
 
 endif
 endif

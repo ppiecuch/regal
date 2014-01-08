@@ -1,0 +1,77 @@
+#
+# Makefile for the GLSL Optimizer component of the Regal runtime.
+# The GLSL Optimizer is always build into Regal, but you can build
+# just this target static library with:
+# make -f Makefile.glslopt
+#
+
+ifndef MAKEFILE_GLSLOPT_INCLUDED
+MAKEFILE_GLSLOPT_INCLUDED := 1
+
+.PHONY: glslopt.lib glslopt.clean
+
+include build/common.inc
+include build/glslopt.inc
+
+ifdef GLSLOPT.STATIC
+
+all:: glslopt.lib
+
+clean:: glslopt.clean
+
+GLSLOPT.SRCS       := $(GLSLOPT.CXX)
+GLSLOPT.SRCS       := $(filter %.c,$(GLSLOPT.SRCS)) $(filter %.cc,$(GLSLOPT.SRCS)) $(filter %.cpp,$(GLSLOPT.SRCS))
+GLSLOPT.SRCS.NAMES := $(notdir $(GLSLOPT.SRCS))
+GLSLOPT.OBJS       := $(addprefix tmp/$(SYSTEM)/glslopt/static/,$(GLSLOPT.SRCS.NAMES))
+GLSLOPT.OBJS       := $(GLSLOPT.OBJS:.c=.o) $(GLSLOPT.OBJS:.cpp=.o)
+GLSLOPT.OBJS       := $(filter %.o,$(GLSLOPT.OBJS))
+GLSLOPT.DEPS       := $(GLSLOPT.OBJS:.o=.d)
+GLSLOPT.CFLAGS     := $(GLSLOPT.INCLUDE)
+# quiet build for this thirdparty code for now
+GLSLOPT.CFLAGS     += -Wno-ignored-qualifiers -Wno-sign-compare -Wno-unneeded-internal-declaration -Wno-overloaded-virtual -Wno-unused-private-field
+
+ifeq ($(MODE),release)
+GLSLOPT.CFLAGS  += -DNDEBUG
+GLSLOPT.CFLAGS  += -DREGAL_NO_ASSERT=1
+endif
+
+-include $(GLSLOPT.DEPS) #seth: do I need ot set this?
+
+glslopt.lib: lib/$(SYSTEM)/$(GLSLOPT.STATIC)
+
+glslopt.clean:
+	$(RM) -r tmp/$(SYSTEM)/glslopt/static
+	$(RM) -r lib/$(SYSTEM)/$(GLSLOPT.STATIC)
+
+tmp/$(SYSTEM)/glslopt/static/%.o: src/glsl/src/mesa/main/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(CFLAGS) $(GLSLOPT.CFLAGS) $(PICFLAG) -o $@ -c $<
+
+tmp/$(SYSTEM)/glslopt/static/%.o: src/glsl/src/mesa/program/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(CFLAGS) $(GLSLOPT.CFLAGS) $(PICFLAG) -o $@ -c $<
+
+tmp/$(SYSTEM)/glslopt/static/%.o: src/glsl/src/glsl/glcpp/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(CFLAGS) $(GLSLOPT.CFLAGS) $(PICFLAG) -o $@ -c $<
+
+tmp/$(SYSTEM)/glslopt/static/%.o: src/glsl/src/glsl/%.c
+	@mkdir -p $(dir $@)
+	$(LOG_CC)$(CCACHE) $(CC) $(CFLAGS) $(GLSLOPT.CFLAGS) $(PICFLAG) -o $@ -c $<
+
+tmp/$(SYSTEM)/glslopt/static/%.o: src/glsl/src/glsl/%.cpp
+	@mkdir -p $(dir $@)
+	$(LOG_CXX)$(CCACHE) $(CXX) $(CFLAGS) $(GLSLOPT.CFLAGS) $(PICFLAG) -o $@ -c $<
+
+lib/$(SYSTEM)/$(GLSLOPT.STATIC): $(GLSLOPT.OBJS)
+	@mkdir -p $(dir $@)
+	$(LOG_AR)$(CCACHE) $(AR) cr $@ $(GLSLOPT.OBJS)
+ifneq ($(RANLIB),)
+	$(LOG_RANLIB)$(RANLIB) $@
+endif
+ifneq ($(STRIP),)
+	$(LOG_STRIP)$(STRIP) -x $@
+endif
+
+endif
+endif

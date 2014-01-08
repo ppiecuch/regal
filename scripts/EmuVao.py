@@ -4,7 +4,7 @@ vaoFormulae = {
     # TODO - GL_ARB_base_instance ?
     'Validate' : {
         'entries' : [ 'gl(Multi|)Draw(Arrays|Element|Elements)(Instanced|Indirect|BaseVertex|InstancedBaseVertex|Array|)(ARB|EXT|AMD|ATI|APPLE|)' ],
-        'prefix' : [  '// _context->vao->Validate( _context );' ],
+        'prefix' : [  '// _context->vao->Validate(*_context );' ],
     },
     'BufferBinding' : {
         'entries' : [ 'glBindBuffer(ARB|)' ],
@@ -12,7 +12,7 @@ vaoFormulae = {
     },
     'BindVertexArray' : {
         'entries' : [ 'glBindVertexArray(ARB|)' ],
-        'impl' : [ '_context->vao->BindVertexArray( _context, ${arg0} );' ],
+        'impl' : [ '_context->vao->BindVertexArray(*_context, ${arg0} );' ],
     },
    'GenVertexArrays' : {
         'entries' : [ 'glGenVertexArrays(ARB|)' ],
@@ -28,15 +28,15 @@ vaoFormulae = {
     },
    'EnableVertexAttribArray' : {
         'entries' : [ 'gl(Enable|Disable)VertexAttribArray(ARB|)' ],
-        'impl' : [ 'return _context->vao->${m1}VertexAttribArray( _context, ${arg0} );' ],
+        'impl' : [ 'return _context->vao->${m1}VertexAttribArray(*_context, ${arg0} );' ],
     },
     'EnableDisableClientState' : {
         'entries' : [ 'gl(Enable|Disable)ClientState' ],
-        'impl' : [ '_context->vao->${m1}ClientState( _context, ${arg0} );' ],
+        'impl' : [ '_context->vao->${m1}ClientState(*_context, ${arg0} );' ],
     },
    'AttribPointer' : {
         'entries' : [ 'glVertexAttribPointer(ARB|)' ],
-        'impl' : [ 'return _context->vao->AttribPointer( _context, ${arg0}, ${arg1plus} );' ],
+        'impl' : [ 'return _context->vao->AttribPointer(*_context, ${arg0}, ${arg1plus} );' ],
     },
     'GetAttrib' : {
         'entries' : [ 'glGetVertexAttrib(d|f|i|Pointer)v(ARB|)' ],
@@ -60,34 +60,34 @@ vaoFormulae = {
     },
     'InterleavedArrays' : {
         'entries' : [ 'glInterleavedArrays' ],
-        'impl' : [ '_context->vao->InterleavedArrays( _context, ${arg0}, ${arg1plus} );' ],
+        'impl' : [ '_context->vao->InterleavedArrays(*_context, ${arg0}, ${arg1plus} );' ],
     },
     'Pointer4EXT' : {
         'entries' : [ 'gl(Color|TexCoord|Vertex)PointerEXT' ],
-        'impl' : [ '_context->vao->${m1}Pointer( _context, ${arg0}, ${arg1}, ${arg2}, ${arg4} );' ],
+        'impl' : [ '_context->vao->${m1}Pointer(*_context, ${arg0}, ${arg1}, ${arg2}, ${arg4} );' ],
     },
     'Pointer4' : {
         'entries' : [ 'gl(Color|SecondaryColor|TexCoord|Vertex)Pointer' ],
-        'impl' : [ '_context->vao->${m1}Pointer( _context, ${arg0}, ${arg1}, ${arg2}, ${arg3} );' ],
+        'impl' : [ '_context->vao->${m1}Pointer(*_context, ${arg0}, ${arg1}, ${arg2}, ${arg3} );' ],
     },
     'glSecondaryColorPointerEXT' : {
         'entries' : [ 'gl(SecondaryColor)PointerEXT' ],
-        'impl' : [ '_context->vao->${m1}Pointer( _context, ${arg0}, ${arg1}, ${arg2}, ${arg3} );' ],
+        'impl' : [ '_context->vao->${m1}Pointer(*_context, ${arg0}, ${arg1}, ${arg2}, ${arg3} );' ],
     },
     'NormalPointer3EXT' : {
         'entries' : [ 'glNormalPointerEXT' ],
-        'impl' : [ '_context->vao->NormalPointer( _context, ${arg0}, ${arg1}, ${arg3} );' ],
+        'impl' : [ '_context->vao->NormalPointer(*_context, ${arg0}, ${arg1}, ${arg3} );' ],
     },
     'FogCoordPointer3EXT' : {
         'entries' : [ 'glFogCoordPointerEXT' ],
-        'impl' : [ '_context->vao->FogCoordPointer( _context, ${arg0}, ${arg1}, ${arg2} );' ],
+        'impl' : [ '_context->vao->FogCoordPointer(*_context, ${arg0}, ${arg1}, ${arg2} );' ],
     },
     'Pointer3' : {
         'entries' : [ 'gl(FogCoord|Normal)Pointer' ],
-        'impl' : [ '_context->vao->${m1}Pointer( _context, ${arg0}, ${arg1}, ${arg2} );' ],
+        'impl' : [ '_context->vao->${m1}Pointer(*_context, ${arg0}, ${arg1}, ${arg2} );' ],
     },
     'ClientActiveTexture' : {
-        'entries' : [ 'glClientActiveTexture' ],
-        'prefix' : [ '_context->vao->ClientActiveTexture( _context, ${arg0} );' ],
+        'entries' : [ 'glClientActiveTexture(ARB|)' ],
+        'prefix' : [ '_context->vao->ClientActiveTexture(*_context, ${arg0} );' ],
     },
 }

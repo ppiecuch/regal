@@ -1,0 +1,16 @@
+{
+ "regal" : {
+  "config" : {
+   "dispatch" : {
+    "enable" : {
+     "error" : true
+    }
+   }
+  },
+  "logging" : {
+   "enable" : {
+    "error" : true
+   }
+  }
+ }
+}

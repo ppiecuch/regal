@@ -31,7 +31,11 @@
 
 #include "gtest/gtest.h"
 
-int main(int argc, char **argv) {
+#include <RegalInit.h>
+
+int main(int argc, char **argv)
+{
+  ::Regal::Init::init();
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

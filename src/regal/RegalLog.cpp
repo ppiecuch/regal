@@ -101,7 +101,16 @@ namespace Logging {
   bool callback        = (REGAL_LOG_CALLBACK);
 
   bool         log          = (REGAL_LOG);
+
+  // Default log output to Android log
+  // For other platforms, standard output
+
+#if REGAL_SYS_ANDROID
+  std::string  logFilename;
+#else
   std::string  logFilename  = "stdout";
+#endif
+
   FILE        *logOutput    = NULL;
 
   bool         json         = false;
@@ -574,6 +583,7 @@ namespace Logging {
 #if REGAL_SYS_WGL
       OutputDebugStringA(m.c_str());
 #elif REGAL_SYS_ANDROID
+      if (!logOutput)
       {
         android_LogPriority adrLog;
 
@@ -616,7 +626,6 @@ REGAL_GLOBAL_BEGIN
 
 // Direct apitrace logging messages to Regal info log
 
-#if REGAL_TRACE
 namespace os {
 
   void log(const char *format, ...);
@@ -633,6 +642,5 @@ namespace os {
   }
 
 }
-#endif
 
 REGAL_GLOBAL_END

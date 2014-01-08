@@ -78,6 +78,8 @@ struct Statistics
   GLuint gl_version_4_0;
   GLuint gl_version_4_1;
   GLuint gl_version_4_2;
+  GLuint gl_version_4_3;
+  GLuint gl_version_4_4;
 
   GLuint glx_version_1_0;
   GLuint glx_version_1_1;
@@ -422,9 +424,11 @@ struct Statistics
   GLuint gl_nv_3dvision_settings;
   GLuint gl_nv_bgr;
   GLuint gl_nv_bindless_texture;
+  GLuint gl_nv_blend_equation_advanced;
   GLuint gl_nv_blend_square;
   GLuint gl_nv_compute_program5;
   GLuint gl_nv_conditional_render;
+  GLuint gl_nv_copy_buffer;
   GLuint gl_nv_copy_depth_to_color;
   GLuint gl_nv_copy_image;
   GLuint gl_nv_coverage_sample;
@@ -455,6 +459,7 @@ struct Statistics
   GLuint gl_nv_light_max_exponent;
   GLuint gl_nv_multisample_coverage;
   GLuint gl_nv_multisample_filter_hint;
+  GLuint gl_nv_non_square_matrices;
   GLuint gl_nv_occlusion_query;
   GLuint gl_nv_pack_subimage;
   GLuint gl_nv_packed_depth_stencil;
@@ -502,6 +507,7 @@ struct Statistics
   GLuint gl_nv_vertex_program3;
   GLuint gl_nv_vertex_program4;
   GLuint gl_nv_video_capture;
+  GLuint gl_oes_egl_image_external;
   GLuint gl_oes_blend_equation_separate;
   GLuint gl_oes_blend_func_separate;
   GLuint gl_oes_blend_subtract;
@@ -1402,7 +1408,6 @@ struct Statistics
   /* GL_VERSION_3_2 */
 
   GLuint glFramebufferTexture;
-  GLuint glFramebufferTextureFace;
   GLuint glGetBufferParameteri64v;
   GLuint glGetInteger64i_v;
 
@@ -1495,6 +1500,20 @@ struct Statistics
   GLuint glDrawArraysInstancedANGLE;
   GLuint glDrawElementsInstancedANGLE;
   GLuint glVertexAttribDivisorANGLE;
+
+  /* GL_ANGLE_timer_query */
+
+  GLuint glBeginQueryANGLE;
+  GLuint glDeleteQueriesANGLE;
+  GLuint glEndQueryANGLE;
+  GLuint glGenQueriesANGLE;
+  GLuint glGetQueryObjecti64vANGLE;
+  GLuint glGetQueryObjectivANGLE;
+  GLuint glGetQueryObjectui64vANGLE;
+  GLuint glGetQueryObjectuivANGLE;
+  GLuint glGetQueryivANGLE;
+  GLuint glIsQueryANGLE;
+  GLuint glQueryCounterANGLE;
 
   /* GL_ANGLE_translated_shader_source */
 
@@ -1624,6 +1643,7 @@ struct Statistics
   /* GL_ARB_buffer_storage */
 
   GLuint glBufferStorage;
+  GLuint glNamedBufferStorageEXT;
 
   /* GL_ARB_cl_event */
 
@@ -2241,6 +2261,12 @@ struct Statistics
   /* GL_ARB_vertex_attrib_binding */
 
   GLuint glBindVertexBuffer;
+  GLuint glVertexArrayBindVertexBufferEXT;
+  GLuint glVertexArrayVertexAttribBindingEXT;
+  GLuint glVertexArrayVertexAttribFormatEXT;
+  GLuint glVertexArrayVertexAttribIFormatEXT;
+  GLuint glVertexArrayVertexAttribLFormatEXT;
+  GLuint glVertexArrayVertexBindingDivisorEXT;
   GLuint glVertexAttribBinding;
   GLuint glVertexAttribFormat;
   GLuint glVertexAttribIFormat;
@@ -3418,10 +3444,19 @@ struct Statistics
   GLuint glUniformHandleui64NV;
   GLuint glUniformHandleui64vNV;
 
+  /* GL_NV_blend_equation_advanced */
+
+  GLuint glBlendBarrierNV;
+  GLuint glBlendParameteriNV;
+
   /* GL_NV_conditional_render */
 
   GLuint glBeginConditionalRenderNV;
   GLuint glEndConditionalRenderNV;
+
+  /* GL_NV_copy_buffer */
+
+  GLuint glCopyBufferSubDataNV;
 
   /* GL_NV_copy_image */
 
@@ -3598,6 +3633,15 @@ struct Statistics
   GLuint glVertexAttribs4hvNV;
   GLuint glVertexWeighthNV;
   GLuint glVertexWeighthvNV;
+
+  /* GL_NV_non_square_matrices */
+
+  GLuint glUniformMatrix2x3fvNV;
+  GLuint glUniformMatrix2x4fvNV;
+  GLuint glUniformMatrix3x2fvNV;
+  GLuint glUniformMatrix3x4fvNV;
+  GLuint glUniformMatrix4x2fvNV;
+  GLuint glUniformMatrix4x3fvNV;
 
   /* GL_NV_occlusion_query */
 

@@ -210,6 +210,17 @@ GLbitfield_access = Flags(GLbitfield, [
     "GL_MAP_INVALIDATE_BUFFER_BIT",   # 0x0008
     "GL_MAP_FLUSH_EXPLICIT_BIT",      # 0x0010
     "GL_MAP_UNSYNCHRONIZED_BIT",      # 0x0020
+    "GL_MAP_PERSISTENT_BIT",          # 0x0040
+    "GL_MAP_COHERENT_BIT",            # 0x0080
+])
+
+GLbitfield_storage = Flags(GLbitfield, [
+    "GL_MAP_READ_BIT",                # 0x0001 (existing)
+    "GL_MAP_WRITE_BIT",               # 0x0002 (existing)
+    "GL_MAP_PERSISTENT_BIT",          # 0x0040
+    "GL_MAP_COHERENT_BIT",            # 0x0080
+    "GL_DYNAMIC_STORAGE_BIT",         # 0x0100
+    "GL_CLIENT_STORAGE_BIT",          # 0x0200
 ])
 
 GLbitfield_sync_flush = Flags(GLbitfield, [
@@ -231,7 +242,40 @@ GLbitfield_barrier = Flags(GLbitfield, [
     "GL_FRAMEBUFFER_BARRIER_BIT",               # 0x00000400
     "GL_TRANSFORM_FEEDBACK_BARRIER_BIT",        # 0x00000800
     "GL_ATOMIC_COUNTER_BARRIER_BIT",            # 0x00001000
+    "GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT",      # 0x00004000
+    "GL_QUERY_BUFFER_BARRIER_BIT",              # 0x00008000
 ])
+
+GLbitfield_metricQueryMask = Flags(GLbitfield, [
+    "GL_GLYPH_WIDTH_BIT_NV",                    # 0x01
+    "GL_GLYPH_HEIGHT_BIT_NV",                   # 0x02
+    "GL_GLYPH_HORIZONTAL_BEARING_X_BIT_NV",     # 0x04
+    "GL_GLYPH_HORIZONTAL_BEARING_Y_BIT_NV",     # 0x08
+    "GL_GLYPH_HORIZONTAL_BEARING_ADVANCE_BIT_NV", # 0x10
+    "GL_GLYPH_VERTICAL_BEARING_X_BIT_NV",       # 0x20
+    "GL_GLYPH_VERTICAL_BEARING_Y_BIT_NV",       # 0x40
+    "GL_GLYPH_VERTICAL_BEARING_ADVANCE_BIT_NV", # 0x80
+    "GL_GLYPH_HAS_KERNING_BIT_NV",              # 0x100
+    "GL_FONT_X_MIN_BOUNDS_BIT_NV",              # 0x00010000
+    "GL_FONT_Y_MIN_BOUNDS_BIT_NV",              # 0x00020000
+    "GL_FONT_X_MAX_BOUNDS_BIT_NV",              # 0x00040000
+    "GL_FONT_Y_MAX_BOUNDS_BIT_NV",              # 0x00080000
+    "GL_FONT_UNITS_PER_EM_BIT_NV",              # 0x00100000
+    "GL_FONT_ASCENDER_BIT_NV",                  # 0x00200000
+    "GL_FONT_DESCENDER_BIT_NV",                 # 0x00400000
+    "GL_FONT_HEIGHT_BIT_NV",                    # 0x00800000
+    "GL_FONT_MAX_ADVANCE_WIDTH_BIT_NV",         # 0x01000000
+    "GL_FONT_MAX_ADVANCE_HEIGHT_BIT_NV",        # 0x02000000
+    "GL_FONT_UNDERLINE_POSITION_BIT_NV",        # 0x04000000
+    "GL_FONT_UNDERLINE_THICKNESS_BIT_NV",       # 0x08000000
+    "GL_FONT_HAS_KERNING_BIT_NV",               # 0x10000000
+])
+
+GLbitfield_fontStyle = Flags(GLbitfield, [
+    "GL_BOLD_BIT_NV",                           # 0x01
+    "GL_ITALIC_BIT_NV",                         # 0x02
+])
+
 
 # GL_ARB_vertex_array_bgra
 size_bgra = FakeEnum(GLint, [

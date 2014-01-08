@@ -99,6 +99,8 @@ Statistics::log() const
   log("GL_VERSION_4_0",gl_version_4_0);
   log("GL_VERSION_4_1",gl_version_4_1);
   log("GL_VERSION_4_2",gl_version_4_2);
+  log("GL_VERSION_4_3",gl_version_4_3);
+  log("GL_VERSION_4_4",gl_version_4_4);
   log("GLX_VERSION_1_0",glx_version_1_0);
   log("GLX_VERSION_1_1",glx_version_1_1);
   log("GLX_VERSION_1_2",glx_version_1_2);
@@ -440,9 +442,11 @@ Statistics::log() const
   log("GL_NV_3DVISION_SETTINGS",gl_nv_3dvision_settings);
   log("GL_NV_BGR",gl_nv_bgr);
   log("GL_NV_BINDLESS_TEXTURE",gl_nv_bindless_texture);
+  log("GL_NV_BLEND_EQUATION_ADVANCED",gl_nv_blend_equation_advanced);
   log("GL_NV_BLEND_SQUARE",gl_nv_blend_square);
   log("GL_NV_COMPUTE_PROGRAM5",gl_nv_compute_program5);
   log("GL_NV_CONDITIONAL_RENDER",gl_nv_conditional_render);
+  log("GL_NV_COPY_BUFFER",gl_nv_copy_buffer);
   log("GL_NV_COPY_DEPTH_TO_COLOR",gl_nv_copy_depth_to_color);
   log("GL_NV_COPY_IMAGE",gl_nv_copy_image);
   log("GL_NV_COVERAGE_SAMPLE",gl_nv_coverage_sample);
@@ -473,6 +477,7 @@ Statistics::log() const
   log("GL_NV_LIGHT_MAX_EXPONENT",gl_nv_light_max_exponent);
   log("GL_NV_MULTISAMPLE_COVERAGE",gl_nv_multisample_coverage);
   log("GL_NV_MULTISAMPLE_FILTER_HINT",gl_nv_multisample_filter_hint);
+  log("GL_NV_NON_SQUARE_MATRICES",gl_nv_non_square_matrices);
   log("GL_NV_OCCLUSION_QUERY",gl_nv_occlusion_query);
   log("GL_NV_PACK_SUBIMAGE",gl_nv_pack_subimage);
   log("GL_NV_PACKED_DEPTH_STENCIL",gl_nv_packed_depth_stencil);
@@ -520,6 +525,7 @@ Statistics::log() const
   log("GL_NV_VERTEX_PROGRAM3",gl_nv_vertex_program3);
   log("GL_NV_VERTEX_PROGRAM4",gl_nv_vertex_program4);
   log("GL_NV_VIDEO_CAPTURE",gl_nv_video_capture);
+  log("GL_OES_EGL_IMAGE_EXTERNAL",gl_oes_egl_image_external);
   log("GL_OES_BLEND_EQUATION_SEPARATE",gl_oes_blend_equation_separate);
   log("GL_OES_BLEND_FUNC_SEPARATE",gl_oes_blend_func_separate);
   log("GL_OES_BLEND_SUBTRACT",gl_oes_blend_subtract);
@@ -1417,7 +1423,6 @@ Statistics::log() const
 /* GL_VERSION_3_2 */
 
   log("glFramebufferTexture",glFramebufferTexture);
-  log("glFramebufferTextureFace",glFramebufferTextureFace);
   log("glGetBufferParameteri64v",glGetBufferParameteri64v);
   log("glGetInteger64i_v",glGetInteger64i_v);
 
@@ -1510,6 +1515,20 @@ Statistics::log() const
   log("glDrawArraysInstancedANGLE",glDrawArraysInstancedANGLE);
   log("glDrawElementsInstancedANGLE",glDrawElementsInstancedANGLE);
   log("glVertexAttribDivisorANGLE",glVertexAttribDivisorANGLE);
+
+/* GL_ANGLE_timer_query */
+
+  log("glBeginQueryANGLE",glBeginQueryANGLE);
+  log("glDeleteQueriesANGLE",glDeleteQueriesANGLE);
+  log("glEndQueryANGLE",glEndQueryANGLE);
+  log("glGenQueriesANGLE",glGenQueriesANGLE);
+  log("glGetQueryObjecti64vANGLE",glGetQueryObjecti64vANGLE);
+  log("glGetQueryObjectivANGLE",glGetQueryObjectivANGLE);
+  log("glGetQueryObjectui64vANGLE",glGetQueryObjectui64vANGLE);
+  log("glGetQueryObjectuivANGLE",glGetQueryObjectuivANGLE);
+  log("glGetQueryivANGLE",glGetQueryivANGLE);
+  log("glIsQueryANGLE",glIsQueryANGLE);
+  log("glQueryCounterANGLE",glQueryCounterANGLE);
 
 /* GL_ANGLE_translated_shader_source */
 
@@ -1639,6 +1658,7 @@ Statistics::log() const
 /* GL_ARB_buffer_storage */
 
   log("glBufferStorage",glBufferStorage);
+  log("glNamedBufferStorageEXT",glNamedBufferStorageEXT);
 
 /* GL_ARB_cl_event */
 
@@ -2256,6 +2276,12 @@ Statistics::log() const
 /* GL_ARB_vertex_attrib_binding */
 
   log("glBindVertexBuffer",glBindVertexBuffer);
+  log("glVertexArrayBindVertexBufferEXT",glVertexArrayBindVertexBufferEXT);
+  log("glVertexArrayVertexAttribBindingEXT",glVertexArrayVertexAttribBindingEXT);
+  log("glVertexArrayVertexAttribFormatEXT",glVertexArrayVertexAttribFormatEXT);
+  log("glVertexArrayVertexAttribIFormatEXT",glVertexArrayVertexAttribIFormatEXT);
+  log("glVertexArrayVertexAttribLFormatEXT",glVertexArrayVertexAttribLFormatEXT);
+  log("glVertexArrayVertexBindingDivisorEXT",glVertexArrayVertexBindingDivisorEXT);
   log("glVertexAttribBinding",glVertexAttribBinding);
   log("glVertexAttribFormat",glVertexAttribFormat);
   log("glVertexAttribIFormat",glVertexAttribIFormat);
@@ -3433,10 +3459,19 @@ Statistics::log() const
   log("glUniformHandleui64NV",glUniformHandleui64NV);
   log("glUniformHandleui64vNV",glUniformHandleui64vNV);
 
+/* GL_NV_blend_equation_advanced */
+
+  log("glBlendBarrierNV",glBlendBarrierNV);
+  log("glBlendParameteriNV",glBlendParameteriNV);
+
 /* GL_NV_conditional_render */
 
   log("glBeginConditionalRenderNV",glBeginConditionalRenderNV);
   log("glEndConditionalRenderNV",glEndConditionalRenderNV);
+
+/* GL_NV_copy_buffer */
+
+  log("glCopyBufferSubDataNV",glCopyBufferSubDataNV);
 
 /* GL_NV_copy_image */
 
@@ -3613,6 +3648,15 @@ Statistics::log() const
   log("glVertexAttribs4hvNV",glVertexAttribs4hvNV);
   log("glVertexWeighthNV",glVertexWeighthNV);
   log("glVertexWeighthvNV",glVertexWeighthvNV);
+
+/* GL_NV_non_square_matrices */
+
+  log("glUniformMatrix2x3fvNV",glUniformMatrix2x3fvNV);
+  log("glUniformMatrix2x4fvNV",glUniformMatrix2x4fvNV);
+  log("glUniformMatrix3x2fvNV",glUniformMatrix3x2fvNV);
+  log("glUniformMatrix3x4fvNV",glUniformMatrix3x4fvNV);
+  log("glUniformMatrix4x2fvNV",glUniformMatrix4x2fvNV);
+  log("glUniformMatrix4x3fvNV",glUniformMatrix4x3fvNV);
 
 /* GL_NV_occlusion_query */
 

@@ -56,10 +56,16 @@ DispatcherGlobal::DispatcherGlobal()
   push_back(logging,Config::enableLog);
   #endif
 
+  #if REGAL_SYS_GLX && !REGAL_SYS_X11
+  memset(&glx,0,sizeof(glx));
+  InitDispatchTableGlobalGLX(glx);
+  push_back(glx,true);
+  #endif
+
   // have to check this early for the global dispatches, otherwise we'd use Config
 
   #if REGAL_TRACE
-  { 
+  {
     getEnv( "REGAL_TRACE", Config::enableTrace);
     ::memset(&trace, 0, sizeof(trace) );
     InitDispatchTableGlobalTrace(trace);
@@ -73,15 +79,17 @@ DispatcherGlobal::DispatcherGlobal()
   #if REGAL_SYS_EGL && REGAL_STATIC_EGL
   InitDispatchTableStaticEGL(driver);
   #else
-  InitDispatchTableGlobalLoader(driver);     // GLX/WGL/EGL lazy loader
+  Loader::Init(driver);     // GLX/WGL/EGL lazy loader
   #endif
 
   push_back(driver,Config::enableDriver);
   #endif
 
+  #if REGAL_MISSING
   memset(&missing,0,sizeof(missing));
-  InitDispatchTableGlobalMissing(missing);
-  push_back(missing,true);
+  Missing::Init(missing);
+  push_back(missing,Config::enableMissing);
+  #endif
 }
 
 DispatcherGlobal::~DispatcherGlobal()

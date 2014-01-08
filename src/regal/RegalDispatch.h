@@ -58,7 +58,7 @@ namespace Dispatch
   {
     inline void setFunction(const size_t offset, void *func)
     {
-      RegalAssert((offset*sizeof(void *))<sizeof(this));
+      RegalAssert((offset*sizeof(void *))<sizeof(*this));
       ((void **)(this))[offset] = func;
     }
 
@@ -720,7 +720,7 @@ namespace Dispatch
   {
     inline void setFunction(const size_t offset, void *func)
     {
-      RegalAssert((offset*sizeof(void *))<sizeof(this));
+      RegalAssert((offset*sizeof(void *))<sizeof(*this));
       ((void **)(this))[offset] = func;
     }
 
@@ -1367,7 +1367,6 @@ namespace Dispatch
     // GL_VERSION_3_2
 
     void (REGAL_CALL *glFramebufferTexture)(GLenum target, GLenum attachment, GLuint texture, GLint level);
-    void (REGAL_CALL *glFramebufferTextureFace)(GLenum target, GLenum attachment, GLuint texture, GLint level, GLenum face);
     void (REGAL_CALL *glGetBufferParameteri64v)(GLenum target, GLenum pname, GLint64 *params);
     void (REGAL_CALL *glGetInteger64i_v)(GLenum target, GLuint index, GLint64 *data);
 
@@ -1460,6 +1459,20 @@ namespace Dispatch
     void (REGAL_CALL *glDrawArraysInstancedANGLE)(GLenum mode, GLint first, GLsizei count, GLsizei primcount);
     void (REGAL_CALL *glDrawElementsInstancedANGLE)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLsizei primcount);
     void (REGAL_CALL *glVertexAttribDivisorANGLE)(GLuint index, GLuint divisor);
+
+    // GL_ANGLE_timer_query
+
+    void (REGAL_CALL *glBeginQueryANGLE)(GLenum target, GLuint id);
+    void (REGAL_CALL *glDeleteQueriesANGLE)(GLsizei n, const GLuint *ids);
+    void (REGAL_CALL *glEndQueryANGLE)(GLenum target);
+    void (REGAL_CALL *glGenQueriesANGLE)(GLsizei n, GLuint *ids);
+    void (REGAL_CALL *glGetQueryObjecti64vANGLE)(GLuint id, GLenum pname, GLint64 *params);
+    void (REGAL_CALL *glGetQueryObjectivANGLE)(GLuint id, GLenum pname, GLint *params);
+    void (REGAL_CALL *glGetQueryObjectui64vANGLE)(GLuint id, GLenum pname, GLuint64 *params);
+    void (REGAL_CALL *glGetQueryObjectuivANGLE)(GLuint id, GLenum pname, GLuint *params);
+    void (REGAL_CALL *glGetQueryivANGLE)(GLenum target, GLenum pname, GLint *params);
+    GLboolean (REGAL_CALL *glIsQueryANGLE)(GLuint id);
+    void (REGAL_CALL *glQueryCounterANGLE)(GLuint id, GLenum target);
 
     // GL_ANGLE_translated_shader_source
 
@@ -1589,6 +1602,7 @@ namespace Dispatch
     // GL_ARB_buffer_storage
 
     void (REGAL_CALL *glBufferStorage)(GLenum target, GLsizeiptr size, const GLvoid *data, GLbitfield flags);
+    void (REGAL_CALL *glNamedBufferStorageEXT)(GLuint buffer, GLsizeiptr size, const GLvoid *data, GLbitfield flags);
 
     // GL_ARB_cl_event
 
@@ -2206,6 +2220,12 @@ namespace Dispatch
     // GL_ARB_vertex_attrib_binding
 
     void (REGAL_CALL *glBindVertexBuffer)(GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride);
+    void (REGAL_CALL *glVertexArrayBindVertexBufferEXT)(GLuint vaobj, GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride);
+    void (REGAL_CALL *glVertexArrayVertexAttribBindingEXT)(GLuint vaobj, GLuint attribindex, GLuint bindingindex);
+    void (REGAL_CALL *glVertexArrayVertexAttribFormatEXT)(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset);
+    void (REGAL_CALL *glVertexArrayVertexAttribIFormatEXT)(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset);
+    void (REGAL_CALL *glVertexArrayVertexAttribLFormatEXT)(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset);
+    void (REGAL_CALL *glVertexArrayVertexBindingDivisorEXT)(GLuint vaobj, GLuint bindingindex, GLuint divisor);
     void (REGAL_CALL *glVertexAttribBinding)(GLuint attribindex, GLuint bindingindex);
     void (REGAL_CALL *glVertexAttribFormat)(GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset);
     void (REGAL_CALL *glVertexAttribIFormat)(GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset);
@@ -3038,8 +3058,8 @@ namespace Dispatch
 
     // GL_EXT_pixel_transform
 
-    void (REGAL_CALL *glGetPixelTransformParameterfvEXT)(GLenum target, GLenum pname, const GLfloat *params);
-    void (REGAL_CALL *glGetPixelTransformParameterivEXT)(GLenum target, GLenum pname, const GLint *params);
+    void (REGAL_CALL *glGetPixelTransformParameterfvEXT)(GLenum target, GLenum pname, GLfloat *params);
+    void (REGAL_CALL *glGetPixelTransformParameterivEXT)(GLenum target, GLenum pname, GLint *params);
     void (REGAL_CALL *glPixelTransformParameterfEXT)(GLenum target, GLenum pname, const GLfloat param);
     void (REGAL_CALL *glPixelTransformParameterfvEXT)(GLenum target, GLenum pname, const GLfloat *params);
     void (REGAL_CALL *glPixelTransformParameteriEXT)(GLenum target, GLenum pname, const GLint param);
@@ -3383,10 +3403,19 @@ namespace Dispatch
     void (REGAL_CALL *glUniformHandleui64NV)(GLint location, GLuint64 value);
     void (REGAL_CALL *glUniformHandleui64vNV)(GLint location, GLsizei count, const GLuint64 *value);
 
+    // GL_NV_blend_equation_advanced
+
+    void (REGAL_CALL *glBlendBarrierNV)(void);
+    void (REGAL_CALL *glBlendParameteriNV)(GLenum pname, GLint value);
+
     // GL_NV_conditional_render
 
     void (REGAL_CALL *glBeginConditionalRenderNV)(GLuint id, GLenum mode);
     void (REGAL_CALL *glEndConditionalRenderNV)(void);
+
+    // GL_NV_copy_buffer
+
+    void (REGAL_CALL *glCopyBufferSubDataNV)(GLenum readtarget, GLenum writetarget, GLintptr readoffset, GLintptr writeoffset, GLsizeiptr size);
 
     // GL_NV_copy_image
 
@@ -3563,6 +3592,15 @@ namespace Dispatch
     void (REGAL_CALL *glVertexAttribs4hvNV)(GLuint index, GLsizei count, const GLhalfNV *v);
     void (REGAL_CALL *glVertexWeighthNV)(GLhalfNV weight);
     void (REGAL_CALL *glVertexWeighthvNV)(const GLhalfNV *weight);
+
+    // GL_NV_non_square_matrices
+
+    void (REGAL_CALL *glUniformMatrix2x3fvNV)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void (REGAL_CALL *glUniformMatrix2x4fvNV)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void (REGAL_CALL *glUniformMatrix3x2fvNV)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void (REGAL_CALL *glUniformMatrix3x4fvNV)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void (REGAL_CALL *glUniformMatrix4x2fvNV)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void (REGAL_CALL *glUniformMatrix4x3fvNV)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 
     // GL_NV_occlusion_query
 
@@ -4325,8 +4363,12 @@ struct DispatchTable
 
 struct DispatchTableGL : public DispatchTable, Dispatch::GL
 {
-  template<typename T> T call(T *func) { return Dispatch::call(*this,func);                                }
-  inline DispatchTableGL *next()       { return reinterpret_cast<DispatchTableGL *>(DispatchTable::_next); }
+public:
+  template<typename T> T call(T *func) { return reinterpret_cast<T>(doCall(reinterpret_cast<void **>(func))); }
+  inline DispatchTableGL *next()       { return reinterpret_cast<DispatchTableGL *>(DispatchTable::_next);    }
+
+private:
+  void *doCall(void **func);  // inlined Dispatch::call consolidated to one instance for DispatchTableGL
 };
 
 struct DispatchTableGlobal : public DispatchTable, Dispatch::Global
@@ -4334,11 +4376,15 @@ struct DispatchTableGlobal : public DispatchTable, Dispatch::Global
   DispatchTableGlobal();
   ~DispatchTableGlobal();
 
-  template<typename T> T call(T *func) { return Dispatch::call(*this,func);                                    }
+  template<typename T> T call(T *func) { return reinterpret_cast<T>(doCall(reinterpret_cast<void **>(func)));  }
   inline DispatchTableGlobal *next()   { return reinterpret_cast<DispatchTableGlobal *>(DispatchTable::_next); }
+
+private:
+  void *doCall(void **func);  // inlined Dispatch::call consolidated to one instance for DispatchTableGlobal
 };
 
 extern DispatchTableGlobal dispatchTableGlobal;
+
 REGAL_NAMESPACE_END
 
 #endif // __REGAL_DISPATCH_H__

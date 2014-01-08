@@ -22757,8 +22757,12 @@ static inline GLuint APIENTRY _glGetDebugMessageLogARB(GLuint count, GLsizei buf
     if (!_glGetDebugMessageLogARB_ptr) {
         _glGetDebugMessageLogARB_ptr = (PFN_GLGETDEBUGMESSAGELOGARB)_getPrivateProcAddress(_name);
         if (!_glGetDebugMessageLogARB_ptr) {
-            os::log("error: unavailable function %s\n", _name);
-            os::abort();
+    if (sources != 0) *sources = 0;
+    if (types != 0) *types = 0;
+    if (ids != 0) *ids = 0;
+    if (severities != 0) *severities = 0;
+    if (lengths != 0) *lengths = 0;
+    if (messageLog != 0 && bufsize > 0) *messageLog = 0;
         }
     }
     return _glGetDebugMessageLogARB_ptr(count, bufsize, sources, types, ids, severities, lengths, messageLog);
@@ -23342,8 +23346,12 @@ static inline GLuint APIENTRY _glGetDebugMessageLog(GLuint count, GLsizei bufsiz
     if (!_glGetDebugMessageLog_ptr) {
         _glGetDebugMessageLog_ptr = (PFN_GLGETDEBUGMESSAGELOG)_getPrivateProcAddress(_name);
         if (!_glGetDebugMessageLog_ptr) {
-            os::log("error: unavailable function %s\n", _name);
-            os::abort();
+    if (sources != 0) *sources = 0;
+    if (types != 0) *types = 0;
+    if (ids != 0) *ids = 0;
+    if (severities != 0) *severities = 0;
+    if (lengths != 0) *lengths = 0;
+    if (messageLog != 0 && bufsize > 0) *messageLog = 0;
         }
     }
     return _glGetDebugMessageLog_ptr(count, bufsize, sources, types, ids, severities, lengths, messageLog);
@@ -23402,8 +23410,8 @@ static inline void APIENTRY _glGetObjectLabel(GLenum identifier, GLuint name, GL
     if (!_glGetObjectLabel_ptr) {
         _glGetObjectLabel_ptr = (PFN_GLGETOBJECTLABEL)_getPrivateProcAddress(_name);
         if (!_glGetObjectLabel_ptr) {
-            os::log("warning: ignoring call to unavailable function %s\n", _name);
-            return;
+    if (length != 0) *length = 0;
+    if (label != 0 && bufSize > 0) *label = 0;
         }
     }
     _glGetObjectLabel_ptr(identifier, name, bufSize, length, label);
@@ -23432,8 +23440,8 @@ static inline void APIENTRY _glGetObjectPtrLabel(const void * ptr, GLsizei bufSi
     if (!_glGetObjectPtrLabel_ptr) {
         _glGetObjectPtrLabel_ptr = (PFN_GLGETOBJECTPTRLABEL)_getPrivateProcAddress(_name);
         if (!_glGetObjectPtrLabel_ptr) {
-            os::log("warning: ignoring call to unavailable function %s\n", _name);
-            return;
+    if (length != 0) *length = 0;
+    if (label != 0 && bufSize > 0) *label = 0;
         }
     }
     _glGetObjectPtrLabel_ptr(ptr, bufSize, length, label);
@@ -23484,10 +23492,10 @@ static inline void APIENTRY _glClearNamedBufferDataEXT(GLuint buffer, GLenum int
     _glClearNamedBufferDataEXT_ptr(buffer, internalformat, format, type, data);
 }
 
-typedef void (APIENTRY * PFN_GLCLEARNAMEDBUFFERSUBDATAEXT)(GLuint buffer, GLenum internalformat, GLenum format, GLenum type, GLsizeiptr offset, GLsizeiptr size, const void * data);
+typedef void (APIENTRY * PFN_GLCLEARNAMEDBUFFERSUBDATAEXT)(GLuint buffer, GLenum internalformat, GLintptr offset, GLsizeiptr size, GLenum format, GLenum type, const void * data);
 static PFN_GLCLEARNAMEDBUFFERSUBDATAEXT _glClearNamedBufferSubDataEXT_ptr = NULL;
 
-static inline void APIENTRY _glClearNamedBufferSubDataEXT(GLuint buffer, GLenum internalformat, GLenum format, GLenum type, GLsizeiptr offset, GLsizeiptr size, const void * data) {
+static inline void APIENTRY _glClearNamedBufferSubDataEXT(GLuint buffer, GLenum internalformat, GLintptr offset, GLsizeiptr size, GLenum format, GLenum type, const void * data) {
     const char *_name = "glClearNamedBufferSubDataEXT";
     if (!_glClearNamedBufferSubDataEXT_ptr) {
         _glClearNamedBufferSubDataEXT_ptr = (PFN_GLCLEARNAMEDBUFFERSUBDATAEXT)_getPrivateProcAddress(_name);
@@ -23496,7 +23504,7 @@ static inline void APIENTRY _glClearNamedBufferSubDataEXT(GLuint buffer, GLenum 
             return;
         }
     }
-    _glClearNamedBufferSubDataEXT_ptr(buffer, internalformat, format, type, offset, size, data);
+    _glClearNamedBufferSubDataEXT_ptr(buffer, internalformat, offset, size, format, type, data);
 }
 
 typedef void (APIENTRY * PFN_GLDISPATCHCOMPUTE)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
@@ -24127,6 +24135,156 @@ static inline void APIENTRY _glTextureStorage3DMultisampleEXT(GLuint texture, GL
         }
     }
     _glTextureStorage3DMultisampleEXT_ptr(texture, target, samples, internalformat, width, height, depth, fixedsamplelocations);
+}
+
+typedef void (APIENTRY * PFN_GLBINDBUFFERSBASE)(GLenum target, GLuint first, GLsizei count, const GLuint * buffers);
+static PFN_GLBINDBUFFERSBASE _glBindBuffersBase_ptr = NULL;
+
+static inline void APIENTRY _glBindBuffersBase(GLenum target, GLuint first, GLsizei count, const GLuint * buffers) {
+    const char *_name = "glBindBuffersBase";
+    if (!_glBindBuffersBase_ptr) {
+        _glBindBuffersBase_ptr = (PFN_GLBINDBUFFERSBASE)_getPrivateProcAddress(_name);
+        if (!_glBindBuffersBase_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glBindBuffersBase_ptr(target, first, count, buffers);
+}
+
+typedef void (APIENTRY * PFN_GLBINDBUFFERSRANGE)(GLenum target, GLuint first, GLsizei count, const GLuint * buffers, const GLintptr * offsets, const GLsizeiptr * sizes);
+static PFN_GLBINDBUFFERSRANGE _glBindBuffersRange_ptr = NULL;
+
+static inline void APIENTRY _glBindBuffersRange(GLenum target, GLuint first, GLsizei count, const GLuint * buffers, const GLintptr * offsets, const GLsizeiptr * sizes) {
+    const char *_name = "glBindBuffersRange";
+    if (!_glBindBuffersRange_ptr) {
+        _glBindBuffersRange_ptr = (PFN_GLBINDBUFFERSRANGE)_getPrivateProcAddress(_name);
+        if (!_glBindBuffersRange_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glBindBuffersRange_ptr(target, first, count, buffers, offsets, sizes);
+}
+
+typedef void (APIENTRY * PFN_GLBINDIMAGETEXTURES)(GLuint first, GLsizei count, const GLuint * textures);
+static PFN_GLBINDIMAGETEXTURES _glBindImageTextures_ptr = NULL;
+
+static inline void APIENTRY _glBindImageTextures(GLuint first, GLsizei count, const GLuint * textures) {
+    const char *_name = "glBindImageTextures";
+    if (!_glBindImageTextures_ptr) {
+        _glBindImageTextures_ptr = (PFN_GLBINDIMAGETEXTURES)_getPrivateProcAddress(_name);
+        if (!_glBindImageTextures_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glBindImageTextures_ptr(first, count, textures);
+}
+
+typedef void (APIENTRY * PFN_GLBINDSAMPLERS)(GLuint first, GLsizei count, const GLuint * samplers);
+static PFN_GLBINDSAMPLERS _glBindSamplers_ptr = NULL;
+
+static inline void APIENTRY _glBindSamplers(GLuint first, GLsizei count, const GLuint * samplers) {
+    const char *_name = "glBindSamplers";
+    if (!_glBindSamplers_ptr) {
+        _glBindSamplers_ptr = (PFN_GLBINDSAMPLERS)_getPrivateProcAddress(_name);
+        if (!_glBindSamplers_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glBindSamplers_ptr(first, count, samplers);
+}
+
+typedef void (APIENTRY * PFN_GLBINDTEXTURES)(GLuint first, GLsizei count, const GLuint * textures);
+static PFN_GLBINDTEXTURES _glBindTextures_ptr = NULL;
+
+static inline void APIENTRY _glBindTextures(GLuint first, GLsizei count, const GLuint * textures) {
+    const char *_name = "glBindTextures";
+    if (!_glBindTextures_ptr) {
+        _glBindTextures_ptr = (PFN_GLBINDTEXTURES)_getPrivateProcAddress(_name);
+        if (!_glBindTextures_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glBindTextures_ptr(first, count, textures);
+}
+
+typedef void (APIENTRY * PFN_GLBINDVERTEXBUFFERS)(GLuint first, GLsizei count, const GLuint * buffers, const GLintptr * offsets, const GLsizei * strides);
+static PFN_GLBINDVERTEXBUFFERS _glBindVertexBuffers_ptr = NULL;
+
+static inline void APIENTRY _glBindVertexBuffers(GLuint first, GLsizei count, const GLuint * buffers, const GLintptr * offsets, const GLsizei * strides) {
+    const char *_name = "glBindVertexBuffers";
+    if (!_glBindVertexBuffers_ptr) {
+        _glBindVertexBuffers_ptr = (PFN_GLBINDVERTEXBUFFERS)_getPrivateProcAddress(_name);
+        if (!_glBindVertexBuffers_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glBindVertexBuffers_ptr(first, count, buffers, offsets, strides);
+}
+
+typedef void (APIENTRY * PFN_GLBUFFERSTORAGE)(GLenum target, GLsizeiptr size, const GLvoid * data, GLbitfield flags);
+static PFN_GLBUFFERSTORAGE _glBufferStorage_ptr = NULL;
+
+static inline void APIENTRY _glBufferStorage(GLenum target, GLsizeiptr size, const GLvoid * data, GLbitfield flags) {
+    const char *_name = "glBufferStorage";
+    if (!_glBufferStorage_ptr) {
+        _glBufferStorage_ptr = (PFN_GLBUFFERSTORAGE)_getPrivateProcAddress(_name);
+        if (!_glBufferStorage_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glBufferStorage_ptr(target, size, data, flags);
+}
+
+typedef void (APIENTRY * PFN_GLNAMEDBUFFERSTORAGEEXT)(GLuint buffer, GLsizeiptr size, const GLvoid * data, GLbitfield flags);
+static PFN_GLNAMEDBUFFERSTORAGEEXT _glNamedBufferStorageEXT_ptr = NULL;
+
+static inline void APIENTRY _glNamedBufferStorageEXT(GLuint buffer, GLsizeiptr size, const GLvoid * data, GLbitfield flags) {
+    const char *_name = "glNamedBufferStorageEXT";
+    if (!_glNamedBufferStorageEXT_ptr) {
+        _glNamedBufferStorageEXT_ptr = (PFN_GLNAMEDBUFFERSTORAGEEXT)_getPrivateProcAddress(_name);
+        if (!_glNamedBufferStorageEXT_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glNamedBufferStorageEXT_ptr(buffer, size, data, flags);
+}
+
+typedef void (APIENTRY * PFN_GLCLEARTEXIMAGE)(GLuint texture, GLint level, GLenum format, GLenum type, const GLvoid * data);
+static PFN_GLCLEARTEXIMAGE _glClearTexImage_ptr = NULL;
+
+static inline void APIENTRY _glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, const GLvoid * data) {
+    const char *_name = "glClearTexImage";
+    if (!_glClearTexImage_ptr) {
+        _glClearTexImage_ptr = (PFN_GLCLEARTEXIMAGE)_getPrivateProcAddress(_name);
+        if (!_glClearTexImage_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glClearTexImage_ptr(texture, level, format, type, data);
+}
+
+typedef void (APIENTRY * PFN_GLCLEARTEXSUBIMAGE)(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid * data);
+static PFN_GLCLEARTEXSUBIMAGE _glClearTexSubImage_ptr = NULL;
+
+static inline void APIENTRY _glClearTexSubImage(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid * data) {
+    const char *_name = "glClearTexSubImage";
+    if (!_glClearTexSubImage_ptr) {
+        _glClearTexSubImage_ptr = (PFN_GLCLEARTEXSUBIMAGE)_getPrivateProcAddress(_name);
+        if (!_glClearTexSubImage_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glClearTexSubImage_ptr(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
 }
 
 typedef void (APIENTRY * PFN_GLBLENDCOLOREXT)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
@@ -28434,10 +28592,10 @@ static inline GLboolean APIENTRY _glIsPathNV(GLuint path) {
     return _glIsPathNV_ptr(path);
 }
 
-typedef void (APIENTRY * PFN_GLPATHCOMMANDSNV)(GLuint path, GLsizei numCommands, const GLubyte * commands, GLsizei numCoords, GLenum coordType, const GLvoid * coord);
+typedef void (APIENTRY * PFN_GLPATHCOMMANDSNV)(GLuint path, GLsizei numCommands, const GLubyte * commands, GLsizei numCoords, GLenum coordType, const GLvoid * coords);
 static PFN_GLPATHCOMMANDSNV _glPathCommandsNV_ptr = NULL;
 
-static inline void APIENTRY _glPathCommandsNV(GLuint path, GLsizei numCommands, const GLubyte * commands, GLsizei numCoords, GLenum coordType, const GLvoid * coord) {
+static inline void APIENTRY _glPathCommandsNV(GLuint path, GLsizei numCommands, const GLubyte * commands, GLsizei numCoords, GLenum coordType, const GLvoid * coords) {
     const char *_name = "glPathCommandsNV";
     if (!_glPathCommandsNV_ptr) {
         _glPathCommandsNV_ptr = (PFN_GLPATHCOMMANDSNV)_getPrivateProcAddress(_name);
@@ -28446,7 +28604,7 @@ static inline void APIENTRY _glPathCommandsNV(GLuint path, GLsizei numCommands, 
             return;
         }
     }
-    _glPathCommandsNV_ptr(path, numCommands, commands, numCoords, coordType, coord);
+    _glPathCommandsNV_ptr(path, numCommands, commands, numCoords, coordType, coords);
 }
 
 typedef void (APIENTRY * PFN_GLPATHCOORDSNV)(GLuint path, GLsizei numCoords, GLenum coordType, const GLvoid * coords);
@@ -28764,10 +28922,10 @@ static inline void APIENTRY _glStencilStrokePathInstancedNV(GLsizei numPaths, GL
     _glStencilStrokePathInstancedNV_ptr(numPaths, pathNameType, paths, pathBase, reference, mask, transformType, transformValues);
 }
 
-typedef void (APIENTRY * PFN_GLPATHCOVERDEPTHFUNCNV)(GLenum func);
+typedef void (APIENTRY * PFN_GLPATHCOVERDEPTHFUNCNV)(GLenum zfunc);
 static PFN_GLPATHCOVERDEPTHFUNCNV _glPathCoverDepthFuncNV_ptr = NULL;
 
-static inline void APIENTRY _glPathCoverDepthFuncNV(GLenum func) {
+static inline void APIENTRY _glPathCoverDepthFuncNV(GLenum zfunc) {
     const char *_name = "glPathCoverDepthFuncNV";
     if (!_glPathCoverDepthFuncNV_ptr) {
         _glPathCoverDepthFuncNV_ptr = (PFN_GLPATHCOVERDEPTHFUNCNV)_getPrivateProcAddress(_name);
@@ -28776,7 +28934,7 @@ static inline void APIENTRY _glPathCoverDepthFuncNV(GLenum func) {
             return;
         }
     }
-    _glPathCoverDepthFuncNV_ptr(func);
+    _glPathCoverDepthFuncNV_ptr(zfunc);
 }
 
 typedef void (APIENTRY * PFN_GLPATHCOLORGENNV)(GLenum color, GLenum genMode, GLenum colorFormat, const GLfloat * coeffs);
@@ -36684,10 +36842,10 @@ static inline void APIENTRY _glTextureParameterivEXT(GLuint texture, GLenum targ
     _glTextureParameterivEXT_ptr(texture, target, pname, params);
 }
 
-typedef void (APIENTRY * PFN_GLTEXTUREIMAGE1DEXT)(GLuint texture, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
+typedef void (APIENTRY * PFN_GLTEXTUREIMAGE1DEXT)(GLuint texture, GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
 static PFN_GLTEXTUREIMAGE1DEXT _glTextureImage1DEXT_ptr = NULL;
 
-static inline void APIENTRY _glTextureImage1DEXT(GLuint texture, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
+static inline void APIENTRY _glTextureImage1DEXT(GLuint texture, GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
     const char *_name = "glTextureImage1DEXT";
     if (!_glTextureImage1DEXT_ptr) {
         _glTextureImage1DEXT_ptr = (PFN_GLTEXTUREIMAGE1DEXT)_getPrivateProcAddress(_name);
@@ -36699,10 +36857,10 @@ static inline void APIENTRY _glTextureImage1DEXT(GLuint texture, GLenum target, 
     _glTextureImage1DEXT_ptr(texture, target, level, internalformat, width, border, format, type, pixels);
 }
 
-typedef void (APIENTRY * PFN_GLTEXTUREIMAGE2DEXT)(GLuint texture, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
+typedef void (APIENTRY * PFN_GLTEXTUREIMAGE2DEXT)(GLuint texture, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
 static PFN_GLTEXTUREIMAGE2DEXT _glTextureImage2DEXT_ptr = NULL;
 
-static inline void APIENTRY _glTextureImage2DEXT(GLuint texture, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
+static inline void APIENTRY _glTextureImage2DEXT(GLuint texture, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
     const char *_name = "glTextureImage2DEXT";
     if (!_glTextureImage2DEXT_ptr) {
         _glTextureImage2DEXT_ptr = (PFN_GLTEXTUREIMAGE2DEXT)_getPrivateProcAddress(_name);
@@ -36879,10 +37037,10 @@ static inline void APIENTRY _glGetTextureLevelParameterivEXT(GLuint texture, GLe
     _glGetTextureLevelParameterivEXT_ptr(texture, target, level, pname, params);
 }
 
-typedef void (APIENTRY * PFN_GLTEXTUREIMAGE3DEXT)(GLuint texture, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
+typedef void (APIENTRY * PFN_GLTEXTUREIMAGE3DEXT)(GLuint texture, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
 static PFN_GLTEXTUREIMAGE3DEXT _glTextureImage3DEXT_ptr = NULL;
 
-static inline void APIENTRY _glTextureImage3DEXT(GLuint texture, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
+static inline void APIENTRY _glTextureImage3DEXT(GLuint texture, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
     const char *_name = "glTextureImage3DEXT";
     if (!_glTextureImage3DEXT_ptr) {
         _glTextureImage3DEXT_ptr = (PFN_GLTEXTUREIMAGE3DEXT)_getPrivateProcAddress(_name);
@@ -36984,10 +37142,10 @@ static inline void APIENTRY _glMultiTexParameterivEXT(GLenum texunit, GLenum tar
     _glMultiTexParameterivEXT_ptr(texunit, target, pname, params);
 }
 
-typedef void (APIENTRY * PFN_GLMULTITEXIMAGE1DEXT)(GLenum texunit, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
+typedef void (APIENTRY * PFN_GLMULTITEXIMAGE1DEXT)(GLenum texunit, GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
 static PFN_GLMULTITEXIMAGE1DEXT _glMultiTexImage1DEXT_ptr = NULL;
 
-static inline void APIENTRY _glMultiTexImage1DEXT(GLenum texunit, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
+static inline void APIENTRY _glMultiTexImage1DEXT(GLenum texunit, GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
     const char *_name = "glMultiTexImage1DEXT";
     if (!_glMultiTexImage1DEXT_ptr) {
         _glMultiTexImage1DEXT_ptr = (PFN_GLMULTITEXIMAGE1DEXT)_getPrivateProcAddress(_name);
@@ -36999,10 +37157,10 @@ static inline void APIENTRY _glMultiTexImage1DEXT(GLenum texunit, GLenum target,
     _glMultiTexImage1DEXT_ptr(texunit, target, level, internalformat, width, border, format, type, pixels);
 }
 
-typedef void (APIENTRY * PFN_GLMULTITEXIMAGE2DEXT)(GLenum texunit, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
+typedef void (APIENTRY * PFN_GLMULTITEXIMAGE2DEXT)(GLenum texunit, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
 static PFN_GLMULTITEXIMAGE2DEXT _glMultiTexImage2DEXT_ptr = NULL;
 
-static inline void APIENTRY _glMultiTexImage2DEXT(GLenum texunit, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
+static inline void APIENTRY _glMultiTexImage2DEXT(GLenum texunit, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
     const char *_name = "glMultiTexImage2DEXT";
     if (!_glMultiTexImage2DEXT_ptr) {
         _glMultiTexImage2DEXT_ptr = (PFN_GLMULTITEXIMAGE2DEXT)_getPrivateProcAddress(_name);
@@ -37179,10 +37337,10 @@ static inline void APIENTRY _glGetMultiTexLevelParameterivEXT(GLenum texunit, GL
     _glGetMultiTexLevelParameterivEXT_ptr(texunit, target, level, pname, params);
 }
 
-typedef void (APIENTRY * PFN_GLMULTITEXIMAGE3DEXT)(GLenum texunit, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
+typedef void (APIENTRY * PFN_GLMULTITEXIMAGE3DEXT)(GLenum texunit, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid * pixels);
 static PFN_GLMULTITEXIMAGE3DEXT _glMultiTexImage3DEXT_ptr = NULL;
 
-static inline void APIENTRY _glMultiTexImage3DEXT(GLenum texunit, GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
+static inline void APIENTRY _glMultiTexImage3DEXT(GLenum texunit, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid * pixels) {
     const char *_name = "glMultiTexImage3DEXT";
     if (!_glMultiTexImage3DEXT_ptr) {
         _glMultiTexImage3DEXT_ptr = (PFN_GLMULTITEXIMAGE3DEXT)_getPrivateProcAddress(_name);
@@ -42107,8 +42265,11 @@ static inline GLuint APIENTRY _glGetDebugMessageLogAMD(GLuint count, GLsizei buf
     if (!_glGetDebugMessageLogAMD_ptr) {
         _glGetDebugMessageLogAMD_ptr = (PFN_GLGETDEBUGMESSAGELOGAMD)_getPrivateProcAddress(_name);
         if (!_glGetDebugMessageLogAMD_ptr) {
-            os::log("error: unavailable function %s\n", _name);
-            os::abort();
+    if (categories != 0) *categories = 0;
+    if (ids != 0) *ids = 0;
+    if (severities != 0) *severities = 0;
+    if (lengths != 0) *lengths = 0;
+    if (message != 0 && bufsize > 0) *message = 0;
         }
     }
     return _glGetDebugMessageLogAMD_ptr(count, bufsize, categories, severities, ids, lengths, message);
@@ -43848,6 +44009,16 @@ static inline void APIENTRY _glAddSwapHintRectWIN(GLint x, GLint y, GLsizei widt
 #define glTexStorage3DMultisample _glTexStorage3DMultisample
 #define glTextureStorage2DMultisampleEXT _glTextureStorage2DMultisampleEXT
 #define glTextureStorage3DMultisampleEXT _glTextureStorage3DMultisampleEXT
+#define glBindBuffersBase _glBindBuffersBase
+#define glBindBuffersRange _glBindBuffersRange
+#define glBindImageTextures _glBindImageTextures
+#define glBindSamplers _glBindSamplers
+#define glBindTextures _glBindTextures
+#define glBindVertexBuffers _glBindVertexBuffers
+#define glBufferStorage _glBufferStorage
+#define glNamedBufferStorageEXT _glNamedBufferStorageEXT
+#define glClearTexImage _glClearTexImage
+#define glClearTexSubImage _glClearTexSubImage
 #define glBlendColorEXT _glBlendColorEXT
 #define glPolygonOffsetEXT _glPolygonOffsetEXT
 #define glTexImage3DEXT _glTexImage3DEXT
@@ -47050,6 +47221,51 @@ static inline void GL_APIENTRY _glFramebufferTexture2DMultisampleEXT(GLenum targ
     _glFramebufferTexture2DMultisampleEXT_ptr(target, attachment, textarget, texture, level, samples);
 }
 
+typedef void (GL_APIENTRY * PFN_GLTEXSTORAGE1DEXT)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width);
+static PFN_GLTEXSTORAGE1DEXT _glTexStorage1DEXT_ptr = NULL;
+
+static inline void GL_APIENTRY _glTexStorage1DEXT(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width) {
+    const char *_name = "glTexStorage1DEXT";
+    if (!_glTexStorage1DEXT_ptr) {
+        _glTexStorage1DEXT_ptr = (PFN_GLTEXSTORAGE1DEXT)_getPrivateProcAddress(_name);
+        if (!_glTexStorage1DEXT_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glTexStorage1DEXT_ptr(target, levels, internalformat, width);
+}
+
+typedef void (GL_APIENTRY * PFN_GLTEXSTORAGE2DEXT)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
+static PFN_GLTEXSTORAGE2DEXT _glTexStorage2DEXT_ptr = NULL;
+
+static inline void GL_APIENTRY _glTexStorage2DEXT(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height) {
+    const char *_name = "glTexStorage2DEXT";
+    if (!_glTexStorage2DEXT_ptr) {
+        _glTexStorage2DEXT_ptr = (PFN_GLTEXSTORAGE2DEXT)_getPrivateProcAddress(_name);
+        if (!_glTexStorage2DEXT_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glTexStorage2DEXT_ptr(target, levels, internalformat, width, height);
+}
+
+typedef void (GL_APIENTRY * PFN_GLTEXSTORAGE3DEXT)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth);
+static PFN_GLTEXSTORAGE3DEXT _glTexStorage3DEXT_ptr = NULL;
+
+static inline void GL_APIENTRY _glTexStorage3DEXT(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth) {
+    const char *_name = "glTexStorage3DEXT";
+    if (!_glTexStorage3DEXT_ptr) {
+        _glTexStorage3DEXT_ptr = (PFN_GLTEXSTORAGE3DEXT)_getPrivateProcAddress(_name);
+        if (!_glTexStorage3DEXT_ptr) {
+            os::log("warning: ignoring call to unavailable function %s\n", _name);
+            return;
+        }
+    }
+    _glTexStorage3DEXT_ptr(target, levels, internalformat, width, height, depth);
+}
+
 #ifdef RETRACE
 #define glFrustumf _glFrustumf
 #define glOrthof _glOrthof
@@ -47182,6 +47398,9 @@ static inline void GL_APIENTRY _glFramebufferTexture2DMultisampleEXT(GLenum targ
 #define glValidateProgramPipelineEXT _glValidateProgramPipelineEXT
 #define glGetProgramPipelineInfoLogEXT _glGetProgramPipelineInfoLogEXT
 #define glFramebufferTexture2DMultisampleEXT _glFramebufferTexture2DMultisampleEXT
+#define glTexStorage1DEXT _glTexStorage1DEXT
+#define glTexStorage2DEXT _glTexStorage2DEXT
+#define glTexStorage3DEXT _glTexStorage3DEXT
 #endif /* RETRACE */
 
 

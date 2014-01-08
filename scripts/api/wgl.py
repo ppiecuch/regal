@@ -814,7 +814,7 @@ wglBlitContextFramebufferAMD.add( Input( 'dstX0','GLint' ))
 wglBlitContextFramebufferAMD.add( Input( 'dstY0','GLint' ))
 wglBlitContextFramebufferAMD.add( Input( 'dstX1','GLint' ))
 wglBlitContextFramebufferAMD.add( Input( 'dstY1','GLint' ))
-wglBlitContextFramebufferAMD.add( Input( 'mask','GLbitfield' ))
+wglBlitContextFramebufferAMD.add( Input( 'mask','GLbitfield' ,regalLog = 'GLblitFramebufferToString(mask)' ))
 wglBlitContextFramebufferAMD.add( Input( 'filter','GLenum' ))
 wglBlitContextFramebufferAMD.version = ''
 wglBlitContextFramebufferAMD.category = 'WGL_AMD_gpu_association'

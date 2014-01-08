@@ -79,7 +79,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../../../include;../../../../src/apitrace/common;../../../../src/apitrace/dispatch;../../../../src/apitrace/helpers;../../../../src/apitrace/wrappers;../../../../src/apitrace;../../../../src/snappy;../../../../src/zlib/include;../../../../src/zlib/src;../../../../src/apitrace/thirdparty/khronos;../../../../src/regal;../../../../src/apitrace/thirdparty/msinttypes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>APITRACE_TLS=0;NOMINMAX;TRACE_BACKTRACE=0;TRACE_ENABLED_CHECK=0;TRACE_OS_LOG=0;_ITERATOR_DEBUG_LEVEL=0;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>APITRACE_TLS=0;HAVE_BACKTRACE=0;HAVE_EXTERNAL_OS_LOG=1;NOMINMAX;TRACE_ENABLED_CHECK=0;_ITERATOR_DEBUG_LEVEL=0;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -119,7 +119,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../../../include;../../../../src/apitrace/common;../../../../src/apitrace/dispatch;../../../../src/apitrace/helpers;../../../../src/apitrace/wrappers;../../../../src/apitrace;../../../../src/snappy;../../../../src/zlib/include;../../../../src/zlib/src;../../../../src/apitrace/thirdparty/khronos;../../../../src/regal;../../../../src/apitrace/thirdparty/msinttypes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>APITRACE_TLS=0;NOMINMAX;TRACE_BACKTRACE=0;TRACE_ENABLED_CHECK=0;TRACE_OS_LOG=0;_ITERATOR_DEBUG_LEVEL=0;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>APITRACE_TLS=0;HAVE_BACKTRACE=0;HAVE_EXTERNAL_OS_LOG=1;NOMINMAX;TRACE_ENABLED_CHECK=0;_ITERATOR_DEBUG_LEVEL=0;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -158,7 +158,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../../include;../../../../src/apitrace/common;../../../../src/apitrace/dispatch;../../../../src/apitrace/helpers;../../../../src/apitrace/wrappers;../../../../src/apitrace;../../../../src/snappy;../../../../src/zlib/include;../../../../src/zlib/src;../../../../src/apitrace/thirdparty/khronos;../../../../src/regal;../../../../src/apitrace/thirdparty/msinttypes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>APITRACE_TLS=0;NOMINMAX;TRACE_BACKTRACE=0;TRACE_ENABLED_CHECK=0;TRACE_OS_LOG=0;_ITERATOR_DEBUG_LEVEL=0;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>APITRACE_TLS=0;HAVE_BACKTRACE=0;HAVE_EXTERNAL_OS_LOG=1;NOMINMAX;TRACE_ENABLED_CHECK=0;_ITERATOR_DEBUG_LEVEL=0;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -198,7 +198,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../../../include;../../../../src/apitrace/common;../../../../src/apitrace/dispatch;../../../../src/apitrace/helpers;../../../../src/apitrace/wrappers;../../../../src/apitrace;../../../../src/snappy;../../../../src/zlib/include;../../../../src/zlib/src;../../../../src/apitrace/thirdparty/khronos;../../../../src/regal;../../../../src/apitrace/thirdparty/msinttypes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>APITRACE_TLS=0;NOMINMAX;TRACE_BACKTRACE=0;TRACE_ENABLED_CHECK=0;TRACE_OS_LOG=0;_ITERATOR_DEBUG_LEVEL=0;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>APITRACE_TLS=0;HAVE_BACKTRACE=0;HAVE_EXTERNAL_OS_LOG=1;NOMINMAX;TRACE_ENABLED_CHECK=0;_ITERATOR_DEBUG_LEVEL=0;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS=1;WIN32;_WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -234,9 +234,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\apitrace\common\os_backtrace.cpp" />
     <ClCompile Include="..\..\..\..\src\apitrace\common\os_posix.cpp" />
     <ClCompile Include="..\..\..\..\src\apitrace\common\os_win32.cpp" />
-    <ClCompile Include="..\..\..\..\src\apitrace\common\trace_backtrace.cpp" />
     <ClCompile Include="..\..\..\..\src\apitrace\common\trace_callset.cpp" />
     <ClCompile Include="..\..\..\..\src\apitrace\common\trace_dump.cpp" />
     <ClCompile Include="..\..\..\..\src\apitrace\common\trace_fast_callset.cpp" />

@@ -9,7 +9,7 @@
 
 */
 
-#define VERSION     "2.2 (2008-01-14)"
+#define VERSION     "2.3 (2012-09-29)"
 
 #include <stdio.h>
 #include <ctype.h>
@@ -47,7 +47,7 @@ int main(argc, argv)
     if (sizeof(uint32) != 4) {
     	fprintf(stderr, "** Configuration error.  Setting for uint32 in file md5.h\n");
 	fprintf(stderr, "   is incorrect.  This must be a 32 bit data type, but it\n");
-	fprintf(stderr, "   is configured as a %d bit data type.\n", sizeof(uint32) * 8);
+	fprintf(stderr, "   is configured as a %d bit data type.\n", ((int) sizeof(uint32) * 8));
 	return 2;
     }
 

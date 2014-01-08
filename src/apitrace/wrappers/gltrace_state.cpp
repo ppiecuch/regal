@@ -45,10 +45,11 @@
 
 #if APITRACE_TLS
 #include <map>
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || (defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED >= 1090)
 #include <memory>
 #else
 #include <tr1/memory>
+#include <memory>
 #endif
 #endif
 
@@ -68,7 +69,11 @@ extern void glScissor( GLint x, GLint y, GLsizei width, GLsizei height );
 namespace gltrace {
 
 #if APITRACE_TLS
+#if defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED >= 1090
+typedef std::shared_ptr<Context> context_ptr_t;
+#else
 typedef std::tr1::shared_ptr<Context> context_ptr_t;
+#endif
 static os::recursive_mutex context_map_mutex;
 #else
 typedef Context *context_ptr_t;

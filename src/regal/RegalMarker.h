@@ -82,11 +82,13 @@ struct Marker {
   {
     UNUSED_PARAMETER(ctx);
     Internal("Regal::Marker::PopGroupMarker","()");
-    std::string marker;
     if (markerStack.size())
+    {
+      std::string marker;
       marker.swap(markerStack.back());
-    markerStack.pop_back();
-    //Info("// ... ",marker);
+      markerStack.pop_back();
+      //Info("// ... ",marker);
+    }
   }
 
   void FrameTerminator(RegalContext &ctx);
@@ -100,10 +102,12 @@ struct Marker {
     //... If length is 0 then marker is assumed to be null-terminated....
 
     static inline std::string
-    toStringEXT(GLsizei length, const char *marker)
+    toStringEXT(GLsizei length, const char *marker, GLsizei maxLength)
     {
       if (length<=0 || !marker)
         return std::string(marker ? marker : "");
+      if (length >= maxLength)
+        return std::string();
       return std::string(marker,length);
     }
 
@@ -113,12 +117,14 @@ struct Marker {
     // a null terminated string...
 
     static inline std::string
-    toStringKHR(GLsizei length, const char *marker)
+    toStringKHR(GLsizei length, const char *marker, GLsizei maxLength)
     {
       if (length==0 || !marker)
         return std::string();
       if (length<0)
         return std::string(marker);
+      if (length >= maxLength)
+        return std::string();
       return std::string(marker,length);
     }
 

@@ -47,7 +47,9 @@ REGAL_GLOBAL_BEGIN
 #include "RegalEmu.h"
 #include "RegalPrivate.h"
 #include "RegalContext.h"
+#include "RegalToken.h"
 #include "RegalContextInfo.h"
+#include "RegalEmuInfo.h"
 
 #include <map>
 
@@ -63,8 +65,15 @@ struct Xfer
   {
     UNUSED_PARAMETER(ctx);
 
+    // update emu info with the limits that this layer supports
+
+    RegalAssert(ctx.emuInfo);
+    ctx.emuInfo->gl_max_combined_texture_image_units = REGAL_EMU_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
+
     activeTextureIndex = 0;
-    for( int i  = 0; i < REGAL_EMU_MAX_TEXTURE_UNITS; i++ ) {
+    size_t n = array_size( textureBinding2D );
+    for( size_t i  = 0; i < n; i++ ) {
+      RegalAssertArrayIndex( textureBinding2D, i );
       textureBinding2D[ i ] = 0;
     }
     unpackRowLength = 0;
@@ -78,20 +87,20 @@ struct Xfer
   }
 
   void PixelStore( RegalContext * ctx, GLenum pname, GLint param );
-  void PixelStore( RegalContext * ctx, GLenum pname, GLfloat param ) {
+
+  void PixelStore( RegalContext * ctx, GLenum pname, GLfloat param )
+  {
     PixelStore( ctx, pname, GLint( param ) );
   }
 
-  void ShadowActiveTexture( GLenum tex ) {
-    int r = tex - GL_TEXTURE0;
-    if( r < 0 || r > REGAL_EMU_MAX_TEXTURE_UNITS ) {
-      Warning("Regal can't share initialized context groups.");
-      return;
-    }
-    activeTextureIndex = tex - GL_TEXTURE0;
+  void ShadowActiveTexture( GLenum texture )
+  {
+    if (validTextureEnum(texture))
+      activeTextureIndex = texture - GL_TEXTURE0;
   }
 
-  void ShadowBindTexture( GLenum target, GLuint name ) {
+  void ShadowBindTexture( GLenum target, GLuint name )
+  {
     UNUSED_PARAMETER(target);
     textureBinding2D[ activeTextureIndex ] = name;
   }
@@ -109,7 +118,7 @@ struct Xfer
   GLint unpackSkipPixels;
 
   int activeTextureIndex;
-  GLuint textureBinding2D[REGAL_EMU_MAX_TEXTURE_UNITS];
+  GLuint textureBinding2D[REGAL_EMU_MAX_COMBINED_TEXTURE_IMAGE_UNITS];
   std::map< GLuint, GLuint > name2ifmt;
 };
 

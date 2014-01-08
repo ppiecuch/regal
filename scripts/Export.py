@@ -32,6 +32,7 @@ from RegalEnum               import *
 from RegalSystem             import *
 from RegalContext            import *
 from RegalContextInfo        import *
+from RegalEmuInfo            import *
 from RegalStatistics         import *
 from RegalLookup             import *
 from RegalPlugin             import *
@@ -42,6 +43,7 @@ from RegalDispatchDebug      import *
 from RegalDispatchError      import *
 from RegalDispatchEmu        import *
 from RegalDispatchGMock      import *
+from RegalDispatchGLX        import *
 from RegalDispatchLog        import *
 from RegalDispatchLoader     import *
 from RegalDispatchMissing    import *
@@ -91,11 +93,14 @@ regalLicense = '''
 
 emulatedExts = {
   'GL_ARB_draw_buffers':              { 'emulatedBy' : 'filt',   'emulatedIf' : '(info->gl_version_major >= 2) || info->gl_nv_draw_buffers'},
+  'GL_ARB_draw_elements_base_vertex': { 'emulatedBy' : 'bv',     'emulatedIf' : '' },
   'GL_ARB_multitexture':              { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_ARB_sampler_objects':           { 'emulatedBy' : 'so',     'emulatedIf' : '' },  # subset of GL_ARB_sampler_objects
   'GL_ARB_texture_cube_map':          { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
   'GL_ARB_texture_env_combine':       { 'emulatedBy' : 'iff',    'emulatedIf' : '' },
   'GL_ARB_texture_env_dot3':          { 'emulatedBy' : 'iff',    'emulatedIf' : '' },
   'GL_ARB_texture_storage':           { 'emulatedBy' : 'texsto', 'emulatedIf' : '' },
+  'GL_ARB_vertex_array_object':       { 'emulatedBy' : 'vao',    'emulatedIf' : '' },
   'GL_ATI_draw_buffers':              { 'emulatedBy' : 'filt',   'emulatedIf' : '(info->gl_version_major >= 2) || info->gl_nv_draw_buffers'},
   'GL_EXT_blend_color':               { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
   'GL_EXT_blend_subtract':            { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
@@ -108,6 +113,7 @@ emulatedExts = {
   'GL_EXT_texture_env_dot3':          { 'emulatedBy' : 'iff',    'emulatedIf' : '' },
   'GL_IBM_texture_mirrored_repeat':   { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
   'GL_NV_blend_square':               { 'emulatedBy' : 'filt',   'emulatedIf' : '' },
+  'GL_NV_path_rendering':             { 'emulatedBy' : 'path',   'emulatedIf' : '' },
 }
 
 
@@ -200,6 +206,15 @@ def traverse(apis, args):
 def generate(apis, args):
 
   traverse(apis, args)
+  generateLoaderSource( apis, args )
+  generateMissingSource( apis, args )
+  generateContextHeader(apis, args)
+  generateContextSource(apis, args)
+  generateContextInfoHeader(apis, args)
+  generateContextInfoSource(apis, args)
+  generateEmuInfoHeader(apis, args)
+  generateEmuInfoSource(apis, args)
+  generateDispatchGLX(apis, args)
   generateTraceSource( apis, args )
   generatePublicHeader(apis, args)
   generatePluginSource(apis,args)
@@ -213,16 +228,10 @@ def generate(apis, args):
   generateDispatchCode( apis, args )
   generateErrorSource( apis, args )
   generateDebugSource( apis, args )
-  generateLoaderSource( apis, args )
-  generateMissingSource( apis, args )
   generatePpapiSource( apis, args )
   generateStaticES2Source( apis, args )
   generateStaticEGLSource( apis, args )
   generateDispatchHeader(apis, args)
-  generateContextHeader(apis, args)
-  generateContextSource(apis, args)
-  generateContextInfoHeader(apis, args)
-  generateContextInfoSource(apis, args)
   generateLookupSource(apis, args)
   generateLookupHeader(apis, args)
   generateTokenSource(apis, args)
